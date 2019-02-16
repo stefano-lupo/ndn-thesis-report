@@ -1,0 +1,175 @@
+\documentclass[a4paper,oneside,12pt]{book}
+
+% Variable definitions
+\newcommand{\thesistitle}{HubSpot Software Engineering Internship} % Your thesis title, this is used in the title and abstract
+\newcommand{\degree}{MAI (Computer Engineering)} % Your degree name, this is used in the title page and abstract
+\newcommand{\typeofthesis}{Internship Report} % dissertation, Final Year Project, report, etc.
+\newcommand{\authorname}{Stefano Lupo} % Your name, this is used in the title page and PDF stuff
+\newcommand{\authorid}{14334933} % Your ID
+\newcommand{\keywords}{HubSpot, Software Engineering, Programming, Computer Engineering, 4E4 Internship} % Keywords for your thesis
+\newcommand{\school}{\href{http://www.scss.tcd.ie}{School of Computer Science and Statistics}} % title page
+
+\title{\thesistitle}
+\author{\authorname}
+
+% Configure output pdf properties
+\AtBeginDocument{
+\hypersetup{pdftitle=\thesistitle}
+\hypersetup{pdfauthor=\authorname}
+\hypersetup{pdfkeywords=\keywords}
+\hypersetup{pdfsubject=\degree}
+}
+
+% Language and font encodings
+\usepackage[T1]{fontenc} 
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+% Bibliographical stuff
+\usepackage[round,sort,comma,numbers]{natbib}
+
+% Document size
+% include showframe as an option if you want to see the boxes
+\usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=2.54cm,right=2.54cm,headheight=16pt]{geometry}
+\pagestyle{plain} % Embrace simplicity!
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./assets/}}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=black]{hyperref}
+\usepackage{caption} % if no caption, no colon
+\usepackage{sfmath} %use sans-serif in the maths sections too
+\usepackage[parfill]{parskip}    % Begin paragraphs with an empty line rather than an indent
+\usepackage{setspace} % to permit one-and-a-half or double spacing
+\usepackage{enumerate} % fancy enumerations like (i) (ii) or (a) (b) and suchlike
+\usepackage{booktabs} % To thicken table lines
+\usepackage{fancyhdr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% My Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{enumitem} % Nested lists a la TOC (plan)
+\setlist[enumerate]{label*=\arabic*.}
+
+\usepackage{scrextend}  % List with description all descriptions tabbed as wide as longest
+\addtokomafont{labelinglabel}{\itshape} % Who knows what this does
+
+\usepackage{listings} % Code listing
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\lstdefinestyle{javaStyle} {
+  language=Java,
+  aboveskip=5mm,
+  belowskip=5mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\footnotesize\ttfamily},
+  numberstyle={\tiny},
+  numbers=left,
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{purple},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=1,
+  captionpos=b,
+  morekeywords={@Inject, {@Value.Immutable}, @Override}
+}
+
+\lstdefinestyle{protoStyle} {
+  aboveskip=5mm,
+  belowskip=5mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\footnotesize\ttfamily},
+  numberstyle={\tiny},
+  numbers=left,
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{purple},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=1,
+  morekeywords={optional, required, message, enum, repeated},
+  captionpos=b
+}
+
+\usepackage{float} % Figure placement
+
+\usepackage{xcolor}
+
+\usepackage[toc,page]{appendix}
+\renewcommand{\appendixname}{Annex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Custom commands
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\team}{Email Sending Infrastructure}
+\newcommand{\sneaktitle}[1]{\hfill\break\break\textbf{#1}\hfill\break}
+\newcommand{\refcode}[1]{code listing \ref{#1}}
+\newcommand{\refsec}[1]{section \ref{#1}}
+\newcommand{\refeq}[1]{equation \ref{#1}}
+\newcommand{\reftbl}[1]{table \ref{#1}}
+\newcommand{\reffig}[1]{figure \ref{#1}}
+\newcommand{\refapp}[1]{appendix \ref{#1}}
+\definecolor{light-gray}{gray}{0.95}
+\lstset{language=java, basicstyle={\normalsize\ttfamily\bfseries},}
+\newcommand{\java}[1]{\colorbox{light-gray}{\lstinline{#1}}}
+\newcommand{\sub}[1]{_\text{#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Default to Sans-Serif
+\renewcommand{\familydefault}{\sfdefault}
+
+% Options: Sans-Serif, Computer Modern(latex default), palatino
+\usepackage{mathpazo} % math fonts
+\usepackage{palatino} % nicer font
+
+% Use continuous equation numbers
+\renewcommand{\theequation}{\arabic{equation}} 
+
+% Format Chapter headings appropriately
+\usepackage{titlesec}
+\titleformat{\chapter}[block] 
+{\normalfont\huge\bfseries}{\thechapter}{0.6cm}{} 
+
+% Format Section headings appropriately
+\titleformat{\section}[block] 
+{\normalfont\Large\bfseries}{\thesection}{0.6cm}{} 
+
+% Format SubSection headings appropriately
+\titleformat{\subsection}[block] 
+{\normalfont\large\bfseries}{\thesubsection}{0.6cm}{} 
+
+% Update Code Listings
+\renewcommand{\lstlistingname}{Code Listing}% Listing -> Code Listing
+\renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings -> List of Code Listings
+
+\frontmatter
+\begin{document}
+\input{title.tex}
+\pagenumbering{roman}
+
+
+\mainmatter
+\input{preamble.tex} % Need to uncomment stuff in here..
+
+\input{introduction.tex}
+\input{team.tex}
+\input{technologies.tex}
+\input{tasks_undertaken.tex}
+\input{conclusion.tex}
+
+\bibliographystyle{unsrtnat}
+\bibliography{bibliography}
+
+% Prepend App. to chapter headings
+\titleformat{\chapter}[block] 
+{\normalfont\LARGE\bfseries}{App. \thechapter}{0.6cm}{} 
+\input{appendix.tex}
+
+\end{document}
