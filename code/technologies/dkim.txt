@@ -1,4 +1,0 @@
-DKIM-Signature: v=1; a=rsa; d=example.com; s=dk1; q=dns/txt;
-h=from:to:subject:date;
-bh=UOJhdjksJHSDAasdhUYHQO12SaDKJAHDSAPashd8ojhdsafdui;
-b=IUASHB89FHNasdjlkasjlkHONJKSDNohjndjhsdkajJHjsdsJHD;
