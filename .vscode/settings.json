@@ -6,10 +6,13 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        // "**/*.aux": true,
-        // "**/*.blg": true,
-        // "**/*.fdb_latexmk": true,
-        // "**/*.fls": true,
-        // "main.synctex.gz": true,
+        "**/*.aux": true,
+        "**/*.blg": true,
+        "**/*.log": true,
+        "**/*.out": true,
+        "**/*.bbl": true,
+        "**/*.fdb_latexmk": true,
+        "**/*.fls": true,
+        "main.synctex.gz": true,
     }
 }
