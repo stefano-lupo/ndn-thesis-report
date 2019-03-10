@@ -49,6 +49,7 @@
 \usepackage{enumerate} % fancy enumerations like (i) (ii) or (a) (b) and suchlike
 \usepackage{booktabs} % To thicken table lines
 \usepackage{fancyhdr}
+\usepackage{todonotes}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % My Packages
@@ -111,16 +112,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \newcommand{\team}{Email Sending Infrastructure}
 % \newcommand{\sneaktitle}[1]{\hfill\break\break\textbf{#1}\hfill\break}
-% \newcommand{\refcode}[1]{code listing \ref{#1}}
-% \newcommand{\refsec}[1]{section \ref{#1}}
-% \newcommand{\refeq}[1]{equation \ref{#1}}
-% \newcommand{\reftbl}[1]{table \ref{#1}}
-% \newcommand{\reffig}[1]{figure \ref{#1}}
-% \newcommand{\refapp}[1]{appendix \ref{#1}}
+\newcommand{\refcode}[1]{code listing \ref{#1}}
+\newcommand{\refsec}[1]{section \ref{#1}}
+\newcommand{\refeq}[1]{equation \ref{#1}}
+\newcommand{\reftbl}[1]{table \ref{#1}}
+\newcommand{\reffig}[1]{figure \ref{#1}}
+\newcommand{\refapp}[1]{appendix \ref{#1}}
 % \definecolor{light-gray}{gray}{0.95}
 % \lstset{language=java, basicstyle={\normalsize\ttfamily\bfseries},}
 % \newcommand{\java}[1]{\colorbox{light-gray}{\lstinline{#1}}}
 % \newcommand{\sub}[1]{_\text{#1}}
+
+\newcommand{\figsize}[2]{\includegraphics[width=#2\textwidth]{#1}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -162,8 +165,9 @@
 
 
 \mainmatter
-% \input{preamble.tex} % Need to uncomment stuff in here..
+% \input{components/preamble.tex}
 
+\listoftodos[TODOs]
 \input{components/1-abstract.tex}
 \input{components/2-introduction.tex}
 \input{components/3-sota.tex}

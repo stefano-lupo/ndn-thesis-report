@@ -1,0 +1,54 @@
+\babel@toc {english}{}
+\contentsline {chapter}{\numberline {1}Abstract}{9}{chapter.1}% 
+\contentsline {chapter}{\numberline {2}Introduction}{10}{chapter.2}% 
+\contentsline {section}{\numberline {2.1}Background}{10}{section.2.1}% 
+\contentsline {section}{\numberline {2.2}Project Scope}{10}{section.2.2}% 
+\contentsline {chapter}{\numberline {3}State of the Art (15 to 25)}{11}{chapter.3}% 
+\contentsline {section}{\numberline {3.1}Named Data Networking}{11}{section.3.1}% 
+\contentsline {subsection}{\numberline {3.1.1}NDN Primitives}{11}{subsection.3.1.1}% 
+\contentsline {subsection}{\numberline {3.1.2}NDN Packet Structures}{12}{subsection.3.1.2}% 
+\contentsline {subsection}{\numberline {3.1.3}NDN Basic Operation}{12}{subsection.3.1.3}% 
+\contentsline {subsection}{\numberline {3.1.4}Names}{14}{subsection.3.1.4}% 
+\contentsline {subsection}{\numberline {3.1.5}Routing}{14}{subsection.3.1.5}% 
+\contentsline {subsection}{\numberline {3.1.6}Caching}{15}{subsection.3.1.6}% 
+\contentsline {subsection}{\numberline {3.1.7}Security}{15}{subsection.3.1.7}% 
+\contentsline {subsection}{\numberline {3.1.8}NFD}{15}{subsection.3.1.8}% 
+\contentsline {subsection}{\numberline {3.1.9}NLSR}{15}{subsection.3.1.9}% 
+\contentsline {subsection}{\numberline {3.1.10}NDN Tools, Libraries and Frameworks etc}{15}{subsection.3.1.10}% 
+\contentsline {subsection}{\numberline {3.1.11}NDN Benefits in a MOG Context}{16}{subsection.3.1.11}% 
+\contentsline {section}{\numberline {3.2}Real Time Applications using NDN}{16}{section.3.2}% 
+\contentsline {section}{\numberline {3.3}Distributed Dataset Syncrhonization}{16}{section.3.3}% 
+\contentsline {subsection}{\numberline {3.3.1}ChronoSync}{16}{subsection.3.3.1}% 
+\contentsline {subsection}{\numberline {3.3.2}PSync}{16}{subsection.3.3.2}% 
+\contentsline {subsection}{\numberline {3.3.3}CCNx Sync}{16}{subsection.3.3.3}% 
+\contentsline {section}{\numberline {3.4}Video Game Architectures}{16}{section.3.4}% 
+\contentsline {subsection}{\numberline {3.4.1}Taxonomy of data}{16}{subsection.3.4.1}% 
+\contentsline {subsection}{\numberline {3.4.2}Architectures (C/S, P2P, Hybrid)}{16}{subsection.3.4.2}% 
+\contentsline {subsection}{\numberline {3.4.3}Dead Reckoning}{16}{subsection.3.4.3}% 
+\contentsline {subsection}{\numberline {3.4.4}Interest Zone Filtering}{16}{subsection.3.4.4}% 
+\contentsline {chapter}{\numberline {4}Problem Statement}{17}{chapter.4}% 
+\contentsline {chapter}{\numberline {5}Design}{18}{chapter.5}% 
+\contentsline {section}{\numberline {5.1}Player Discovery}{18}{section.5.1}% 
+\contentsline {section}{\numberline {5.2}Sync Protocol}{18}{section.5.2}% 
+\contentsline {subsection}{\numberline {5.2.1}Differences from existing protocols}{18}{subsection.5.2.1}% 
+\contentsline {subsection}{\numberline {5.2.2}Naming Design}{18}{subsection.5.2.2}% 
+\contentsline {section}{\numberline {5.3}Interaction}{18}{section.5.3}% 
+\contentsline {section}{\numberline {5.4}Optimizations to Sync Protocol for Data types}{18}{section.5.4}% 
+\contentsline {subsection}{\numberline {5.4.1}PLayer Status}{18}{subsection.5.4.1}% 
+\contentsline {subsection}{\numberline {5.4.2}Projectile}{18}{subsection.5.4.2}% 
+\contentsline {section}{\numberline {5.5}Game Design}{18}{section.5.5}% 
+\contentsline {subsection}{\numberline {5.5.1}Protos}{18}{subsection.5.5.1}% 
+\contentsline {subsection}{\numberline {5.5.2}Very brief game functionality}{18}{subsection.5.5.2}% 
+\contentsline {subsection}{\numberline {5.5.3}Linkage between game and backend}{18}{subsection.5.5.3}% 
+\contentsline {chapter}{\numberline {6}Implementation}{19}{chapter.6}% 
+\contentsline {section}{\numberline {6.1}Building Game with LibGdx / Ashley}{19}{section.6.1}% 
+\contentsline {section}{\numberline {6.2}Java Backend}{19}{section.6.2}% 
+\contentsline {subsection}{\numberline {6.2.1}Sequence Numbered Cache}{19}{subsection.6.2.1}% 
+\contentsline {section}{\numberline {6.3}Testing}{19}{section.6.3}% 
+\contentsline {subsection}{\numberline {6.3.1}Docker}{19}{subsection.6.3.1}% 
+\contentsline {subsection}{\numberline {6.3.2}NLSR}{19}{subsection.6.3.2}% 
+\contentsline {subsection}{\numberline {6.3.3}Latency Calculations}{19}{subsection.6.3.3}% 
+\contentsline {chapter}{\numberline {7}Evaluation}{20}{chapter.7}% 
+\contentsline {chapter}{\numberline {8}Conclusion}{21}{chapter.8}% 
+\contentsline {chapter}{Appendices}{22}{section*.9}% 
+\contentsline {chapter}{\numberline {A}Source Code for DNS Management System}{23}{Appendix.1.A}% 
