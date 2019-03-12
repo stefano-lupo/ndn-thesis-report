@@ -30,6 +30,7 @@ NDN communication is entirely driven by consumers who request data by sending in
 
 \subsection{NDN Packet Structures}
 \todo{Split primitives and this}
+\todo{Discuss freshness period is on a hop by hop basis!!}
 In order to allow routers to differentiate between Interests for the same Data name, a random nonce value is added \cite{vj-named-content}.
 \begin{figure}[H]
     \caption{NDN Packet Structure \cite{ndn}}
@@ -109,7 +110,9 @@ Stateful Forwarding in Content-Centric Networking"
 \subsection{In-Network Storage}
 As discussed in \refsec{sec:ndn-basic-operation}, a Data packet is entirely independent of who requested it or where it was obtained from, allowing a single Data packet to be reused for multiple consumers \cite{ndn}. The CS of routers provides a mechanism for opurtunistic in-network caching, which can help reduce traffic load for popular content. 
 
-NDN also supports larger volume, persistent in-network storage in the form of \textit{repo-ng} \cite{ndn-repo}, which supports typical remote dataset operations such as reading, inserting into and deleting data objects \cite{ndn-repo-homepage}. This mechanism provides native network level support for Content Delivery Networks (CDN) \cite{ndn} and can allow applications to go offline for longer periods of time while their content is served from in-network repositories.
+NDN also supports larger volume, persistent in-network storage in the form of \textit{repo-ng} \cite{ndn-repo}, which supports typical remote dataset operations such as reading, inserting into and deleting data objects \cite{ndn-repo-homepage}. This mechanism provides native network level support for Content Delivery Networks (CDN) \cite{ndn} and can allow applications to go offline for longer periods of 
+time while their content is served from in-network repositories.
+
 
 \subsection{Security}
 Digests, trust anchors etc
@@ -141,5 +144,7 @@ Summarize the survey paper
 \subsection{Architectures (C/S, P2P, Hybrid)}
 \subsection{Dead Reckoning}
 \subsection{Interest Zone Filtering}
+
+Read up on lag compensation etc
 
 

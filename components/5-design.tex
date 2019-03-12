@@ -4,6 +4,7 @@ Explain the things MOGs must do
 \section{Player Discovery}
 
 \section{Sync Protocol}
+Broadcast names (for discovery etc) need multicast forwarding strategy
 \subsection{Differences from existing protocols}
 outstanding interest catchup, only one writer
 \subsection{Naming Design}
@@ -20,3 +21,10 @@ This is not handled in Egal Car
 \subsection{Very brief game functionality}
 \subsection{Linkage between game and backend}
 diagrams of pubs / subs / game engine
+\subsection{Optimizations}
+\subsection*{Interest Zone Filtering}
+\subsection*{Dead Reckoning}
+Dead reckoning impacted by caching? E.g. getting someone else's dead reckoned packet? Stefan mentioned this I cant decide if it matters right now
+
+\subsection{Automation Script}
+Must be repeatable, used fixed seed for RNG
