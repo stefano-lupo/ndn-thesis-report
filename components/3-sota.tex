@@ -1,16 +1,5 @@
 \chapter{State of the Art (15 to 25)}
 
-% \subsection{ICN Motivation}
-% Ndn Architecture Doc has loads on this,VoCCN  has some good quoutes
-%     \subsection{Hierarchical naming
-%     \subsection{Mapping IP to ICN (VoCCN notes)
-%     \subsection{Security (data rather than channel)!
-%     \subsection{Content Dissemination
-%     \subsection{Tradeoffs with IP
-%     \subsection{Runs on anything (easy deployment incrementally)
-% \end{itemize}
-
-
 \section{Named Data Networking}\label{sec:ndn-sota}
 Today, most networks make use of the so called Internet Protocol (IP) as the primary mechanism for global communication. The design of IP was heavily influenced by the success of the 20th century telephone networks, resulting in a protocol tailored towards point-to-point communication between two hosts. IP is the \textit{universal network layer} of today's Internet, which implements the minimum functionality required for global interconnectivity. This represents the so called \textit{thin waist} of the Internet, upon which many of the vital systems in use today are built \cite{ndn-exec-summary}. The design of IP was paramount in the success of the modern day internet. However, in recent years, the Internet has become used in a variety of new non point-to-point contexts, rendering the inherent host based abstraction of IP less than ideal.  
 
@@ -18,7 +7,9 @@ The Named Data Networking project is a continuation of an earlier project known 
 
 % Typically, today's applications are written in terms of what information they want, rather than where it is located, requiring application-specific middleware to map between the application's data model and the Internet's data model \cite{ndn-project}. As the Internet has evolved, it has become a primary channel for content distribution
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NDN Primitives
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{NDN Primitives}
 In NDN, as the name suggests, every piece of data data is given a name. The piece of data that a name refers to is entirely arbitrary and could represent a frame of a YouTube video, a message in a chat room, or a command given to a smart home device. Similarly, the meaning behind the names are entirely arbitrary from the point of view of routers. They key aspect is that data can be requested from the network by name, removing the requirement of knowing \textit{where} the data is stored. NDN names consist of a set of "/" delimited values and the naming scheme used by an application is left up to the application developer. This provides flexibility to developers, allowing them to structure the names for their data in a way which makes sense to the application.
 
@@ -28,6 +19,16 @@ In the simplest case, the producer of the data under this name, the camera in th
 
 NDN communication is entirely driven by consumers who request data by sending interests and any unexpected data packets which reach NDN nodes are simply ignored.
 
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NDN Packet Structure
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{NDN Packet Structures}\label{sec:ndn-packet-structure}
 As outlined in the NDN Packet Specification \cite{ndn-packet-spec}, Interest and Data packets consist of required and optional fields. Optional fields which are not present are interpreted as a predetermined default value. The packet structure for both Interest and Data packets are shown in \reffig{fig:ndn-packet-structure}, where red fields represent required fields and blue fields represent optional fields.
 
@@ -105,12 +106,40 @@ On receiving a Data packet, the PIT is checked to ensure that the Data packet ha
 Otherwise, the Data packet is sent over all of the requesting faces contained in the PIT entry, the PIT entry is removed and the Data is added to the CS.
 
 
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NDN Names
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Names}\label{sec:ndn-names}
 As with IP addresses, NDN names are hierarchical. This can be beneficial to applications as it allows for naming schemes which model relationships between pieces of data. In order to support retrieval of dynamically generated data, NDN names must be deterministically constructable. This means there must be a mechanism or agreed upon convention between a data producer and consumer to allow consumers to fetch data \cite{ndn-project}. 
 
 The names of Data packets can be more specific than the names of the Interest packets which trigger them. That is, the Interest name may be a prefix of the returned Data name. For example, a producer of sequenced data may respond to Interests of the form \textit{/ndn/test/<sequence-number>}.  In this case, the producer would register the prefix \textit{/com/test} in order to receive all Interests, regardless of the sequence number requested. However a consumer may not know what the current sequence number is. Thus a convention could be agreed upon such that a consumer can express an interest for \textit{/com/test} and the Data packet that will be returned will be named \textit{/com/test/<next-producer-sequence-number>}, allowing the consumer to catch up to the current sequence number. This method is used in the synchronization protocol outlined in \todo[inline]{ref sync protocol}.
 
-\subsection{Routing} and Forwarding\label{sec:routing}
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NDN Routing and Forwarding
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Routing and Forwarding}\label{sec:routing}
 Longest prefix, hierarchical naming (ndn project has some stuff on p3 2.2.1 names), NLSR, stateful forwarding can allow routers to measure performance of routes and update things accordingly (they see packets going out AND COMING BACK unlike Implementations, also it is what enables multicast and in network caching)
 
 IP routers use \textit{stateful routing} and a \textit{stateless forwarding plane}. This means that routers maintain some state on where to forward packets given their destination IP addresses (stateful routing), but when it comes to actually forwarding packets, the packets are sent over the chosen route and forgotten about (stateless forwarding). NDN on the other hand, uses both stateful forwarding and routing \cite{stateful-forwarding} in order to accomplish routing packets by name and not address, as seen by the usage of a PIT. 
@@ -138,15 +167,22 @@ As discussed in \refsec{sec:ndn-basic-operation}, a Data packet is entirely inde
 NDN also supports larger volume, persistent in-network storage in the form of \textit{repo-ng} \cite{ndn-repo}, which supports typical remote dataset operations such as reading, inserting into and deleting data objects \cite{ndn-repo-homepage}. This mechanism provides native network level support for Content Delivery Networks (CDN) \cite{ndn} and can allow applications to go offline for longer periods of 
 time while their content is served from in-network repositories.
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Forwarding Strategies
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Forwarding Strategies}
 The choice of how to forward packets in NDN is defined by a \textit{forwarding strategy}. Several strategies have been designed for NDN such as \textit{Best Route}, \textit{NCC}, \textit{Multicast} and \textit{Client Control} \cite{ndn-sim-forwarding-strategies}. However, \textit{Best Route} and \textit{Multicast} are the most common. To forward packets, a list of possible next-hops is obtained from the FIB for a given Interest. For the \textit{Best Route} strategy, the Interest is forwarded over the best performing Face, ranked by a certain metric such as link cost or round trip time. For the \textit{Multicast} strategy, Interests are forwarded over all Faces which are obtained from the FIB for a given Interest.
 
 As one would expect, Forwarding strategies play a major role in the performance of an application using NDN. For example the \textit{Multicast} strategy should be used only in scenarios where multicast is beneficial or required as it can cause a major increase in the number of Interests which must be sent across the network. However application’s correctness can also be affected by the forwarding strategy \cite{forwarding-strategies}. For example, if a \textit{Best Route} strategy is used in a distributed dataset synchronization context, it is possible that only a subset of participants will see published updates and thus \textit{Multicast} should be used in this context. This is outlined further in \todo[]{Reference Player Discovery multicast}.
 
 
-\subsection{Security}
-Digests, trust anchors etc
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NDN Security
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Security}
 The aspect of security in NDN is the shift from attempting to secure communication channels to focusing on securing the data itself at production time. 
 
 Typically, the main form of secure communication in the Internet today is using the Transport Layer Security (TLS) protocol \cite{TLS}  along with the Transmission Control Protocol (TCP) over IP (TCP/IP). As discussed in \refsec{sec:ndn-sota}, TCP/IP is a mechanism for allowing communication between two nodes in a network. TCP/IP sets up a communication channel between the hosts and TLS is used to secure that channel. 
@@ -157,6 +193,18 @@ As NDN uses public key cryptography, all applications and nodes must thus have t
 
 NDN Certificates bind a user's name to its key and certifies the ownership of this key \cite{ndn-security-overview}. Trust Anchors are the certificate authority for a given NDN namespace. NDN nodes can then verify published certificates by backtracking along the trust chain until a Trust Anchor is reaced. Finally, Trust Policies are used by applications to define whether or not they will accept certain packets based on naming rules and Trust Anchors.
 
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NFD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{NFD}
 In order to provide the NDN functionality, the \textit{NDN Forwarding Daemon (NFD)} was developed. NFD is a network forwarder that implements the NDN protocol \cite{nfd-github}. The NFD thus implements all of the features described in \refsec{sec:ndn-basic-operation} such as the CS, PIT and FIB. 
 
@@ -191,43 +239,122 @@ With the NFDs configured, an example operation would be the following (with some
 
 
 
-\subsection{NLSR}\label{sec:NLSR}
-NLSR
 
-\subsection{NDN Tools, Libraries and Frameworks etc}\label{sec:ndn-tools}
-Implementations of CCNx or w/e, useful tools etc
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NLSR
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NLSR}\label{sec:NLSR}\todo[]{This section isn't great}
+In order to facilitate router and prefix discovery, the \textit{NDN Link State Routing (NLSR)} protocol was developed. As the name suggests, NLSR is a \textit{Link State Routing (LSR)} protocol \cite{lsr-rfc}. 
+
+The LSR protocol models the network as a directed, weighted graph in which each router is a node. The main purpose of LSR is to discover the network topology, allowing routers to compute routing tables using a shortest path algorithm such as Djikstra's Algorithm \cite{djikstra}\cite{lsr}. To do this, LSR routers need a mechanism for discovering adjacent routers. However, as this is the process used to \textit{build} routing tables, it cannot make use of existing routing tables. Thus, LSR periodically broadcasts \textit{HELLO} messages over all of the router's interfaces. These messages contain the router's unique address, allowing routers to discover their immediately adjacent neighbours. 
+
+The routers then need to reliably disseminate the list of their adjacent neighbours to all other routers in the network, so that all routers have a full view of the network topology. This is done using \textit{Link State Packets (LSPs)}. LSPs contain the list of direct neighbours for a given router and the edge weight (link cost) for each of those neighbour connections. Unlike the \textit{HELLO} messages for neighbour discovery, routers will forward LSPs from a specific router to their direct neighbours, \textbf{once per sequence number}. Thus, routers need to maintain state containing the most recent LSP it has seen for each router in order to determine whether or not a given LSP is newer than what it has already seen and thus whether or not to forward this version. This information is maintained inside the \textit{Link State Database (LSDB)}. This process is known as the \textit{Flooding algorithm} and allows all nodes to discover the full network topology and to build their routing tables accordingly.
+
+NLSR is designed as an \textbf{intra domain} routing protocol. As it is to be used for NDN, it is imperative that it operates solely using NDN's primitives (see \refsec{sec:ndn-basic-operation}). Thus it uses Interest and Data packets as the only form of communication between routers. NLSR differs from the traditional IP based LSR protocol in the following ways as it uses hierarchical naming schemes for routers, keys and updates, it uses a hierarchical trust model, it uses ChronoSync to disseminate routing updates (see \refsec{sec:chronosync}) and it supports multipath routing \cite{nlsr}. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/ndn/LSAs.png}{0.7}
+    \caption{NLSR LSA structure \cite{nlsr} (adapted)}
+    \label{fig:nlsr-lsa}
+\end{figure}
+
+As seen in \reffig{fig:nlsr-lsa}, NLSR uses \textit{Link State Advertisements (LSAs)} which can be one of two types - \textit{name} or \textit{adjacency}. \textit{Name} LSAs contain the list of prefixes which this router may produce data for, while \textit{adjacency} LSAs contain the list of neighbours a router has as well as their associated link costs. LSA dissemination is essentially a dataset synchronization problem and thus NLSR uses NDN's ChronoSync protocol (see \refsec{sec:chronosync}) to synchronize the LSAs. \textit{Name} LSAs can be updated as registered prefixes change, while \textit{adjacency} LSAs can change as routers go offline and come back online. In the steady state, all routers will maintain an outstanding sync Interest, containing the same digest of the LSA dataset. This outstanding sync Interest will be named \textit{/<network>/nlsr/sync/<digest>} and the forwarding strategy of \textit{/localhop/com/nlsr/sync/} is set to multicast on all routers, allowing all routers to receive sync updates. If an LSA is changed on a particular router, the router responds to the outstanding sync Interest with a Data packet containing the \textbf{name} of the next version if the LSA. Other routers can then fetch this updated LSA using a standard Interest packet when convenient.  
+
+As with LSR, NLSR is responsible for building the FIB and thus requires a mechanism to discover adjacent routers. This is accomplished by setting the forwarding strategy of \textit{<network>/nlsr/LSA} to multicast. When a new router receives the first response to the sync Interest it expresses, it can request the Data using the corresponding name and this Interest will be multicasted to all of the router's adjacent neighbours. This is required as the router's FIB may not have an entry for the corresponding name. However, this broadcast should not have any extra overhead as Interests will be aggregated by intermediate routers and every router in the network would need to be informed of the LSA change. Thus, Interest Aggregation at intermediate routers means NLSR is more efficient at disseminating routing updates than the corresponding \textit{Flooding} algorithm in IP.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NDN Tools
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NDN Tools and Libraries}\label{sec:ndn-tools}
+In order to facilitate the development of NDN applications, the API specified in the NDN Common Client Libraries Documentation \cite{ndn-ccl} has been ported to a variety of popular languages such as C++, Python and Java. Several command line tools under the NDN Tools project \cite{ndn-tools} have also been developed which provide useful NDN functionality such as pinging remote NFDs, expressing interests, analysing packets on the wire and segmented file transfer.
+
+An NDN simulation tool called ndnSIM \cite{ndn-sim-webpage} has also been developed to facilitate experimentation using the NDN architecture. This project has been under continuous development since 2012 and has been used by hundreds of researchers around the world \cite{ndnsim}.  
+
+Another project built by the NDN team is Mini-NDN \cite{mini-ndn}. Mini-NDN is based on the popular network emulation tool Mininet \cite{mininet} and allows for the emulation of a full NDN network on a single system. This provides a convenient way to get up and running with NDN and to test NDN applications.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NDN Benefits in MOG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{NDN Benefits in a MOG Context}
 Interest aggregation, in network caching, native multicast, multipath forwarding.
 
+As outlined in \refsec{sec:mogs}, MOGs can be built using a variety of architectures, can have a variety of different data types and require extremely performant networking solutions. As such, MOGs are an excellent test of the performance of new networking technologies and architectures such as NDN. The three major benefits offered by NDN in a MOG context are \textit{Interest aggregation}, \textit{native multicast} and \textit{in-network caching}.
 
+\sneaktitle{Interest Aggregation}
+As discussed in \refsec{sec:ndn-basic-operation}, the use of a PIT allows NDN routers to aggregate Interests and has the potential to drastically reduce network traffic in the process. In a P2P MOG architecture, every player is typically interested in the data being produced by every other player. This means there are $n^2$ logical connections required where $n$ is the total number of game players, assuming the typical architecture in which every player is responsible for publishing their own updates. In a traditional UDP/IP based implementation, all $n^2$ of these logical connections are required as actual connections via a UDP tunnels, or something similar.
+
+However, in an NDN based implementation, considering \textit{"connections"} no longer makes sense. Considering the fact that $n-1$ players are likely to be expressing Interests for a given player's Data, Interest aggregation plays a major role in reducing network traffic, as only one instance of the same Interest will be forwarded upstream by each intermediate router. Thus, as the Interests from separate consumers are forwarded closer and closer to the producer, it is more likely that they will reach a common intermediate router and be aggregated, although this depends on the topology. The earlier this occurs in the topology the better, as it counteracts the issue stemming from the $n^2$ logical connections required due to the P2P architecture. Interest aggregation would also benefit Client/Server architecture in much the same way, as Interests would be aggregated on route to the server just as they would be in a P2P architecture while on route to a producer.
+
+This also provides a benefit from the point of view of game players as publishers, as they should only see and need to respond to \textbf{one instance} of each Interest, provided consumers only request Data within the freshness period, as Interests will be aggregated at their local NFDs as well. An example of Interest aggregation is seen at $time = t2$ of \reffig{fig:agg-multicast}.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/ndn/agg-multicast.png}{0.9}
+    \caption{Interest aggregation, native multicast and in-network caching}
+    \label{fig:agg-multicast}
+\end{figure}
+
+
+\sneaktitle{Native Multicast}
+The core concept behind multicast is producing a piece of data once and having it reach multiple consumers and NDN provides this natively. Native multicast is a direct result of NDN's stateful forwarding plane, Interest aggregation mechanism and in-network caching. Considering MOG networking from a higher level, the architecture is essentially one of \textit{publish-subscribe (pub-sub)}, in which game players (publishers) must publish data to all other players in the game (subscribers). Native multicast is a direct benefit over traditional UDP/IP which requires the same piece of data to be sent to every client, requiring $\mathcal{O}(n)$ sends. An example of native multicast is seen at $time = t3$ of \reffig{fig:agg-multicast}.
+
+\sneaktitle{In-Network Caching}
+As NDN routers use opportunistic caching via the CS, frequently requested, or recently produced Data packets can be cached and served by intermediate routers, reducing the round-trip-times of fetching updates from the network and thus the overall latency of the MOG. Although static content (see \refsec{sec:taxonomy}) would likely see relatively high cache rates, the frequency at which static content would be fetched would likely be as low as once per game, meaning the overall network impact would likely be negligible in comparison to the more frequently fetched data. 
+
+However, considering the outstanding Interest architecture in which all consumers keep an outstanding Interest and wait for producers to produce the next Data packet (see \todo[]{custom sync protocol ref}, the effects of caching come into play in the case where a consumer falls slightly behind in fetching remote updates. For example, if a publisher produces a Data packet every 100ms, it is likely that, in the steady-state, Interests from most of the consumers would be aggregated while the consumers wait on the next packet to be produced. Once this packet is produced, the Data will be multicasted back to all consumers who requested it as previously described. However, if a consumer falls slightly behind other consumers and expresses an Interest for a piece of Data which has already been produced, without caching, this would require a full round trip all the way to the producer. This would likely occur concurrently to when other consumers are requesting the \textbf{next} Data packet, meaning the consumer will continue to remain behind and continue to essentially \textbf{double} the number of Interests seen by the producer and largely increase the amount of network traffic required for a certain sequenced piece of Data.  
+
+However, if caching is used, this Data can be returned from the CS of the first intermediate router who previously forwarded this Interest on behalf of another consumer. Thus, the consumer can potentially receive this somewhat stale Data much quicker and will hopefully catch up with the other consumers, or continue to obtain cached copies previously fetched. An example of in-network caching is shown in \reffig{fig:agg-multicast} at $time = t4$.
 
 \section{Real Time Applications using NDN}
 
 \section{Distributed Dataset Syncrhonization}
 Summarize the survey paper
-\subsection{ChronoSync}
+\subsection{ChronoSync}\label{sec:chronosync}
+Limitations of chronosync / others
 \subsection{PSync}
 \subsection{CCNx Sync}
 
-\section{Video Game Architectures}
-\subsection{Taxonomy of data}
+\section{Mutliplayer Online Games (MOGs)}\label{sec:mogs}
+\subsection{How Modern MOGs are Built}
+Ashley / libgdx etc.
+
+\subsection{Taxonomy of data}\label{sec:taxonomy}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/mog/taxonomy-with-game-data.png}{0.9}
+    \caption{Taxonomy of MOG Data}
+    \label{fig:taxonomy}
+\end{figure}
+
 \subsection{Architectures (C/S, P2P, Hybrid)}
-This is particularly evident in
-applications built on a peer-to-peer architecture,
-where a lack of a single authority presents additional
-challenges in synchronising the state of shared
-objects while presenting a responsive simulation \cite{dead-reckoning}
+This is particularly evident in applications built on a peer-to-peer architecture, where a lack of a single authority presents additional challenges in synchronising the state of shared objects while presenting a responsive simulation \cite{dead-reckoning}
+
+
 \subsection{Dead Reckoning}
-Reconciliation between dead reckoned position and remote update methods. Dead reckoning (DR) is a short-term linear
-extrapolation algorithm which utilises information
-relating to the dynamics of an entity’s state and
-motion, such as position and velocity, to model and
-predict future behaviour. \cite{dead-reckoning}
+Reconciliation between dead reckoned position and remote update methods. Dead reckoning (DR) is a short-term linear extrapolation algorithm which utilises information relating to the dynamics of an entity’s state and motion, such as position and velocity, to model and predict future behaviour. \cite{dead-reckoning}
+
+
 \subsection{Area of Interest Management}
 PubSub paper has interesting stuff on IZF
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/mog/tile-interest-zone.png}{0.6}
+    \caption{Tile-based area of interest management}
+    \label{fig:tile-izm}
+\end{figure}
 
-Read up on lag compensation etc
+\subsection{Lag Compensation}
+Read up on lag compensation etc, Source Engine notes
 
 \section{Closely Related Projects}
-3 of em
+\sneaktitle{Egal Car \cite{egal-car}}
+\sneaktitle{Matryoshka \cite{ndn-multiplayer-game}}
+\sneaktitle{NDNGame \cite{ndn-game}}
+
