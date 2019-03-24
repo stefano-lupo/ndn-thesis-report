@@ -11,8 +11,8 @@
 % \end{itemize}
 
 
-\section{Named Data Networking}
-Today, most networks make use of the so called Internet Protocol (IP) as the primary mechanism for global communication. The design of IP was heavily influenced by the success of the 20th century telephone networks, resulting in a protocol tailored towards point-to-point communication between two hosts. IP is the \textit{universal network layer} of today's Internet, which implements the minimum functionality required for global interconnectivity. This represents the so called \textit{thin waist} of the Internet, upon which many of the vital systems in use today are built`~`\cite{ndn-exec-summary}. The design of IP was paramount in the success of the modern day internet. However, in recent years, the Internet has become used in a variety of new non point-to-point contexts, rendering the inherent host based abstraction of IP less than ideal.  
+\section{Named Data Networking}\label{sec:ndn-sota}
+Today, most networks make use of the so called Internet Protocol (IP) as the primary mechanism for global communication. The design of IP was heavily influenced by the success of the 20th century telephone networks, resulting in a protocol tailored towards point-to-point communication between two hosts. IP is the \textit{universal network layer} of today's Internet, which implements the minimum functionality required for global interconnectivity. This represents the so called \textit{thin waist} of the Internet, upon which many of the vital systems in use today are built \cite{ndn-exec-summary}. The design of IP was paramount in the success of the modern day internet. However, in recent years, the Internet has become used in a variety of new non point-to-point contexts, rendering the inherent host based abstraction of IP less than ideal.  
 
 The Named Data Networking project is a continuation of an earlier project known as Content-Centric Networking (CCN) \cite{vj-named-content}. The CCN and NDN projects represent a shift in how networks are designed, from the host-centric approach of IP to a data centric approach. NDN provides an alternative to IP, maintaining many of they key features which made it so successful, while improving on the shortcomings uncovered after three decades of use. The design of NDN aligns with the \textit{thin waist} ideology of today's Internet and NDN strives to be the universal network layer of tomorrow's Internet. 
 
@@ -20,92 +20,117 @@ The Named Data Networking project is a continuation of an earlier project known 
 
 
 \subsection{NDN Primitives}
-Interests, Data, how names are structured. Hierarchical naming to enable scalable routing analgous to IP
+In NDN, as the name suggests, every piece of data data is given a name. The piece of data that a name refers to is entirely arbitrary and could represent a frame of a YouTube video, a message in a chat room, or a command given to a smart home device. Similarly, the meaning behind the names are entirely arbitrary from the point of view of routers. They key aspect is that data can be requested from the network by name, removing the requirement of knowing \textit{where} the data is stored. NDN names consist of a set of "/" delimited values and the naming scheme used by an application is left up to the application developer. This provides flexibility to developers, allowing them to structure the names for their data in a way which makes sense to the application.
 
-In NDN, as the name suggests, all data is given a name. The piece of data that a name refers to is entirely arbitrary and could represent a frame of a YouTube video, a message in a chat room, or a command given to a smart home device. Similarly, the meaning behind the names are entirely arbitrary from the point of view of routers. They key aspect is that data can be requested from the network by name, removing the requirement of knowing \textit{where} the data is stored. NDN names consist of a set of "/" delimited values and the naming scheme used by an application is left up to the application developer. This provides flexibility to developers to structure the names for their data in a way which makes sense to the application.
+NDN exposes two core primitives - \textit{Interest} packets and \textit{Data} packets. In order to request a piece of data from the network, an Interest packet is sent out with the name field set to the name of the required piece of Data. For example, one might request the 100th frame of a video feed of a camera situated in a kitchen by expressing an Interest for the piece of data named \textit{/house/kitchen/videofeed/100} and this is done using the Interest primitive.
 
-NDN exposes two core primitives - \textit{Interest} packets and \textit{Data} packets. In order to request a piece of data from the network, an Interest packet is sent out with the name field set to the name of the required piece of Data. For example, one might request the 100th frame of a video feed of a camera situated in a kitchen by expressing an Interest for the piece of data named \textit{/house/kitchen/videofeed/100} and this is done using the Interest primitive. In the simplest case, the producer of the data under this name, the camera in the kitchen for example, will receive this request and can respond by sending the data encapsulated in a Data packet, with the name field set to the name of the interest.
+In the simplest case, the producer of the data under this name, the camera in the kitchen for example, will receive this request and can respond by sending the data encapsulated in a Data packet, with the name field set to the name of the interest.
 
 NDN communication is entirely driven by consumers who request data by sending interests and any unexpected data packets which reach NDN nodes are simply ignored.
 
-\subsection{NDN Packet Structures}
-\todo{Split primitives and this}
-\todo{Discuss freshness period is on a hop by hop basis!!}
-In order to allow routers to differentiate between Interests for the same Data name, a random nonce value is added \cite{vj-named-content}.
+\subsection{NDN Packet Structures}\label{sec:ndn-packet-structure}
+As outlined in the NDN Packet Specification \cite{ndn-packet-spec}, Interest and Data packets consist of required and optional fields. Optional fields which are not present are interpreted as a predetermined default value. The packet structure for both Interest and Data packets are shown in \reffig{fig:ndn-packet-structure}, where red fields represent required fields and blue fields represent optional fields.
+
 \begin{figure}[H]
-    \caption{NDN Packet Structure \cite{ndn}}
-    \figsize{assets/soa/ndn-packet-structure.png}{0.8}
     \centering
+    \figsize{assets/soa/ndn/packet-spec.png}{0.5}
+    \caption{NDN Packet Structure \cite{ndn}}
     \label{fig:ndn-packet-structure}
 \end{figure}
 
-% \subsection{Key Data Structures}
-% NDN routers use a \textit{stateful forwarding plane} (see section \refsec{sec:ndn-routing}), in order to provide the functionality required to route packets by name.  NDN routers maintain three key data structures - a \textit{Forwarding Information Base (FIB)}, a \textit{Pending Interest Table (PIT)} and a \textit{Content Store (CS)}. Unl
-% FIB, PIT, CS
+The fields contained in NDN Interest packets are outlined below.
+\begin{labeling}{Interest Packets}
+    \item [Name] The name of the content the packet refers to.
+    \item [CanBePrefix] Indicates whether this Interest can be satisfied by a Data packet with a name such that the Interest packet's \textit{Name} field is a prefix of the Data packet's \textit{Name} field. This is useful when consumers do not know the exact name of a Data packet they require. If this field is omitted, the \textit{Name} of the Data packet must \textbf{exactly} match the \textit{Name} of the Interest packet. 
+    \item [MustBeFresh] Indicates whether this Interest packet can be satisfied by a CS entry whose \textit{FreshnessPeriod} has expired.
+    \item [ForwardingHint] This defines where the packet should be forwarded towards if there is no corresponding FIB entry. Due to limited capacity of the FIB, only a small number of name prefixes can be stored and the \textit{ForwardingHint} field can aid in mapping application data name prefixes to sets of globally “reachable” names \cite{ndn-dns}. This field typically represents an ISP prefix and is used to tackle the routing scalability issues present in NDN \cite{ndn-forwarding-hint}.
+    \item [Nonce] A randomly generated 4-octet long byte string. The combination of the \textit{Name} and \textit{Nonce} should uniquely identify an Interest packet. This is used to detect looping Interests \cite{ndn-packet-spec}.
+    \item [InterestLifetime] The length of time in milliseconds before the Interest packet times out. This is defined on a hop-by-hop basis, meaning that that an Interest packet will time out at an intermediate node \textit{InterestLifetime} milliseconds after reaching that node.
+    \item [HopLimit] The maximum number of times the Interest may be forwarded.
+    \item [Parameters] Arbitrary data to parameterize an Interest packet.
+\end{labeling}
+
+\vspace{5mm}
+The fields contained in NDN Data packets are outlined below.
+
+\begin{labeling}{Data Packets}
+    \item [Name] The name of the content the packet refers to.
+    \item [ContentType] Defines the type of the content in the packet. This field is an enumeration of four possible values: \textit{BLOB, LINK, KEY} or \textit{NACK}. \textit{LINK} and \textit{NACK} represent NDN implementation packets, while \textit{BLOB} and \textit{KEY} represent actual content packets and cryptographic keys respectively.
+    \item [FreshnessPeriod] This represents the length of time in milliseconds that the Data packet should be considered fresh for. As Data packets are cached in the CS, this field is used to approximately specify how long this packet should be considered the newest content available for the given \textit{Name}. Consumers can use the \textit{MustBeFresh} field of the Interest packets to specify whether they will accept potentially stale cached copies of a piece of Data and the \textit{"staleness"} of the Data is defined using the \textit{FreshnessPeriod} field.
+    \item [FinalBlockId] This is used to identify the ID of the final block of data which has been fragmented.
+    \item [Content] This is an arbitrary sequence of bytes which contains the actual data being transported.
+    \item [Signature] This contains the cryptographic signature of the Data packet
+\end{labeling}
+
+An important note to make is that neither the Interest nor Data packets contain any source or destination address information. This is a key component of NDN as it allows a single Data packet to be reused by multiple consumers. 
 
 \subsection{NDN Basic Operation}\label{sec:ndn-basic-operation}
 NDN requires three key data structures to operate - a \textit{Forwarding Information Base (FIB)}, a \textit{Pending Interest Table (PIT)} and a \textit{Content Store (CS)}. 
 
-The FIB is used to determine which interface(s) an incoming interest should be forwarded upstream through. This is similar to an FIB used on IP routers, however NDN supports multipath forwarding, enabling a single interest to be sent upstream through multiple interfaces. 
+The FIB is used to determine which interface(s) an incoming Interest should be forwarded upstream through. This is similar to an FIB used on IP routers, however NDN supports multipath forwarding (see \refsec{sec:multipath-forwarding}), enabling a single Interest to be sent upstream through multiple interfaces. 
 
-The PIT is the data structure which provides the stateful forwarding. This table stores the names of interests that have been forwarded upstream but have not yet had any data returned and the interface on which the incoming interest was received from.
+As discussed in \refsec{sec:routing}, NDN uses \textit{stateful forwarding} and the PIT is the data structure which maintains the forwarding state. This table stores the names of Interests and the interface on which the Interest was received, for Interests which have been forwarded upstream, but not yet had any Data returned.
 
-Finally the CS is used to cache data received in response to interests expressed. The CS is subject to a replacement policy and allows any NDN node to satisfy an interest if it has the corresponding data, even if it is not the producer itself.
+Finally, the CS is used to cache data received in response to Interests expressed. The CS allows any NDN node to satisfy an interest if it has the corresponding Data pakcet, even if it is not the producer itself. As with all caches, the CS is subject to a replacement policy, which is typically \textit{Least Recently Used (LRU)}.
 
-Upon receiving an incoming interest, an NDN router performs the following:
-\begin{enumerate}
-    \item Checks the CS to see if there is a cached copy of the data corresponding to the name in the Interest
-    \item Checks the PIT to see if any Interests under the same name have already been forwarded
-    \begin{itemize}
-        \item If there is already an entry in the PIT, the router adds the incoming interface to the PIT entry and does \textbf{not} forward the Interest upstream a second time.
-    \end{itemize}
-    \item If there is no existing PIT entry, the router checks the FIB for the interface(s) which corresponds to the name of the Interest and forwards the Interest through the interface(s). It then creates an entry in the PIT using the name contained in the Interest and the interface which the Interest came through  
-\end{enumerate}
+NDN also offers a \textit{Face} abstraction. An NDN Face is a link over which NDN Interest and Data packets can flow. A Face can represent a physical interface such as a network card, or a logical interface such as an application running on a machine producing data under a certain namespace.
 
 
+The operation of an NDN node on receipt of an Interest packet is shown in \reffig{fig:ndn-on-interest}.  
 
-Once the Interest reaches a node which contains the data in it's content store or is the producer of the data, the node can create a Data packet with the appropriate name and send it back through the interface that the Interest was received on. The Data packet then follows the same path the Interest took through the network, but in reverse. Upon receipt of a Data packet, an NDN router does the following:
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/ndn/incoming-interest.png}{0.5}
+    \caption{NDN operation on receiving Interest}
+    \label{fig:ndn-on-interest}
+\end{figure}
 
-\begin{enumerate}
-    \item Checks the PIT and ignores the packet if there are no pending interests waiting with this name. 
-    \item Adds the Data packet to the CS
-    \item Sends the data through all of the interfaces listed in the PIT for this name.
-    \begin{itemize}
-        \item If there is already an entry in the PIT, the router adds the incoming interface to the PIT entry and does \textbf{not} forward the Interest upstream a second time.
-    \end{itemize}
-    \item If there is no existing PIT entry, the router checks the FIB for the interface(s) which corresponds to the name of the Interest and forwards the Interest through the interface(s). It then creates an entry in the PIT using the name contained in the Interest and the interface which the Interest came through  
-\end{enumerate}
+On receiving an Interest, the CS is checked to see if there is a cached copy of the Data corresponding to the name in the Interest. If a copy exists with the appropriate freshness, the Data packet can simply sent back over the requesting Face and the Interest packet is satisfied. 
 
-An important note to make is that neither the Interest nor Data packets contain any source or destination address information. This is a key component of NDN as it allows a single Data packet to be reused by multiple consumers. 
+If there is no cached copy of the Data in the CS, the PIT is then checked. If a PIT entry containing the Interest name exists, this indicates that an equivalent Interest packet has already been requested and forwarded upstream. Thus, the Interest packet is \textbf{not forwarded upstream} a second time. Instead, the requesting Face is added to the list of downstream faces in the PIT entry. This list of faces represents the downstream links which are interested in a copy of the Data.
+
+If there is no PIT entry, the FIB is then queried to extract the next hop information for the given Interest. If there is no next hop information, a NACK is typically returned. In some implementations, the Interest could also be forwarded based on the \textit{ForwardingHint} if one is present. If an FIB entry is present, a PIT entry for the given Interest is created and the packet is forwarded upstream. 
+
+The operation of an NDN node on receipt of a Data packet is shown in \reffig{fig:ndn-on-data}.
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/ndn/incoming-data.png}{0.5}
+    \caption{NDN operation on receiving Data}
+    \label{fig:ndn-on-data}
+\end{figure}
+
+
+On receiving a Data packet, the PIT is checked to ensure that the Data packet had actually been requested. If there is no PIT entry, the node never expressed an Interest for this piece of Data. This means the Data is unsolicited and is typically dropped.
+
+Otherwise, the Data packet is sent over all of the requesting faces contained in the PIT entry, the PIT entry is removed and the Data is added to the CS.
+
 
 \subsection{Names}\label{sec:ndn-names}
 As with IP addresses, NDN names are hierarchical. This can be beneficial to applications as it allows for naming schemes which model relationships between pieces of data. In order to support retrieval of dynamically generated data, NDN names must be deterministically constructable. This means there must be a mechanism or agreed upon convention between a data producer and consumer to allow consumers to fetch data \cite{ndn-project}. 
 
-The names of Data packets can be more specific than the names of the Interest packets which cause them. That is, the Interest name may be a prefix of the returned Data name. For example, a producer of sequenced data may respond to Interests of the form \textit{/ndn/test/<sequence-number>}.  In this case, the producer would register the prefix \textit{/com/test} in order to receive all Interests, regardless of the sequence number requested. However a consumer may not know what the current sequence number is. Thus a convention could be agreed upon such that a consumer can express an interest for \textit{/com/test} and the Data packet that will be returned will be named \textit{/com/test/<next-producer-sequence-number>}, allowing the consumer to catch up to the current sequence number. This method is used in the synchronization protocol outlined in \todo[inline]{ref sync protocol}.
+The names of Data packets can be more specific than the names of the Interest packets which trigger them. That is, the Interest name may be a prefix of the returned Data name. For example, a producer of sequenced data may respond to Interests of the form \textit{/ndn/test/<sequence-number>}.  In this case, the producer would register the prefix \textit{/com/test} in order to receive all Interests, regardless of the sequence number requested. However a consumer may not know what the current sequence number is. Thus a convention could be agreed upon such that a consumer can express an interest for \textit{/com/test} and the Data packet that will be returned will be named \textit{/com/test/<next-producer-sequence-number>}, allowing the consumer to catch up to the current sequence number. This method is used in the synchronization protocol outlined in \todo[inline]{ref sync protocol}.
 
-\subsection{Routing}
+\subsection{Routing} and Forwarding\label{sec:routing}
 Longest prefix, hierarchical naming (ndn project has some stuff on p3 2.2.1 names), NLSR, stateful forwarding can allow routers to measure performance of routes and update things accordingly (they see packets going out AND COMING BACK unlike Implementations, also it is what enables multicast and in network caching)
 
 IP routers use \textit{stateful routing} and a \textit{stateless forwarding plane}. This means that routers maintain some state on where to forward packets given their destination IP addresses (stateful routing), but when it comes to actually forwarding packets, the packets are sent over the chosen route and forgotten about (stateless forwarding). NDN on the other hand, uses both stateful forwarding and routing \cite{stateful-forwarding} in order to accomplish routing packets by name and not address, as seen by the usage of a PIT. 
 
 As discussed in \refsec{sec:ndn-names}, NDN names are hierarchical. This allows NDN routing to scale, in a similar manner to how routing scales by exploiting the hierarchical nature of IP addresses \cite{stateful-forwarding}.
 
-There are three key benefits offered by NDN's routing mechanisms - multipath forwarding, native multicast and adaptive forwarding.
+The use of a stateful forwarding plane is NDN has some drawbacks such as added router operation complexity and the addition of a new attack vector through router state exhaustion attacks, due to the limited size of the PIT \cite{case-against-stateful-forwarding}. However, there are three key benefits offered by NDN's stateful forwarding plane - multipath forwarding, native multicast and adaptive forwarding.
 
-\subsection*{Multipath forwarding}
-One of the challenges of routing IP packets using a stateless forwarding plane is ensuring that there are no loops. Otherwise a single packet could loop endlessly throughout the network. The typical approach to solving this problem is to use the \textit{Spanning Tree Protocol (STP)} \cite{spanning-tree-protocol} to build a loop free topology. This results in a single optimal path between any two nodes in a network and disables all other paths.
+\sneaktitle{Multipath Forwarding} \label{sec:multipath-forwarding}
+One of the challenges of routing IP packets using a stateless forwarding plane is ensuring that there are no forwarding loops. Otherwise a single packet could loop endlessly throughout the network. The typical approach to solving this problem is to use the \textit{Spanning Tree Protocol (STP)} \cite{spanning-tree-protocol} to build a loop free topology. This results in a single optimal path between any two nodes in a network and disables all other paths.
 
-However as NDN uses a stateful forwarding plane in which Interests for the same Data name are aggregated at the router level, Interest packets cannot loop. That is, the usage of a PIT prevents looping. Similarly, as Data packets take the reverse path of the Interest packets, they also cannot loop. This means NDN can natively support multipath forwarding. This is done by allowing multiple next hops for a given entry in the FIB. This provides flexibility in the routing protocols which can be used with NDN and offers several benefits such as load balancing across entries in the FIB. Thus, to take advantage of the native multipath forwarding capabilities, a NDN specific routing protocol was developed (see \refsec{sec:NLSR}) 
+However, as NDN uses a stateful forwarding plane, Interest packets cannot loop. As discussed in \refsec{sec:ndn-packet-structure}, Interest's contain a \textit{Nonce} field, allowing Interests to be uniquely identified. If an NDN router sees an Interest which is identical to an Interest in the PIT, the Interest is ignored as a loop has been detected. That is, the usage of a PIT prevents looping. Similarly, as Data packets take the reverse path of the Interest packets, they also cannot loop. 
 
-\subsection*{Native Multicast}
-As discussed in \ref{sec:ndn-basic-operation}, when a router receives an Interest for an already outstanding Interest, it does not forward the second Interest upstream. Instead it adds the incoming Interest interface to the PIT entry. Once the data for the Interest reaches the router, it forwards the Data packet to \textbf{all} of the interfaces listed in the PIT entry. Thus, NDN natively supports multicast as a producer may produce a single Data packet and have it reach many consumers. 
+This means NDN can natively support multipath forwarding. This is done by allowing multiple next hops for a given entry in the FIB. This provides flexibility in the routing protocols which can be used with NDN and offers several benefits such as load balancing across entries in the FIB. Thus, to take advantage of the native multipath forwarding capabilities, a NDN specific routing protocol was developed (see \refsec{sec:NLSR})
 
-\subsection*{Adaptive Forwarding}
-As NDN's forwarding plane is stateful, routers can dynamically adapt their forwarding strategies as the needs arise. Routers can track performance of certain upstream connections (e.g. round-trip-time) and can use this information to detect failed temporary link failures and route around them.
+\sneaktitle{Native Multicast}
+As discussed in \refsec{sec:ndn-basic-operation}, when a router receives an Interest which matches an entry in the PIT, it does not forward the second Interest upstream. Instead it adds the Face over which the incoming Interest was received to the PIT entry. Once the data for the Interest reaches the router, it forwards the Data packet to \textbf{all} of the faces listed in the PIT entry. Thus, NDN natively supports multicast as a producer may produce a single Data packet and have it reach many consumers. 
 
-Hop by hop flow control?
-However there is also some drawbacks "Living in a PIT-LESS World: A Case Against
-Stateful Forwarding in Content-Centric Networking"
+\sneaktitle{Adaptive Forwarding}
+As NDN's forwarding plane is stateful, routers can dynamically adapt where they forward packets as the needs arise. Routers can track performance metrics such as round-trip-times of upstream connections and can use this information to detect temporary link failures, or poorly performing links and route around them.
 
 \subsection{In-Network Storage}
 As discussed in \refsec{sec:ndn-basic-operation}, a Data packet is entirely independent of who requested it or where it was obtained from, allowing a single Data packet to be reused for multiple consumers \cite{ndn}. The CS of routers provides a mechanism for opurtunistic in-network caching, which can help reduce traffic load for popular content. 
@@ -114,22 +139,67 @@ NDN also supports larger volume, persistent in-network storage in the form of \t
 time while their content is served from in-network repositories.
 
 \subsection{Forwarding Strategies}
+The choice of how to forward packets in NDN is defined by a \textit{forwarding strategy}. Several strategies have been designed for NDN such as \textit{Best Route}, \textit{NCC}, \textit{Multicast} and \textit{Client Control} \cite{ndn-sim-forwarding-strategies}. However, \textit{Best Route} and \textit{Multicast} are the most common. To forward packets, a list of possible next-hops is obtained from the FIB for a given Interest. For the \textit{Best Route} strategy, the Interest is forwarded over the best performing Face, ranked by a certain metric such as link cost or round trip time. For the \textit{Multicast} strategy, Interests are forwarded over all Faces which are obtained from the FIB for a given Interest.
+
+As one would expect, Forwarding strategies play a major role in the performance of an application using NDN. For example the \textit{Multicast} strategy should be used only in scenarios where multicast is beneficial or required as it can cause a major increase in the number of Interests which must be sent across the network. However application’s correctness can also be affected by the forwarding strategy \cite{forwarding-strategies}. For example, if a \textit{Best Route} strategy is used in a distributed dataset synchronization context, it is possible that only a subset of participants will see published updates and thus \textit{Multicast} should be used in this context. This is outlined further in \todo[]{Reference Player Discovery multicast}.
+
 
 \subsection{Security}
 Digests, trust anchors etc
 
+The aspect of security in NDN is the shift from attempting to secure communication channels to focusing on securing the data itself at production time. 
+
+Typically, the main form of secure communication in the Internet today is using the Transport Layer Security (TLS) protocol \cite{TLS}  along with the Transmission Control Protocol (TCP) over IP (TCP/IP). As discussed in \refsec{sec:ndn-sota}, TCP/IP is a mechanism for allowing communication between two nodes in a network. TCP/IP sets up a communication channel between the hosts and TLS is used to secure that channel. 
+
+NDN on the other hand focuses on securing the Data packets produced in response to Interests. As shown in \refsec{sec:ndn-packet-structure}, NDN Data packets must contain a \textit{Signature} field. A cryptographic signature is generated using the producers public key, binding the producer's name to the content. \cite{ndn-security-overview}.
+
+As NDN uses public key cryptography, all applications and nodes must thus have their own set of keys and a means for determining which keys can legitimately sign which pieces of data. NDN uses three key components in this regard - \textit{NDN Certificates}, \textit{Trust Anchors} and \textit{Trust Policies}.
+
+NDN Certificates bind a user's name to its key and certifies the ownership of this key \cite{ndn-security-overview}. Trust Anchors are the certificate authority for a given NDN namespace. NDN nodes can then verify published certificates by backtracking along the trust chain until a Trust Anchor is reaced. Finally, Trust Policies are used by applications to define whether or not they will accept certain packets based on naming rules and Trust Anchors.
 
 \subsection{NFD}
+In order to provide the NDN functionality, the \textit{NDN Forwarding Daemon (NFD)} was developed. NFD is a network forwarder that implements the NDN protocol \cite{nfd-github}. The NFD thus implements all of the features described in \refsec{sec:ndn-basic-operation} such as the CS, PIT and FIB. 
+
+ As NDN strives to replace IP as the universal network layer, NDN can run over a variety of lower level protocols such as Ethernet, TCP/IP and UDP/IP. The NFD provides this functionality by abstracting communication to dealing with \textit{Faces}. \textit{Faces} can be backed by a variety of transport mechanisms such as UDP/TCP tunnels or Unix sockets. This allows applications using the NDN Common Client Libraries (see \refsec{sec:ndn-tools}) to communicate with the NFD through the Face abstraction.
+
+ The API of the NFD provides a means for creating \textit{Faces}, adding \textit{Routes} and specifying \textit{Forwarding Strategies}.
+ 
+ A typical set up of applications using the NFD is shown in \reffig{fig:nfd-setup}. The NFD requires faces to be created before operation. In this case, as part of the setup procedure, node A would create a \textit{Face} towards node B, backed by a UDP tunnel towards node B's IP address. Node A would also create a \textit{Route} towards node B by specifying the prefix node B is responsible for, along with the ID of the Face previously created. In this case the route would map \textit{/ndn/nodeB} to face 2. Note that this process is somewhat automated by using the prefix discovery protocol of NLSR (see \refsec{sec:NLSR}). Finally, node A can specify the \textit{Forwarding Strategy}, or use the default of \textit{Best Route}.
+
+
+As nodeB is a producer, it only needs to create a \textit{Face} towards the local NFD (face 7 in this case) and inform the NFD that it will be producing data under the prefix \textit{/ndn/nodeB}. This is done using the  \textit{registerPrefix} call provided by the NDN client library. This will create the a route in node B's NFD which maps \textit{/ndn/nodeB} to face 7.
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/ndn/nfd.png}{1}
+    \caption{An example NFD setup}
+    \label{fig:nfd-setup}
+\end{figure}
+
+With the NFDs configured, an example operation would be the following (with some of the basic operations of NDN omitted for brevity):
+
+\begin{enumerate}
+    \item Node A's application creates a face towards the local NFD (face 5 in this case).
+    \item Node A requests node B's status by expressing an Interest for \textit{/ndn/nodeB/status} through face 5.
+    \item Node A's NFD checks the CS and PIT which are empty and finally determines the next-hop for the Interest is through face 2.
+    \item Node A's NFD sends the Interest through the UDP tunnel towards node B's NFD which accepts UDP connections on NFD's default port of 6363. This creates face 9 on node B's NFD in the process.
+    \item Node B's NFD then finds the FIB entry created for \textit{/ndn/nodeB} when nodeB registered the prefix and forwards the Interest over face 7
+    \item Node B's application will then create the corresponding Data packet and send it over face 7
+    \item Node B's NFD will check the PIT for a list of faces to forward this Data packet over and will find face 9
+    \item The Data packet will reach Node A's NFD via the UDP tunnel
+    \item Node A's NFD will extract the list of downstream faces for this Data packet from the PIT and will send the packet over face 5 to node A's application.
+\end{enumerate}
+
 
 
 \subsection{NLSR}\label{sec:NLSR}
+NLSR
 
-
-\subsection{NDN Tools, Libraries and Frameworks etc}
+\subsection{NDN Tools, Libraries and Frameworks etc}\label{sec:ndn-tools}
 Implementations of CCNx or w/e, useful tools etc
 
 \subsection{NDN Benefits in a MOG Context}
 Interest aggregation, in network caching, native multicast, multipath forwarding.
+
 
 
 \section{Real Time Applications using NDN}
@@ -143,9 +213,21 @@ Summarize the survey paper
 \section{Video Game Architectures}
 \subsection{Taxonomy of data}
 \subsection{Architectures (C/S, P2P, Hybrid)}
+This is particularly evident in
+applications built on a peer-to-peer architecture,
+where a lack of a single authority presents additional
+challenges in synchronising the state of shared
+objects while presenting a responsive simulation \cite{dead-reckoning}
 \subsection{Dead Reckoning}
-\subsection{Interest Zone Filtering}
+Reconciliation between dead reckoned position and remote update methods. Dead reckoning (DR) is a short-term linear
+extrapolation algorithm which utilises information
+relating to the dynamics of an entity’s state and
+motion, such as position and velocity, to model and
+predict future behaviour. \cite{dead-reckoning}
+\subsection{Area of Interest Management}
+PubSub paper has interesting stuff on IZF
 
 Read up on lag compensation etc
 
-
+\section{Closely Related Projects}
+3 of em

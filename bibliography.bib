@@ -2,8 +2,9 @@
 ##################################################################
 # NDN Core
 ##################################################################
+#
 @article{ndn,
-  title={Named data networking},
+  title={Named Data Networking},
   author={Zhang, Lixia and Afanasyev, Alexander and Burke, Jeffrey and Jacobson, Van and Crowley, Patrick and Papadopoulos, Christos and Wang, Lan and Zhang, Beichuan and others},
   journal={ACM SIGCOMM Computer Communication Review},
   volume={44},
@@ -37,6 +38,16 @@
    type = {Web Page}
 }
 
+@article{ndn-survey,
+  title={Named Data Networking: a survey},
+  author={Saxena, Divya and Raychoudhury, Vaskar and Suri, Neeraj and Becker, Christian and Cao, Jiannong},
+  journal={Computer Science Review},
+  volume={19},
+  pages={15--55},
+  year={2016},
+  publisher={Elsevier}
+}
+
 @article{vj-named-content,
    author = {Jacobson, Van and Smetters, Diana K. and Thornton, James D. and Plass, Michael and Briggs, Nick and Braynard, Rebecca},
    title = {Networking Named Content},
@@ -64,6 +75,11 @@
    journal = {Dept. Comput. Sci., Univ. California, Los Angeles, Los Angeles, CA, USA, Tech. Rep. NDN-0021},
    year = {2014},
    type = {Journal Article}
+}
+
+@misc{nfd-github,
+   url={https://github.com/named-data/NFD},
+   title={NFD GitHub Page}
 }
 
 @article{ndn-project,
@@ -100,6 +116,34 @@
   organization={ACM}
 }
 
+@misc{ndn-sim-forwarding-strategies,
+   title={ndnSIM Forwarding Strategies},
+   url={https://ndnsim.net/2.1/fw.html}
+}
+
+@misc{nfd-bestroute-v2,
+   title={NFD best-route strategy v2 issue},
+   url={https://redmine.named-data.net/issues/1871}
+}
+
+@inproceedings{ndn-forwarding-hint,
+  title={What benefits does NDN have in supporting mobility},
+  author={Jiang, Xiaoke and Bi, Jun and Wang, You},
+  booktitle={2014 IEEE Symposium on Computers and Communications (ISCC)},
+  pages={1--6},
+  year={2014},
+  organization={IEEE}
+}
+
+@inproceedings{ndn-dns,
+  title={NDNS: A DNS-like name service for NDN},
+  author={Afanasyev, Alexander and Jiang, Xiaoke and Yu, Yingdi and Tan, Jiewen and Xia, Yumin and Mankin, Allison and Zhang, Lixia},
+  booktitle={2017 26th International Conference on Computer Communication and Networks (ICCCN)},
+  pages={1--9},
+  year={2017},
+  organization={IEEE}
+}
+
 ##################################################################
 # Security 
 ##################################################################
@@ -115,6 +159,11 @@
    type = {Journal Article}
 }
 
+@misc{TLS,
+   author={T. Dierks, E. Rescorla},
+   title={RFC 5246, The Transport Layer Security (TLS) Protocol Version 1.2},
+   url={https://tools.ietf.org/html/rfc5246}
+}
 
 ##################################################################
 # Routing
@@ -142,6 +191,13 @@
   pages={779--791},
   year={2013},
   publisher={Elsevier}
+}
+
+@article{case-against-stateful-forwarding,
+  title={Living in a pit-less world: A case against stateful forwarding in content-centric networking},
+  author={Ghali, Cesar and Tsudik, Gene and Uzun, Ersin and Wood, Christopher A},
+  journal={arXiv preprint arXiv:1512.07755},
+  year={2015}
 }
 
 @misc{spanning-tree-routing-blog,
@@ -197,13 +253,20 @@ title={Real-Time Data Retrieval in Named Data Networking},
 ##################################################################
 # PubSub
 ##################################################################
-@inproceedings{moiseenko2015consumer,
+@inproceedings{ndn-pub-sub-thesis,
   title={Consumer/producer communication with application level framing in named data networking},
   author={Moiseenko, Ilya and Wang, Lijing and Zhang, Lixia},
   booktitle={Proceedings of the 2nd ACM Conference on Information-Centric Networking},
   pages={99--108},
   year={2015},
   organization={ACM}
+}
+
+@article{ndn-pub-sub-building,
+  title={Publish-Subscribe Communication in Building Management Systems over Named Data Networking},
+  author={Shang, Wentao and Zhang, Minsheng and Afanasyev, Alexander and Burke, Jeff and Wang, Lan and Zhang, Lixia},
+  journal={ACM TCPS Special Issue on Internet of Things},
+  year={2017}
 }
 
 ##################################################################
@@ -303,6 +366,27 @@ Synchronized Over Named Data Networking},
   author={Bharambe, Ashwin R and Pang, Jeff and Seshan, Srinivasan},
   year={2005},
   publisher={Citeseer}
+}
+
+@article{dead-reckoning,
+  title={A physics-aware dead reckoning technique for entity state updates in distributed interactive applications},
+  author={Walsh, Patrick J and Ward, Tom{\'a}s E and McLoone, S{\'e}amus C},
+  year={2012},
+  publisher={IET}
+}
+
+@article{dead-reckoning-convergence,
+  title={A novel convergence algorithm for the hybrid strategy model packet reduction technique},
+  author={Delaney, Declan and McLoone, Seamus and Ward, Tomas},
+  year={2005},
+  publisher={IET}
+}
+
+@article{dead-reckonining-threshold-learning,
+  title={Using user perception to determine suitable error thresholds for dead reckoning in distributed interactive applications},
+  author={Kenny, Alan and McLoone, S{\'e}amus and Ward, Tom{\'a}s and Delaney, Declan},
+  year={2006},
+  publisher={IET}
 }
 
 ##################################################################
