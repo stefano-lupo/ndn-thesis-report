@@ -54,7 +54,7 @@ The fields contained in NDN Interest packets are outlined below.
 \vspace{5mm}
 The fields contained in NDN Data packets are outlined below.
 
-\begin{labeling}{Data Packets}
+\begin{labeling}{FreshnessPeriod }
     \item [Name] The name of the content the packet refers to.
     \item [ContentType] Defines the type of the content in the packet. This field is an enumeration of four possible values: \textit{BLOB, LINK, KEY} or \textit{NACK}. \textit{LINK} and \textit{NACK} represent NDN implementation packets, while \textit{BLOB} and \textit{KEY} represent actual content packets and cryptographic keys respectively.
     \item [FreshnessPeriod] This represents the length of time in milliseconds that the Data packet should be considered fresh for. As Data packets are cached in the CS, this field is used to approximately specify how long this packet should be considered the newest content available for the given \textit{Name}. Consumers can use the \textit{MustBeFresh} field of the Interest packets to specify whether they will accept potentially stale cached copies of a piece of Data and the \textit{"staleness"} of the Data is defined using the \textit{FreshnessPeriod} field.
@@ -72,7 +72,7 @@ The FIB is used to determine which interface(s) an incoming Interest should be f
 
 As discussed in \refsec{sec:routing}, NDN uses \textit{stateful forwarding} and the PIT is the data structure which maintains the forwarding state. This table stores the names of Interests and the interface on which the Interest was received, for Interests which have been forwarded upstream, but not yet had any Data returned.
 
-Finally, the CS is used to cache data received in response to Interests expressed. The CS allows any NDN node to satisfy an interest if it has the corresponding Data pakcet, even if it is not the producer itself. As with all caches, the CS is subject to a replacement policy, which is typically \textit{Least Recently Used (LRU)}.
+Finally, the CS is used to cache data received in response to Interests expressed. The CS allows any NDN node to satisfy an interest if it has the corresponding Data packet, even if it is not the producer itself. As with all caches, the CS is subject to a replacement policy, which is typically \textit{Least Recently Used (LRU)}.
 
 NDN also offers a \textit{Face} abstraction. An NDN Face is a link over which NDN Interest and Data packets can flow. A Face can represent a physical interface such as a network card, or a logical interface such as an application running on a machine producing data under a certain namespace.
 
@@ -191,7 +191,7 @@ NDN on the other hand focuses on securing the Data packets produced in response 
 
 As NDN uses public key cryptography, all applications and nodes must thus have their own set of keys and a means for determining which keys can legitimately sign which pieces of data. NDN uses three key components in this regard - \textit{NDN Certificates}, \textit{Trust Anchors} and \textit{Trust Policies}.
 
-NDN Certificates bind a user's name to its key and certifies the ownership of this key \cite{ndn-security-overview}. Trust Anchors are the certificate authority for a given NDN namespace. NDN nodes can then verify published certificates by backtracking along the trust chain until a Trust Anchor is reaced. Finally, Trust Policies are used by applications to define whether or not they will accept certain packets based on naming rules and Trust Anchors.
+NDN Certificates bind a user's name to its key and certifies the ownership of this key \cite{ndn-security-overview}. Trust Anchors are the certificate authority for a given NDN namespace. NDN nodes can then verify published certificates by backtracking along the trust chain until a Trust Anchor is reached. Finally, Trust Policies are used by applications to define whether or not they will accept certain packets based on naming rules and Trust Anchors.
 
 
 
@@ -212,7 +212,7 @@ In order to provide the NDN functionality, the \textit{NDN Forwarding Daemon (NF
 
  The API of the NFD provides a means for creating \textit{Faces}, adding \textit{Routes} and specifying \textit{Forwarding Strategies}.
  
- A typical set up of applications using the NFD is shown in \reffig{fig:nfd-setup}. The NFD requires faces to be created before operation. In this case, as part of the setup procedure, node A would create a \textit{Face} towards node B, backed by a UDP tunnel towards node B's IP address. Node A would also create a \textit{Route} towards node B by specifying the prefix node B is responsible for, along with the ID of the Face previously created. In this case the route would map \textit{/ndn/nodeB} to face 2. Note that this process is somewhat automated by using the prefix discovery protocol of NLSR (see \refsec{sec:NLSR}). Finally, node A can specify the \textit{Forwarding Strategy}, or use the default of \textit{Best Route}.
+ A typical set up of applications using the NFD is shown in \reffig{fig:nfd-setup}. The NFD requires faces to be created before operation. In this case, as part of the set up procedure, node A would create a \textit{Face} towards node B, backed by a UDP tunnel towards node B's IP address. Node A would also create a \textit{Route} towards node B by specifying the prefix node B is responsible for, along with the ID of the Face previously created. In this case the route would map \textit{/ndn/nodeB} to face 2. Note that this process is somewhat automated by using the prefix discovery protocol of NLSR (see \refsec{sec:NLSR}). Finally, node A can specify the \textit{Forwarding Strategy}, or use the default of \textit{Best Route}.
 
 
 As nodeB is a producer, it only needs to create a \textit{Face} towards the local NFD (face 7 in this case) and inform the NFD that it will be producing data under the prefix \textit{/ndn/nodeB}. This is done using the  \textit{registerPrefix} call provided by the NDN client library. This will create the a route in node B's NFD which maps \textit{/ndn/nodeB} to face 7.
@@ -251,7 +251,7 @@ The LSR protocol models the network as a directed, weighted graph in which each 
 
 The routers then need to reliably disseminate the list of their adjacent neighbours to all other routers in the network, so that all routers have a full view of the network topology. This is done using \textit{Link State Packets (LSPs)}. LSPs contain the list of direct neighbours for a given router and the edge weight (link cost) for each of those neighbour connections. Unlike the \textit{HELLO} messages for neighbour discovery, routers will forward LSPs from a specific router to their direct neighbours, \textbf{once per sequence number}. Thus, routers need to maintain state containing the most recent LSP it has seen for each router in order to determine whether or not a given LSP is newer than what it has already seen and thus whether or not to forward this version. This information is maintained inside the \textit{Link State Database (LSDB)}. This process is known as the \textit{Flooding algorithm} and allows all nodes to discover the full network topology and to build their routing tables accordingly.
 
-NLSR is designed as an \textbf{intra domain} routing protocol. As it is to be used for NDN, it is imperative that it operates solely using NDN's primitives (see \refsec{sec:ndn-basic-operation}). Thus it uses Interest and Data packets as the only form of communication between routers. NLSR differs from the traditional IP based LSR protocol in the following ways as it uses hierarchical naming schemes for routers, keys and updates, it uses a hierarchical trust model, it uses ChronoSync to disseminate routing updates (see \refsec{sec:chronosync}) and it supports multipath routing \cite{nlsr}. 
+NLSR is designed as an \textbf{intra domain} routing protocol. As it is to be used for NDN, it is imperative that it operates solely using NDN's primitives (see \refsec{sec:ndn-basic-operation}). Thus it uses Interest and Data packets as the only form of communication between routers. NLSR differs from the traditional IP based LSR protocol in the following ways as it uses hierarchical naming schemes for routers, keys and updates, it uses a hierarchical trust model, it uses ChronoSync to disseminate routing updates (see \refsec{sec:dataset-sync}) and it supports multipath routing \cite{nlsr}. 
 
 \begin{figure}[H]
     \centering
@@ -260,7 +260,7 @@ NLSR is designed as an \textbf{intra domain} routing protocol. As it is to be us
     \label{fig:nlsr-lsa}
 \end{figure}
 
-As seen in \reffig{fig:nlsr-lsa}, NLSR uses \textit{Link State Advertisements (LSAs)} which can be one of two types - \textit{name} or \textit{adjacency}. \textit{Name} LSAs contain the list of prefixes which this router may produce data for, while \textit{adjacency} LSAs contain the list of neighbours a router has as well as their associated link costs. LSA dissemination is essentially a dataset synchronization problem and thus NLSR uses NDN's ChronoSync protocol (see \refsec{sec:chronosync}) to synchronize the LSAs. \textit{Name} LSAs can be updated as registered prefixes change, while \textit{adjacency} LSAs can change as routers go offline and come back online. In the steady state, all routers will maintain an outstanding sync Interest, containing the same digest of the LSA dataset. This outstanding sync Interest will be named \textit{/<network>/nlsr/sync/<digest>} and the forwarding strategy of \textit{/localhop/com/nlsr/sync/} is set to multicast on all routers, allowing all routers to receive sync updates. If an LSA is changed on a particular router, the router responds to the outstanding sync Interest with a Data packet containing the \textbf{name} of the next version if the LSA. Other routers can then fetch this updated LSA using a standard Interest packet when convenient.  
+As seen in \reffig{fig:nlsr-lsa}, NLSR uses \textit{Link State Advertisements (LSAs)} which can be one of two types - \textit{name} or \textit{adjacency}. \textit{Name} LSAs contain the list of prefixes which this router may produce data for, while \textit{adjacency} LSAs contain the list of neighbours a router has as well as their associated link costs. LSA dissemination is essentially a dataset synchronization problem and thus NLSR uses NDN's ChronoSync protocol (see \refsec{sec:dataset-sync}) to synchronize the LSAs. \textit{Name} LSAs can be updated as registered prefixes change, while \textit{adjacency} LSAs can change as routers go offline and come back online. In the steady state, all routers will maintain an outstanding sync Interest, containing the same digest of the LSA dataset. This outstanding sync Interest will be named \textit{/<network>/nlsr/sync/<digest>} and the forwarding strategy of \textit{/localhop/com/nlsr/sync/} is set to multicast on all routers, allowing all routers to receive sync updates. If an LSA is changed on a particular router, the router responds to the outstanding sync Interest with a Data packet containing the \textbf{name} of the next version if the LSA. Other routers can then fetch this updated LSA using a standard Interest packet when convenient.  
 
 As with LSR, NLSR is responsible for building the FIB and thus requires a mechanism to discover adjacent routers. This is accomplished by setting the forwarding strategy of \textit{<network>/nlsr/LSA} to multicast. When a new router receives the first response to the sync Interest it expresses, it can request the Data using the corresponding name and this Interest will be multicasted to all of the router's adjacent neighbours. This is required as the router's FIB may not have an entry for the corresponding name. However, this broadcast should not have any extra overhead as Interests will be aggregated by intermediate routers and every router in the network would need to be informed of the LSA change. Thus, Interest Aggregation at intermediate routers means NLSR is more efficient at disseminating routing updates than the corresponding \textit{Flooding} algorithm in IP.
 
@@ -312,37 +312,202 @@ However, considering the outstanding Interest architecture in which all consumer
 
 However, if caching is used, this Data can be returned from the CS of the first intermediate router who previously forwarded this Interest on behalf of another consumer. Thus, the consumer can potentially receive this somewhat stale Data much quicker and will hopefully catch up with the other consumers, or continue to obtain cached copies previously fetched. An example of in-network caching is shown in \reffig{fig:agg-multicast} at $time = t4$.
 
-\section{Real Time Applications using NDN}
 
-\section{Distributed Dataset Syncrhonization}
-Summarize the survey paper
-\subsection{ChronoSync}\label{sec:chronosync}
-Limitations of chronosync / others
-\subsection{PSync}
-\subsection{CCNx Sync}
 
-\section{Mutliplayer Online Games (MOGs)}\label{sec:mogs}
-\subsection{How Modern MOGs are Built}
-Ashley / libgdx etc.
 
-\subsection{Taxonomy of data}\label{sec:taxonomy}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Host Based
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Host Based Applications using NDN}\label{sec:ndn-host-based}
+As discussed, NDN's data centric architecture appears to offer several attractive benefits such as in-networking caching and Interest aggregation. 
+
+However, most of these benefits only come into play in the case of multiple nodes wishing to consume the same data. Although the switch to a data centric approach makes sense in a variety of modern settings, an interesting research question is to consider how NDN performs for a fundamentally host based application, such as instant messaging or voice communication between two parties. In these scenarios, the benefits of NDN become less clear and the extra complexity associated with using NDN may actually hurt performance.
+
+As outlined in by Van Jacobson et al., data-oriented abstractions provide a good fit to the massive amounts of static content exchanged via the World Wide Web and various P2P overlay networks, it is less clear how well they fit more conversational traffic such as email, e-commerce transactions or VoIP \cite{vj-voccn}. This led to the design and implementation of Voice over Content-Centric Networks (VoCCN), a voice communication protocol capable of running over CCN, analogous to Voice over Internet Protocol (VoIP) \cite{voip}. VoCCN conforms to the standards used by VoIP, allowing it to be fully interoperable with VoIP. 
+
+One of the main benefits of using NDN in a host based context is the support for \textit{multipath forwarding}. This is particularly useful in VoCCN as voice applications are often used while participants are mobile. Multipath forwarding can be exploited to forward packets towards where a user \textit{might} be located, by taking their mobility into account.
+
+Another difficulty associated with conventional IP is managing mappings from IP addresses to actual users. VoIP requires mappings from user identities to endpoint IP address at multiple points in the network \cite{vj-voccn}. However, in the content centric approach, a user's identity is fully defined by the key used to sign data that it creates,  
+
+Although the results obtained through testing VoCCN appear to be promising, research into the negative impacts of using NDN for inherently host centric applications is scarce and further study is required.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Real Time NDN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Real-Time Applications using NDN}
+Real Time Applications are one of the most challenging types of applications to develop from a networking point of view, typically requiring highly scalable, low latency and high bandwidth communication mechanisms. IP's architecture struggles to facilitate applications in which producers much stream real time data to several consumers, requiring an end-to-end connection between the producer and each consumer. These applications are also becoming more and more common with the advent of streaming platforms, such as those provided by television providers.
+
+As discussed by Gusev et al \cite{realtime-streaming-data}, the shift to the data-centric architecture of NDN provides several key benefits in this context:
+
+\begin{labeling}{Consumer Scalability }
+    \item [Consumer Scalability] As NDN provides Interest aggregation and native multicast, the number of consumers that an application can support is a function of the network capacity, as opposed to the producer capacity. This allows any node, regardless of how small, to produce data to a huge number of consumers, provided the upstream network architecture can support those consumers. An example of this could be a mobile phone device streaming a live event directly to a huge number of people.
+    \item [Producer Scalability] As NDN uses the simple Interest and Data primitives, redundancy and scalability can be accomplished by having multiple producers providing the same data under the namespace. In the event of a producer failure, nothing changes from the consumer's point of view, as the source of the data is always transparent to the consumers in NDN.
+\end{labeling}
+
+Several real-time applications using NDN have been developed. NDN-RTC is \cite{ndn-rtc}, a real-time video conferencing library for NDN built on top of WebRTC. Voice over Content Centric networking (VoCCN) \cite{vj-voccn} as discussed in \refsec{sec:ndn-host-based}, is an NDN equivalent to VoIP. Real-time Data Retrieval (RDR) \cite{realtime-data-retrieval} outlines a protocol for allowing consumers to obtain the most recent frame published by a producer and for pipelining Interests for future frames.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Distributed Dataset Sync
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Distributed Dataset Syncrhonization in NDN}\label{sec:dataset-sync}
+A common requirement in distributed, P2P environments is for nodes to read and write to a shared dataset. An example of a shared dataset is a chat room in which all participants can send messages to all other participants. In order to provided all participants with a common view of the messages sent to the chat room, the underlying dataset must be synchronized by a synchronization protocol. The importance of dataset synchronization protocols is amplified in a NDN context as most applications are developed with a distributed P2P architecture in mind. This is done to enable high scalability through the exploitation of the features offered by NDN such as in-network caching and native multicast. As such, a lot of research into the area of dataset synchronization in NDN has been conducted. One of the goals of this research is to abstract away the need for NDN application developers to consider dataset synchronization.
+
+Traditionally, IP based solutions for dataset synchronization take one of two approaches - centralized or decentralized. Centralized approaches require a centralized node which becomes the authoritative source on the state of the dataset. All nodes communicate directly with this node and updates to the dataset are sent through this node. This simplifies the problem considerably at the cost of creating a bottleneck in the system. Alternatively, a decentralized approach can be taken in which all nodes communicate with one and other. In an IP based solution, this requires each node to maintain $n-1$ connections to every other node, for example using a TCP socket. This approach mitigates the problem of having a bottleneck in the system, resulting in a more scalable solution, at the cost of requiring a considerably more complex protocol in order to maintain a consistent view of the dataset amongst all nodes.
+
+However the scalability of the decentralized approach is limited by the connection oriented abstraction of IP, as the number of connections required scales quadratically with the number of nodes. The data oriented abstraction of NDN overcomes this issue as nodes are no longer concerned with \textit{who} they communicate with and are instead concerned with producing and consuming named pieces of data which can be simply fetched from and published to the network. NDN can achieve distributed dataset synchronization by synchronizing the namespace of the shared dataset among a group of distributed nodes \cite{sync-survey}. Several protocols have been developed to achieve this including CCNx Sync 1.0 \cite{ccnx-sync}, iSync \cite{isync}, ChronoSync \cite{chronosync}, RoundSync \cite{roundsync} and PSync \cite{psync}. However, the most relevant protocols at the time of writing are ChronoSync, RoundSync and PSync.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ChronoSync
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sneaktitle{ChronoSync}
+The primary step in any dataset synchronization protocol is a mechanism for determining that the dataset has been updated. ChronoSync datasets are organized such that each node's data is maintained separately. Each node has a \textit{name prefix}, representing the name the node's data and a \textit{sequence number}, representing the latest version of that data. The hash of the combination of a node's name prefix and sequence number forms the node's \textit{digest}. Finally, the combination of all nodes' digests forms the \textit{state digest} which succinctly represents the state of the dataset at a snapshot in time. An example of a ChronoSync state digest tree in which Alice, Bob and Ted are interested in the synchronized dataset is shown in \reffig{fig:chronosync-digest-tree}.  
+
 \begin{figure}[H]
     \centering
-    \figsize{assets/soa/mog/taxonomy-with-game-data.png}{0.9}
+    \figsize{assets/soa/ndn/chronosync-digest-tree}{0.9}
+    \caption{ChronoSync digest tree for a dataset synced across Alice, Bob and Ted \cite{chronosync}}
+    \label{fig:chronosync-digest-tree}
+\end{figure}
+
+Every node interested in the dataset computes a state digest representing the node's current view of the dataset. If all nodes contain the same dataset, all of their state digests will be the same, indicating the dataset is synchronized. ChronoSync uses a \textit{sync prefix} which is a \textbf{broadcast} namespace, for example \textit{/ndn/chatroom/sync}. All nodes listen for Interests in this namespace. Once a node computes a state digest, it expresses an interest for \textit{/<sync prefix>/<state digest>}, for example \textit{/ndn/chatroom/sync/a73e6cb}. These are known as \textit{SyncInterest}. Thus, when the dataset is synchronized, all nodes express the \textbf{same} SyncInterest.
+
+When a node locally inserts a new piece of data into the dataset, the node recomputes the state digest, which will now be different to the previous state digest. At this point, the ChronoSync library will satisfy the outstanding SyncInterest using a \textit{SyncReply}, which is a standard NDN Data packet. The Data packet used to satisfy the SyncInterest contains the \textbf{name} of the data which has been updated as the \textbf{content}. The name of the Data packet will simply be the name of the Interest it satisfies. 
+
+For example, consider the case in which current outstanding SyncInterest is \textit{/ndn/chatroom/sync/a73e6cb} and Alice's latest sequence number is 5. If Alice inserts a new piece of data into the dataset, Alice will satisfy the SyncInterest with a SyncReply packet named \textit{/ndn/chatroom/sync/a73e6cb} which contains \textit{/ndn/chatroom/alice/6} as the content. Alice will then recompute her state digest and express a new SyncInterest.
+
+All nodes will receive this Data packet and have the option to express a standard NDN Interest to fetch Alice's new data. The other nodes will also recompute the state digest from their point of view and express a new SyncInterest, which will match the Interest expressed by Alice, returning the system to the steady state.
+
+The ChronoSync protocol exploits the Interest aggregation mechanism provided by NDN, meaning that when the dataset is synchronized, there will only be one outstanding SyncInterest on each link in the network. As a single Interest can only return a single Data packet in NDN, if two nodes produce two different SyncReplies for the same SyncInterest, only one of them will reach a given node. To overcome this, ChronoSync re-expresses the same SyncInterest on receipt of a SyncReply. The second SyncInterest uses an \textit{exclude filter} set to the hash of the content in the SyncReply. This means the same SyncReply will \textbf{not} be returned for the second SyncInterest and the second SyncReply can be obtained. This repeats until a subsequent SyncInterest incurs a timeout. ChronoSync also contains features for reconciliation in the event of network partitioning.
+
+The ChronoSync protocol is designed for synchronized write access and must undergo a reconciliation process in the case of concurrent writes to the dataset. It also requires two round trips to obtain the actual updated data - one for SyncReplies and one for fetching the updated data. This limits the effectiveness of the protocol in cases where latency is critical, such as in MOGs.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Distributed Dataset Sync
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sneaktitle{RoundSync}
+RoundSync was developed to address the shortcomings of ChronoSync, namely the issues which arise when sync states diverge due to simultaneous data generation. As previously discussed, ChronoSync requires an expensive state reconciliation process when sync states diverge. The shortcoming of ChronoSync was determined to be the fact that ChronoSync uses a SyncInterest to serve two different purposes: (1) it lets each node to retrieve updates as soon as they are produced by any other nodes, and (2) it lets each node detect whether its knowledge about the shared dataset conflicts with anyone else in the sync group \cite{roundsync}.
+
+
+RoundSync uses a monotonically increasing round number and limits the number of times a node can produce an update to once per \textit{round}. The key aspect here is that data synchronization is \textbf{independent} for each round. This means nodes can continue to publish and receive further updates, while trying to reconcile issues which occurred in previous rounds. RoundSync accomplishes this by splitting up ChronoSync's SyncInterest into a \textit{Data Interest} which is used for fetching updates generated by a node, and RoundSync's own \textit{Sync Interest} which is used solely for detecting inconsistent states within a round \cite{roundsync}.
+
+Although RoundSync appears to offer several benefits over ChronoSync, the only available implementation of the protocol is for use with ndnSIM \cite{roundsync-github}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PSync
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sneaktitle{PSync}
+PSync was developed as a protocol to allow consumers to subscribe to a subset of a large dataset being published by a producer. Data generated by producers is organized into \textit{data streams}, which are sets of data which have the same name but different sequence numbers. Consumers can subscribe to certain data streams of a producer by maintaining a \textit{subscription list}.
+
+Two accomplish this efficiently, PSync uses two key data structures - a \textit{Bloom Filter (BF)} and an \textit{Invertible Bloom Filter (IBF)}. 
+
+BFs are memory efficient probabilistic data structures which can rapidly determine if an element is \textbf{not} present in a set. However, BFs can not say for certain that an element is present in a set. BFs use several hash functions to hash the element of interest, resulting in a list of indices into a bit array (one for each hash function). 
+
+To insert into a BF, the bits at the corresponding indices provided by hashing the element with each of the hash functions are all set to 1. To determine if an element is \textbf{not} in the set, the incoming element is hashed using each of the hash functions, again producing a list of indices. If any of the bits in the array at the list of indices are 0, the element is definitely not in the set, otherwise the element \textit{may} be in the set. 
+
+IBFs are an extension to standard BFs which allow elements to be inserted and deleted from the IBF. Elements can also be \textit{retrieved} from the IBF, but the retrieval may fail, depending on the state of the IBF. The operation of an IBF is outlined in \refapp{app:IBF}. IBFs also support a set difference operation, allowing for the determination of elements in one set but not in another. 
+\todo[]{IBF appendix}
+
+PSync uses BFs to store the \textit{subscription list} of subscribers. PSync uses IBFs to maintain producers' latest datasets, known as the \textit{producer state}. The producer state represents the latest dataset of a producer and contains a single data name for each of the producer's data streams. These data names contain the data stream's name prefix and the latest sequence number.  
+
+Producers in PSync maintain \textbf{no state} regarding their consumers and instead store a single IBF for all consumers, providing scalability under large number of consumers \cite{psync}. Consumers express long standing \textit{SyncInterests} which contain an encoded copy of the BF representing their subscription list and an encoded copy of an IBF representing the last producer state they received. The producer can determine if any new data names have been produced by subtracting it's current producer state from the producer state contained in the SyncInterest (set difference operator for IBFs). The producer can then determine whether or not the consumer is actually subscribed to any of these data names using the provided subscriber list. Finally, the producer will either send back the new data names through a \textit{SyncReply}, or if there is no new data, store the Interest until new data is generated.
+
+Consumers receiving the \textit{SyncReply} can then fetch the new data using standard NDN Interests and update their latest producer state accordingly. 
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MOGs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mutliplayer Online Games (MOGs)}\label{sec:mogs}
+
+
+\subsection{Game Development}
+A huge variety of video game engines and game development frameworks and libraries exist today. The most well known engines and frameworks are those which have been used to make extremely popular games. Valve Software's Source engine was used in a number of immensly successful games such as Half-Life, Team Fortress 2, Portal 2 and Counter Strike: Source. The Unity game development platform was used to develop major titles such as Kerbal Space Program and Hearthstone: Heroes of Warcraft. EA DICE's Frostbite engine has been used in a variety of genres ranging from sports titles such as FIFA 19 to first person shooters such as Battlefield 4. 
+
+All of the above engines and frameworks are designed to extremely detailed games such as the ones listed. However, an emerging sub-industry is that of \textit{independent (indie)} games. As the main area of interest in this project was video game networking, a simpler game style of game engine was favoured. Indie games represent a movement away from monolithic game production studios with huge development teams and budgets towards developing smaller games, typically with unique art styles and mechanics, which target a niche in the video game market. As such, a large number of smaller scale game engines and frameworks have been developed, one of which is LibGdx \cite{libgdx}. LibGDX is a cross platform, open source game development framework written in Java. It provides an easy to use API which in turn makes use of OpenGL for actual rendering. 
+
+\subsection{Entity Management Systems}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Taxonomy
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MOG Data Taxonomy}\label{sec:taxonomy}
+One of the primary goals of the research was to characterize the different types of data found in modern multiplayer games. The first step to building a high performance networking solution is to understand the different types of data required by the application and to characterize that data accordingly. The categories of data found in MOGs is highly influenced by the genre of the game. This research focuses on fast paced, real time games such as \textit{first person shooters (FPS)} and \textit{role playing games (RPGs)} as opposed to \textit{turn based} games as these are substantially more challenging and interesting from a networking perspective. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/mog/taxonomy.png}{0.9}
     \caption{Taxonomy of MOG Data}
     \label{fig:taxonomy}
 \end{figure}
 
-\subsection{Architectures (C/S, P2P, Hybrid)}
-This is particularly evident in applications built on a peer-to-peer architecture, where a lack of a single authority presents additional challenges in synchronising the state of shared objects while presenting a responsive simulation \cite{dead-reckoning}
+
+The overall taxonomy of MOG data is shown in \reffig{fig:taxonomy} and explained in further detail below.
+
+\sneaktitle{Static Content}
+MOGs make heavy use of data which is static and does not change over time. An example of this data would be textures for game world assets. In a simple 2D game, textures are usually stored in \textit{sprite sheets}. Sprite sheets are single images which contain a variety of textures. In order to render a texture, a sub region of the sprite sheet is selected by the game renderer and the pixels within that subregion are drawn to the screen. The reason for using a single sprite sheet which contains a large number independent textures, over a separate file for each texture is performance. Copying a file into the memory of a GPU is a relatively expensive operation in comparison to drawing the texture. Thus, by having multiple textures in a single file, this expensive transfer operation need only occur once and the required textures can drawn by selecting sub regions of the larger sprite sheet in GPU memory. Static content is typically shipped with the game and read from a file when required. However, static content can also be configurable by players in the game world, for example, if players can design their own base or can use custom player sprite sheets.  
+
+From a networking perspective, static content is an ideal candidate for caching. For example, if a player moves from one room to another or requires the sprite sheet a new player coming into view, the textures are likely to be cached by routers in the network, as other players may have previously required them. However, in comparison to the other categories of data, the frequency of fetching this data is so low that improvements in network performance regarding this data would likely have a negligible impact on the overall network performance.
+
+\sneaktitle{Realtime Streams}
+The second category of data found in MOGs is real-time data which is sent repeatedly over time, at a somewhat consistent interval. Due to the likely consistency of this data, it is best considered as a stream. This is the data type which accounts for the majority of the network traffic and is usually the most critical in terms of game fluidity. The most common form of this data is in player commands. However, these can be further subdivided by the frequency of data updates. 
+
+In a FPS style game, players tend to be moving around the game world more often than not. The fluidity of player movement is highly dependent on how quickly player position updates can reach other players. In fast paced games such as FPS games, the player position updates would ideally be sent as frequently as possible. Thus, a good example of a high frequency real-time data stream of data found in MOGs is player position updates.
+
+However, in the vast majority of MOGs, players can do more than just move around. For example, players may be able to interact with the game world and place blocks at certain positions. Although these player commands still happen relatively frequently, perhaps on the order of a few seconds between successive commands, they are still considered low frequency in comparison to player position updates. 
+
+\sneaktitle{Non Synced}
+The third category of data found in MOGs is data which remote players must be informed about, but that does not change or need to be synchronized over time. Another key aspect of this data is that it is typically short lived. This data type can be thought of as events that occur in the game world as a result of player actions. For example, a player may choose to reload their weapon at a certain point in time, which should trigger a reload animation. There is no associated synchronization aspect of this data over time - the player simply announces to the network that they are reloading their weapon by publishing an immutable, short lived event.
+
+\sneaktitle{Syncrhonized Datasets}       
+The final category of data found in MOGs are distributed datasets which must be \textit{strongly synchronized}. These are elements of the game which all players must agree on. An example of this data type is the state of the game world on a macro scale. This could range from which \textit{non playable characters (NPCs)} are alive and what path they are currently moving on to what health kits are currently present in the game world. This data type is updated at a very low frequency, but requires stricter consistency amongst game players and can therefore use more expensive protocols which would not be suitable for other data types.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Architectures 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MOG Architectures}
+One of the first decisions to make when designing the backend of a MOG is which architecture to use. On a fundamental level there are only two architectures to choose from, \textit{Client/Server (C/S)} or \textit{Peer-to-Peer (P2P)}. However, there is a huge amount of variation within each of those architectures and even combinations of the two architectures such as \textit{MultiServer (MS)} which uses a small number of centralized servers to somewhat distribute the load and \textit{Hybrid} which uses both C/S and P2P elements. As one would expect, there are substantial benefits and drawbacks to all of these architectures and the choice of which to use will play a major role on the scalability, consistency, security, ease of development and cost of running of the MOG. 
+
+MOGs typically follow a \textit{primary copy} replication approach. For each game object (e.g. players and NPCs), there exists an authoritative \textit{primary} copy and this exists on one node only. All other copies are \textit{secondary copies} and are merely replicas of the primary copy. All connected players have a local set of game objects which are shown to the player, though the distribution of primary and secondary copies depends on the game's architecture \cite{p2p-mog-survey}. All updates to game objects are performed on \textbf{primary copies only}. The results of these update operations are the sent to all players who require the latest copy of the game object, updating their secondary copies accordingly.
+
+\sneaktitle{Client/Server (C/S)}
+C/S is the most common form of MOG architecture today. In the simplest form, C/S consists of a single server which all game players communicate with. The server is the single authoritative source of truth for the game state and holds \textbf{all} primary copies. All updates to the game world and game objects occur on the server and these updates are then pushed to all connected players (clients) by the server.
+
+The benefits and limitations of a C/S architecture in a MOG context in comparison to a distributed alternative are very similar to those found elsewhere in computer science. The main benefits are the reduced complexity associated with performing all updates in one place and the added difficulty for players to cheat since the server can determine whether updates are valid prior to performing them. C/S architectures are an ideal choice for games with a small number of players, or which do not require extremely high performance networking solutions such as RTS games. The main limitation associated with the C/S architecture is scalability. Modern MOGs require support for hundreds or even thousands of players in a particular game world and a single server becomes a severe bottleneck at this scale, regardless of the hardware used. Another potential issue is fault tolerance. Server failures do occur, and the standard C/S architecture provides no fault tolerance whatsoever, meaning the game is entirely unplayable in the event of a server failure.
+
+However, substantial research and engineering has allowed C/S based architectures to meet the demands of modern MOGs and they are still the most commonly used today \cite{p2p-mog-survey}. The main mechanism for achieving the scalability required is to distribute players among several servers. Clients can be distributed among servers based on their physical locations in the real world or their virtual locations in the virtual world \cite{dist-mog-loadsharing}. Distributing players based on their virtual locations is the ideal choice, as it does not entirely segregate players. However, it is more challenging in that a hand-off mechanism is likely required as players cross server boundaries. It can also face scalability issues as players tend to congregate at certain places in the virtual world, such as towns or cities \textit{(flocking behaviour)}, meaning a single server may still struggle due to the density of players in a particular region. 
+
+\sneaktitle{Peer-to-Peer (P2P)}
+P2P architectures contain no centralized server. Instead, each peer in the network becomes the authoritative source certain game objects and holds their primary copies. As before, updates are performed only on primary copies. Thus, peers become responsible for accepting update requests, performing updates and disseminating updates to all other peers in the network. A common method for building MOGs using a P2P architecture is to create an overlay network, backed by a \textit{distributed hash table} \cite{p2p-mog-dht}. These typically use Pastry to build a decentralized, self-organizing and fault-tolerant overlay network, capable of routing messages to other peers in $\mathcal{O}(\log{}n)$ forwarding steps \cite{pastry} and Scribe which provides an application-level multicast infrastructure using the overlay network built with Pastry.
+
+In principle, P2P architectures have the highest potential of all architectures for scalability as every peer that joins the game adds new resources to the system. All of the work is distributed amongst the players in the game, mitigating the requirement for expensive, high performance, centralized servers and providing excellent fault tolerance. 
+
+However, building MOGs on a P2P architecture is considerably more challenging than in the C/S architecture. The main issue is the lack of a single authority. This requires much more complex protocols to synchronize the state of shared objects while presenting a responsive simulation of the game world \cite{dead-reckoning}. As players are responsible for accepting, rejecting and performing updates on primary copies, P2P based architectures are much more vulnerable to cheating. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Dead Reckoning 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Dead Reckoning}
 Reconciliation between dead reckoned position and remote update methods. Dead reckoning (DR) is a short-term linear extrapolation algorithm which utilises information relating to the dynamics of an entity’s state and motion, such as position and velocity, to model and predict future behaviour. \cite{dead-reckoning}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Area of Interest MGMT 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Area of Interest Management}
 PubSub paper has interesting stuff on IZF
+Another mechanism for determining the entities of interest based on the players view of the game world is Binary Space Partition (BSP), as used in Quak
 \begin{figure}[H]
     \centering
     \figsize{assets/soa/mog/tile-interest-zone.png}{0.6}
@@ -353,6 +518,15 @@ PubSub paper has interesting stuff on IZF
 \subsection{Lag Compensation}
 Read up on lag compensation etc, Source Engine notes
 
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Closely related proejcts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Closely Related Projects}
 \sneaktitle{Egal Car \cite{egal-car}}
 \sneaktitle{Matryoshka \cite{ndn-multiplayer-game}}

@@ -1,6 +1,18 @@
 \begin{appendices}
 
-\chapter{Source Code for DNS Management System}
-\label{appendix:dnsManagement}
+\chapter{Invertible Bloom Filters}\label{app:IBF}
+
+
+IBFs are an extension to standard BFs which replace the simple bit array used in BFs with a list of objects. IBFs extend BFs to support element retrieval and deletion. The indices produced by the hash functions are used as indices into this list in order to extract the objects of interest for a given element. The objects in the IBF list contain a \textit{key}, a \textit{value} and a \textit{count}. IBF operations are defined as follows, where an \textit{o} refers to an object at index $i$ such that $i$ is the output of hashing the element with one of the hash functions:
+
+\begin{labeling}{insert(key, val)  }
+    \item[\textit{insert(key, val)}] For each \textit{o}, \textit{o.key := o.key XOR key}, the new value becomes \textit{o.value:= o.value XOR val}, \textit{o.count++}. 
+    \item[\textit{delete(key)}] Assuming the element had been inserted, for each \textit{o}, the new key becomes $existingKey\;XOR\;deleteKey$, the new value becomes $existingValue\;XOR\;deleteValue$ and the count is decremented.
+    \item[\textit{get(key)}] There are three cases to consider when retrieving an \textit{value} by \textit{key}:
+    \begin{itemize}
+        \item If the \textit{count} of \textbf{any} of the objects of interest are zero, the element was never inserted. 
+        \item If none of the objects of interest have a \textit{count == 1}, the element cannot be retrieved but may have been inserted. \item If any of the objects of interest have a \textit{key} which matches the \textit{key} to be retrieved, then the \textit{value} of that object is returned. Otherwise, the element was never inserted.
+    \end{itemize}
+\end{labeling}
 
 \end{appendices}
