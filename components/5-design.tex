@@ -10,51 +10,48 @@ The game itself and some screenshots
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Frontend design
+% Game Taxonomy and Sync Protocols
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Frontend}
-\subsection{LibGDX}
-\subsection{Ashley - Entity Management System)}
-\subsection{Guice}
+\section{Game Data Taxonomy}
+How game satisfies taxonomy
 
 
-\section{NDN Backend}
-blah blah content
-
-\subsection{Game Data Taxonomy}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Player Discovery using CS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Player Discovery}
 ChronoSync..
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Custom Sync Protocol
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Sync Protocol}
-
-
 \subsection{Motivation}
-outstanding interest catchup, only one writer, briefly discuss limitations of chronosync etc. Talk about how most ds sync protocols are designed for multiple writers such as Chronoysnc. Typically not the case in high frequency mog traffic. Psync closest to what I need, single producer, still needs two round trips, Broadcast names (for discovery etc) need multicast forwarding strategy
+\subsection{Name Schema}
+\subsection{Benefits}
 
-\subsection{Naming Design}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Interaction API
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Interaction}
 This is not handled in Egal Car
-
-\section{Optimizations to Sync Protocol for Data types}
-\subsection{PLayer Status}
-\subsection{Projectile}
-
-\section{Game Design}
-\subsection{Protos}
-\subsection{Very brief game functionality}
-\subsection{Linkage between game and backend}
-diagrams of pubs / subs / game engine
-\subsection{Optimizations}
-\subsection*{Interest Management}\label{sec:des:im}
-blah blah \refsec{sec:interest-management}
-\subsection*{Dead Reckoning}\label{sec:des:dr}
-blah blah \refsec{sec:dead-reckoning}
-Dead reckoning impacted by caching? E.g. getting someone else's dead reckoned packet? Stefan mentioned this I cant decide if it matters right now
-
-\subsection{Automation Script}
-Must be repeatable, used fixed seed for RNG
-
+\subsection{Name Schema}
 Things can't be parametrized in NDN without forming a gross name schema - e.g. interaction API can't send parameters. Potential solution is to have publisher's maintain outstanding interests towards consumers for interactions?
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How DR will be done
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Dead Reckoning}\label{sec:des:dr}
+General how I plan to do DR \refsec{sec:dead-reckoning}
+Dead reckoning impacted by caching? E.g. getting someone else's dead reckoned packet? Stefan mentioned this I cant decide if it matters
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How IM will be done
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Interest Management}\label{sec:des:im}
+General how I plan to do IM \refsec{sec:interest-management}

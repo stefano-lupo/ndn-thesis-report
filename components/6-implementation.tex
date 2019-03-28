@@ -1,15 +1,80 @@
 \chapter{Implementation}
-\section{Building Game with LibGdx / Ashley}
-Remote update reconciliation
+Front end, backend developed in parallel. Local testing using single NFD, actual testing using docker, and aws
 
-\section{Java Backend}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Frontend impl
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Frontend}
+
+
+\subsection{LibGDX}
+
+
+\subsection{Ashley - Entity Management System)}
+
+
+\subsection{Guice}
+
+
+\subsection{Reconcilers}
+
+
+\subsection{Creators}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Backend impl
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Backend}
+
+
 \subsection{Sequence Numbered Cache}
+
+
 \subsection{Concurrency}
 
 
-\section{Testing}
+\subsection{Protos}
+Used to transport EMS entities and fed into reconcilers
+
+\subsection{Linkage between game and backend}
+diagrams of pubs / subs / game engine
+
+
+\subsection{Profiling}
+
+\subsection{Metrics}
+
+\subsection*{Interest Management}\label{sec:impl:im}
+Linear dropoff distance thing
+
+\subsection*{Dead Reckoning}\label{sec:des:dr}
+Cache kept on producers, system that runs it
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Testing impl
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Testing Implementation}
+\subsection{Automation Script}
+Must be repeatable, used fixed seed for RNG
+
 \subsection{Docker}
+
+
 \subsection{NLSR}
 Building topologies
 Automating players, simulators, INCREDIBLES
+
+
 \subsection{Latency Calculations}
+
+
+\subsection{Analytics}
+Python script, use dropwizard metrics, uses NFd logs
+
+
+\subsection{AWS}
+
+
