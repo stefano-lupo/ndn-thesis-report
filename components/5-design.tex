@@ -1,33 +1,92 @@
 \chapter{Design}
-Explain the things MOGs must do 
+Outline this section + some filler 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Outline of the game
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{2D Top Down Game}
-The game itself and some screenshots
+\section{\game{} - a 2D, top down, shooting game}
+To allow for the testing of NDN in a MOG context, a simple game was required. Although a variety of open source games of various complexities exist, building the front end of the game from scratch as opposed to adding a networking module to an existing game was chosen for the following reasons:
 
+\begin{itemize}
+    \item The planned scope of the front end of the game was very small, meaning the time investment to build the front end of the game would not be substantial, in comparison to the rest of the project.
+    \item Reading and understanding a large code base is often more difficult than writing the code from scratch. Certain aspects of an inherited code base could also be misunderstood or overlooked, which has the potential to cause major problems in a research context. 
+    \item Designing and implementing the game from scratch would allow for a deeper understanding of the overall system.
+    \item Although the networking aspects of the actual game are decoupled from the front end game design, it is possible that building the game from scratch could lead to interesting questions arising when considered from an ICN perspective. For example, there may be optimizations that can be made to the front end when targeting an ICN based back end and these optimizations would never be explored if an off the shelf game was used,
+    \item Depending on the available time, the game could grow in complexity to support other features which are interesting from a networking perspective.
+\end{itemize}
+
+\subsection{Design Requirements of \game{}}
+The style of game chosen was a simple 2D, top-down game in which a player could move an avatar around the game world. As the design of the actual game was not of interest to the research, \game{} was kept as simple as possible. The key purpose of the game was to provide a source of real world MOG traffic, enabling the study of NDN in this context. To this end, a list of requirements for \game{} was decided upon and contained the following:
+
+\begin{enumerate}
+    \item The player must be able to move their local avatar around the game world.
+    \item The player must be able to see remote players moving around the game world in real-time.
+    \item The player must be able to perform actions which cause the game world to change for all players.
+    \item The player must be able to interact with local and remote game objects and have the updates propagate to remove players.
+    \item The player must be able to interact with remote players and the interaction must be visible to all remote players.
+\end{enumerate}
+
+\game{} was designed to meat each of the requirements defined above and a screenshot from the game is shown in \reffig{fig:des:2d-game}.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/design/game-2-players.png}{1}
+    \caption{\game{} - a 2D, top down game developed to facilitate research into MOGs using NDN}
+    \label{fig:des:2d-game}
+\end{figure}
+
+\game{} contains both local and remote players, both of which can freely move around the game world, satisfying number 1 and 2 of the design requirements.
+
+Players can also place blocks in the game world, which are seen as yellow and grey rectangles in \reffig{fig:des:2d-game}. These blocks are visible to all players, satisfying design requirement number 3.
+
+Blocks placed in the game world are given an initial amount of health and players may attack these blocks by walking up to them and pressing the left mouse button, or by shooting projectiles at them using the right mouse button. If a projectile hits a block, player or the game world boundary, the projectile is consumed and removed from the game. Provided the attack or projectile hits a block, the block's health will decrease by one. The texture used to render the block is dependent on the health of the block. This is seen in \reffig{fig:des:2d-game} as some of the blocks are grey in colour and some are yellow in colour. Upon successfully attacking a block with a single health point remaining, the block is also destroyed. This aspect of the game provides players with a means to interact with both local and remote game objects, satisfying requirement 4.
+
+The red and blue diamonds seen in the bottom left corner of the screen in \reffig{fig:des:2d-game} indicate the local player's health and ammunition respectively. Players may attack other players using the attack mechanisms described previously. Upon shooting a projectile, the player's ammo is decreased by 1, and upon successfully attacking a player, the attacked player's health is decreased by 1, satisfying design requirement 5. The remote player's health and ammunition are also visible to local players. These are shown above the remote player's avatar as red and blue bars respectively. As seen in \reffig{fig:des:2d-game}, the remote player's health and ammo are both partially empty, indicating the player has been hit by a number of attacks and has also shot projectiles. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Game Taxonomy and Sync Protocols
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Game Data Taxonomy}
-How game satisfies taxonomy
+\section{\game{} Data Taxonomy}
+The taxonomy for MOG data is outlined in \refsec{sec:taxonomy}. The proposed game design was examined to ensure each of the types of data outlined in the taxonomy were represented. The taxonomy of MOG data, along with the corresponding data in \game{} is shown in \reffig{fig:des:taxonomy-with-data}.
 
+\begin{figure}[H]
+    \centering
+    \figsize{assets/design/taxonomy-with-game-data.png}{1}
+    \caption{Taxonomy of MOG data with corresponding data in \game{}}
+    \label{fig:des:taxonomy-with-data}
+\end{figure}
+
+As shown in \reffig{fig:des:taxonomy-with-data}, each of the data types produced by \game{} fit into one of the categories defined by the MOG data taxonomy, and an description of each is given below.
+
+\begin{labeling}{Syncrhonized Datasets }
+    \item[Static Content] Due to the simplicity of game, there is not a lot of static content which needs to be sent over the network. Game world assets are packaged and shipped with the game. However, custom player spritesheets represent an ideal candidate for dissemination using NDN. 
+    \item[Realtime Streams] As shown in \reffig{fig:des:taxonomy-with-data}, real-time streams are further subdivided into those which are high frequency and low frequency.\break\break
+    As players are free to roam around the game world, player position updates are required extremely frequently in order to provide the appearance of smooth motion of remote players.\break\break
+    Players can also place blocks, those this ability is limited to once every two seconds. Thus, even if a player chooses to continuously places blocks at the maximum rate, the updates associated with block creation are still relatively low frequency in comparison to player position updates.
+    \item[Non Synced] As described earlier, one form of attacking is through shooting projectiles. Projectiles are extremely short lived in \game{} as they travel at a high speed. Once a projectile is produced, there are no further updates required for that projectile, aside from it being destroyed when it hits a player, block or the game world boundary. This is analogous to the event being consumed. Projectiles are created with an initial position and velocity and are then published to the network. On interaction with the game world boundary, they are automatically destroyed locally by all players. However, on interaction with a remote player or block created by a remote player, the projectile is destroyed and subsequent action is taken through the Interaction API (see \refsec{sec:des:interaction}). Thus, there is no requirement to synchronize projectiles over time, meaning they are essentially events published by a player and are either consumed by the player who created the projectile, or the player who interacts with the projectile.
+    \item[Syncrhonized Datasets] Player discovery is an good example of a dataset which needs to be synchronized across all game players. The rate at which updates are performed on this dataset is approximately equal to the rate at which players join and leave them game, as well as some overhead for the synchronization mechanism. As such, in comparison to the other categories of data, player discovery is a extremely low frequency and can use a strict, slow protocol, to ensure players are discovered correctly.            
+\end{labeling}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Player Discovery using CS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Player Discovery}
-ChronoSync..
+ChronoSync, naive in that its global. 
+\subsection{Benefits}
+Out of the box, slow but resilient which is fine for this applc
+
+Matryoshka (see \refsec{sec:sota:matryoshka}) uses an elegant solution for player discovery by only discovering players in a specific region of interest. However, in comparison to the other data types outlined in the MOG taxonomy (see \refsec{sec:taxonomy}), player discovery is an extremely light weight task. The only data required by \game{} for player discovery is the player's name. Thus, even in the case of hundreds of game players, the size of the player discovery data packets remains small. Similarly, the frequency at which the player discovery dataset changes is extremely low, relative to other categories of data in the taxonomy. This enables the use of a stricter, slower protocol such as ChronoSync. 
+
+The intended maximum number of players in a given instance of \game{} would be on the order of hundreds. This allows the player discovery protocol to be performed globally. However, if the game was to support thousands of players in a given instance, it is likely that a more complex protocol such as that employed by Matryoshka would be likely be required. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Custom Sync Protocol
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Sync Protocol}
+\section{\game{} Sync Protocol}
 \subsection{Motivation}
+Double round trip times.
 \subsection{Name Schema}
 \subsection{Benefits}
 
@@ -35,7 +94,7 @@ ChronoSync..
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Interaction API
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Interaction}
+\section{Interaction}\label{sec:des:interaction}
 This is not handled in Egal Car
 \subsection{Name Schema}
 Things can't be parametrized in NDN without forming a gross name schema - e.g. interaction API can't send parameters. Potential solution is to have publisher's maintain outstanding interests towards consumers for interactions?
@@ -45,7 +104,7 @@ Things can't be parametrized in NDN without forming a gross name schema - e.g. i
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % How DR will be done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Dead Reckoning}\label{sec:des:dr}
+\section{Dead Reckoning}\label{sec:des:dr}
 General how I plan to do DR \refsec{sec:dead-reckoning}
 Dead reckoning impacted by caching? E.g. getting someone else's dead reckoned packet? Stefan mentioned this I cant decide if it matters
 
@@ -53,5 +112,6 @@ Dead reckoning impacted by caching? E.g. getting someone else's dead reckoned pa
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % How IM will be done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection*{Interest Management}\label{sec:des:im}
+\section{Interest Management}\label{sec:des:im}
 General how I plan to do IM \refsec{sec:interest-management}
+Game world larger than viewpor

@@ -1,6 +1,8 @@
 \chapter{State of the Art}
+blah blah blah.. overview of all sections
 
 \section{Named Data Networking (NDN)}\label{sec:ndn-sota}
+\todo[]{Quoute verbatim references}
 Today, most networks make use of the so called Internet Protocol (IP) as the primary mechanism for global communication. The design of IP was heavily influenced by the success of the 20th century telephone networks, resulting in a protocol tailored towards point-to-point communication between two hosts. IP is the \textit{universal network layer} of today's Internet, which implements the minimum functionality required for global interconnectivity. This represents the so called \textit{thin waist} of the Internet, upon which many of the vital systems in use today are built \cite{ndn-exec-summary}. The design of IP was paramount in the success of the modern day internet. However, in recent years, the Internet has become used in a variety of new non point-to-point contexts, rendering the inherent host based abstraction of IP less than ideal.  
 
 The Named Data Networking project is a continuation of an earlier project known as Content-Centric Networking (CCN) \cite{vj-named-content}. The CCN and NDN projects represent a shift in how networks are designed, from the host-centric approach of IP to a data centric approach. NDN provides an alternative to IP, maintaining many of they key features which made it so successful, while improving on the shortcomings uncovered after three decades of use. The design of NDN aligns with the \textit{thin waist} ideology of today's Internet and NDN strives to be the universal network layer of tomorrow's Internet. 
@@ -560,7 +562,7 @@ However, as Egal Car's state updates are snapshots in time, CCNx sync could not 
 
 The key limitation of Egal Car is that assets were not allowed to interact with one and other. Thus, the problem was simplified to one of dataset synchronization, in which there is only one producer of content. Egal Car was also created in 2012 and used a framework which is no longer a part of the NDN platform. Finally, Egal Car was a proof of concept prototype and there is no publicly source code available. 
 
-\sneaktitle{Matryoshka \cite{ndn-multiplayer-game}}
+\sneaktitle{Matryoshka \cite{ndn-multiplayer-game}}\label{sec:sota:matryoshka}
 Matryoshka is another P2P MOG which runs over NDN. The core focus of Matryoshka was to come up with a way to partition the game world such that players would only be interested in other game objects in their partition. This was done by recursively partitioning the game world into 8 octants. In the implementation outlined, the partitioning was two layers deep, although this could be deeper for larger game worlds. The partition a game object belongs to is thus defined by two indices, representing the octant they are in at each of the two layers. 
 
 Matryoshka uses a two step synchronization process within each partition - the discovery step and the update step. 
