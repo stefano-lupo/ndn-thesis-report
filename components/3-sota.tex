@@ -1,6 +1,6 @@
-\chapter{State of the Art (15 to 25)}
+\chapter{State of the Art}
 
-\section{Named Data Networking}\label{sec:ndn-sota}
+\section{Named Data Networking (NDN)}\label{sec:ndn-sota}
 Today, most networks make use of the so called Internet Protocol (IP) as the primary mechanism for global communication. The design of IP was heavily influenced by the success of the 20th century telephone networks, resulting in a protocol tailored towards point-to-point communication between two hosts. IP is the \textit{universal network layer} of today's Internet, which implements the minimum functionality required for global interconnectivity. This represents the so called \textit{thin waist} of the Internet, upon which many of the vital systems in use today are built \cite{ndn-exec-summary}. The design of IP was paramount in the success of the modern day internet. However, in recent years, the Internet has become used in a variety of new non point-to-point contexts, rendering the inherent host based abstraction of IP less than ideal.  
 
 The Named Data Networking project is a continuation of an earlier project known as Content-Centric Networking (CCN) \cite{vj-named-content}. The CCN and NDN projects represent a shift in how networks are designed, from the host-centric approach of IP to a data centric approach. NDN provides an alternative to IP, maintaining many of they key features which made it so successful, while improving on the shortcomings uncovered after three decades of use. The design of NDN aligns with the \textit{thin waist} ideology of today's Internet and NDN strives to be the universal network layer of tomorrow's Internet. 
@@ -431,12 +431,10 @@ Consumers receiving the \textit{SyncReply} can then fetch the new data using sta
 \section{Mutliplayer Online Games (MOGs)}\label{sec:mogs}
 
 
-\subsection{Game Development}
-A huge variety of video game engines and game development frameworks and libraries exist today. The most well known engines and frameworks are those which have been used to make extremely popular games. Valve Software's Source engine was used in a number of immensly successful games such as Half-Life, Team Fortress 2, Portal 2 and Counter Strike: Source. The Unity game development platform was used to develop major titles such as Kerbal Space Program and Hearthstone: Heroes of Warcraft. EA DICE's Frostbite engine has been used in a variety of genres ranging from sports titles such as FIFA 19 to first person shooters such as Battlefield 4. 
+\subsection{Game Development}\todo[]{Reference games}
+A huge variety of video game engines and game development frameworks and libraries exist today. The most well known engines and frameworks are those which have been used to make extremely popular games. Valve Software's Source engine was used in a number of immensely successful games such as Half-Life, Team Fortress 2, Portal 2 and Counter Strike: Source. The Unity game development platform was used to develop major titles such as Kerbal Space Program and Hearthstone: Heroes of Warcraft. EA DICE's Frostbite engine has been used in a variety of genres ranging from sports titles such as FIFA 19 to first person shooters such as Battlefield 4. 
 
-All of the above engines and frameworks are designed to extremely detailed games such as the ones listed. However, an emerging sub-industry is that of \textit{independent (indie)} games. As the main area of interest in this project was video game networking, a simpler game style of game engine was favoured. Indie games represent a movement away from monolithic game production studios with huge development teams and budgets towards developing smaller games, typically with unique art styles and mechanics, which target a niche in the video game market. As such, a large number of smaller scale game engines and frameworks have been developed, one of which is LibGdx \cite{libgdx}. LibGDX is a cross platform, open source game development framework written in Java. It provides an easy to use API which in turn makes use of OpenGL for actual rendering. 
-
-\subsection{Entity Management Systems}
+All of the above engines and frameworks are designed to build extremely detailed games such as the ones listed. However, an emerging sub-industry is that of \textit{independent (indie)} games. As the main area of interest in this project was video game networking, a simpler style of game engine was favoured. Indie games represent a movement away from monolithic game production studios with huge development teams and budgets towards developing smaller games, typically with unique art styles and mechanics, which target a niche in the video game market. As such, a large number of smaller scale game engines and frameworks have been developed, one of which is LibGDX \cite{libgdx}. LibGDX is a cross platform, open source game development framework written in Java. It provides an easy to use API which in turn makes use of OpenGL for actual rendering. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Taxonomy
@@ -489,7 +487,7 @@ The benefits and limitations of a C/S architecture in a MOG context in compariso
 However, substantial research and engineering has allowed C/S based architectures to meet the demands of modern MOGs and they are still the most commonly used today \cite{p2p-mog-survey}. The main mechanism for achieving the scalability required is to distribute players among several servers. Clients can be distributed among servers based on their physical locations in the real world or their virtual locations in the virtual world \cite{dist-mog-loadsharing}. Distributing players based on their virtual locations is the ideal choice, as it does not entirely segregate players. However, it is more challenging in that a hand-off mechanism is likely required as players cross server boundaries. It can also face scalability issues as players tend to congregate at certain places in the virtual world, such as towns or cities \textit{(flocking behaviour)}, meaning a single server may still struggle due to the density of players in a particular region. 
 
 \sneaktitle{Peer-to-Peer (P2P)}
-P2P architectures contain no centralized server. Instead, each peer in the network becomes the authoritative source certain game objects and holds their primary copies. As before, updates are performed only on primary copies. Thus, peers become responsible for accepting update requests, performing updates and disseminating updates to all other peers in the network. A common method for building MOGs using a P2P architecture is to create an overlay network, backed by a \textit{distributed hash table} \cite{p2p-mog-dht}. These typically use Pastry to build a decentralized, self-organizing and fault-tolerant overlay network, capable of routing messages to other peers in $\mathcal{O}(\log{}n)$ forwarding steps \cite{pastry} and Scribe which provides an application-level multicast infrastructure using the overlay network built with Pastry.
+P2P architectures contain no centralized server. Instead, each peer in the network becomes the authoritative source certain game objects and holds their primary copies. As before, updates are performed only on primary copies. Thus, peers become responsible for accepting update requests, performing updates and disseminating updates to all other peers in the network. A common method for building MOGs using a P2P architecture is to create an overlay network, backed by a \textit{distributed hash table} \cite{p2p-mog-dht}. These typically use Pastry to build a decentralized, self-organizing and fault-tolerant overlay network, capable of routing messages to other peers in $\mathcal{O}(\log{}n)$ forwarding steps \cite{pastry} and Scribe \cite{scribe} which provides an application-level multicast infrastructure using the overlay network built with Pastry.
 
 In principle, P2P architectures have the highest potential of all architectures for scalability as every peer that joins the game adds new resources to the system. All of the work is distributed amongst the players in the game, mitigating the requirement for expensive, high performance, centralized servers and providing excellent fault tolerance. 
 
@@ -498,37 +496,90 @@ However, building MOGs on a P2P architecture is considerably more challenging th
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Dead Reckoning 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Dead Reckoning}
-Reconciliation between dead reckoned position and remote update methods. Dead reckoning (DR) is a short-term linear extrapolation algorithm which utilises information relating to the dynamics of an entity’s state and motion, such as position and velocity, to model and predict future behaviour. \cite{dead-reckoning}
+\subsection{Dead Reckoning}\label{sec:dead-reckoning}
+In video games, the rate at which the local game world is updated and redrawn at is known as the \textit{frame rate}. The frame rate of a video game is measured in \textit{frames per second (fps)}. Most modern video games aim to run at a minimum frame rate of 30 fps, while targeting higher frame rates such as 60 or even 100 fps. In the case of a 30 fps frame rate, this would require an update to be available for \textbf{all} remote game objects every 33.33 milliseconds (ms). Using the internet as it stands today, consistently receiving remote updates at a rate of even 30Hz would be extremely challenging and unreliable due to packet loss, limited bandwidth, congestion and propagation times alone. The high frequency update requirement, coupled with the amount of remote game objects that need updating in modern MOGs mean that moving remote game objects based on received updates alone is simply not feasible and attempting to do so leads to very jittery player movement.
+
+Dead reckoning (DR) is a commonly employed solution to this problem in which remote game objects are locally updated at a frequency higher than the rate of updates received for those game objects. As described by Walsh, Ward and McLoone \cite{dead-reckoning}, "DR is a short-term linear extrapolation algorithm which utilises information relating to the dynamics of an entity’s state and motion, such as position and velocity, to model and predict future behaviour".
+
+By including an entity's velocity as well as their new position in remote update packets, an extrapolated trajectory can be built for the game object, using the basic equations of linear motion, which defines their future position as a function of time. The local client can then move the remote game object along this trajectory in between actual remote updates, providing the appearance of smooth motion.   
+
+Upon receipt of a remote update packet, it is likely that the extrapolated position does not exactly match the updated position. As such, a DR \textit{convergence algorithm} is required. The most basic form of this algorithm is to directly overwrite the game object's extrapolated position with the new position. However, this can result in remote game objects appearing to suddenly jump to the new updated position, instead of smoothly moving towards it. The main challenge with DR convergence algorithms is that the difference between the previously extrapolated position and the actual updated position must be reconciled, while continuing to extrapolate the game object towards the future position, defined by the trajectory built using the position and velocity contained in the remote update. An example DR convergence algorithm is one which builds a trajectory using the newly received update packet. A target point is then chosen on that trajectory a configurable number of time steps away. A smoothing function is then used to build another trajectory from the previously extrapolated position, to the new target point, allowing the object to smoothly reach the targeted future point \cite{dead-reckoning-convergence}.  
+
+Another interesting component of DR is that it can be used to dynamically control the rate at which updates are published. As all parties use the same extrapolation and convergence algorithms, the holder of the primary copy can also maintain a replica copy, which represents the extrapolated position as viewed by remote players. The holder of the primary copy can then use a configurable \textit{threshold value}  to determine when an update is required. In the simplest form, this is done by periodically calculating the Euclidean distance between the extrapolated position and the actual primary copy position and publishing an update once this distance exceeds the threshold value. This mechanism can be used to dynamically control the rate at which updates are published depending on the motion characteristics of the game object. For example, if the game object is stationary, the extrapolated position over time will remain constant as the velocity vector is also zero. Thus, until the game object begins to move, there is no need to publish further updates. This can also apply to game objects moving on a constant trajectory, for example moving due east in the game world. 
+
+An interesting component of this method is choosing the threshold value. This value is chosen to minimize network traffic without negatively impacting the apparent consistency of the game world. This choice is similar to choosing the amount of compression to apply to an audio or video stream. Research conducted by Kenny, McLoone, Ward and Delaney examined the impacts of different threshold values by performing experiments with real people, in an attempt to determine an optimal value \cite{dead-reckonining-threshold-learning}. 
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Area of Interest MGMT 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Area of Interest Management}
-PubSub paper has interesting stuff on IZF
-Another mechanism for determining the entities of interest based on the players view of the game world is Binary Space Partition (BSP), as used in Quak
+\subsection{Interest Management}\label{sec:interest-management}
+Depending on the design of the MOG, players may only see a subsection of the game world at a given time. For example, in a top-down game or side scroller, the camera remains centred on the player's avatar and the player's viewport is a subregion of the entire game world. Similarly in more complex 3D games, the player's view of the game world may be obstructed by objects such as rocks or trees, or the player may be inside of a building. Finally, the game world may be divided into geographical regions such that a player's view of the game world is strictly limited to the geographical region they are currently in.
+
+In all cases, there is an opportunity to drastically reduce the amount of game objects that must be synchronized to present a consistent view of the game world to the player. This concept is defined in the literature as \textit{interest management (IM)}. The most prevalent form of IM is \textit{spatial} in nature, as described previously. However, a somewhat assumed form of IM in MOGs is \textit{temporal} in nature, in that MOGs are essentially real-time applications and players typically do not need to know about data that was generated earlier as the game world has moved on from that point. Finally, there are also opportunities to employ IM by exploiting certain features of the actual game. For example, in a shooting based game, the position and status of allies could likely be synchronized less aggressively than that of enemies, as the player's focus is more likely on the enemies they are fighting.
+
+An important aspect of IM is that there is a computational cost associated with performing IM to determine what subset of game objects a given player is interested in. Thus, the benefits gained from employing IM must be carefully weighted against the associated computation overhead \cite{im-thesis}. In this regard, IM mechanisms which push the computation to the actual players are favoured over those which must be performed server-side. Similarly, trading off the computational overhead for memory overhead, through pre computation ahead of time, can also be beneficial, provided surplus memory is available.
+
+The simplest form of IM occurs in the case of a top-down style game, where a player's viewport is a cropped view of the entire game world. Game objects outside of the player's viewport can be disregarded as they cannot be seen by the player. However, dynamic game objects  cannot be disregarded entirely, as their movement may cause them to enter the player's viewport. Instead, the rate at which updates are published to player for that game object can be slowed and the contents of the updates can be diminished to only containing the position and velocity of the game object.
+
+An example of a more complex IM mechanism is \textit{tile based IM}. Tile based IM divides the entire game world into tiles, such that the physical position of all players and game objects will always be on a tile. If an obstacle blocks a portion of a players view of the world, the player should not be interested in any of the game objects behind that obstacle.  The simple distance based form of IM does not handle this case and produces false positives for game objects which the player should not be interested in. Tile based IM solves this problem by taking the game world into account \cite{pub-sub-mog}.
+
 \begin{figure}[H]
     \centering
-    \figsize{assets/soa/mog/tile-interest-zone.png}{0.6}
-    \caption{Tile-based area of interest management}
-    \label{fig:tile-izm}
+    \figsize{assets/soa/mog/tile-im.png}{0.6}
+    \caption{Tile interest map in a 3D game world}
+    \label{fig:tile-im}
 \end{figure}
 
-\subsection{Lag Compensation}
-Read up on lag compensation etc, Source Engine notes
-
-
-
-
+ A \textit{tile interest map} is built for every tile in the game world, which takes all obstacles into account. This can be a relatively expensive process and is typically pre-computed and stored in memory providing fast lookup times. An example of a tile interest map is shown in \reffig{fig:tile-im} in which the player (blue) is not interested in any of game objects on the red tiles as the view of those tiles is obstructed by the obstacle (grey).   
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Closely related proejcts
+% Closely related projects
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Closely Related Projects}
+There proposed project can be broken up into three main areas - NDN, video game development and video game networking as seen in \reffig{fig:venn}. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/venn-diagram.png}{0.5}
+    \caption{Core areas associated with the research project}
+    \label{fig:venn}
+\end{figure}
+
+As such, projects which focus on researching, designing and building MOGs using NDN as the communication mechanism are very relevant to the project. However, as NDN is still a relatively new technology in an early prototyping stage, only three projects were found in this area.
+
 \sneaktitle{Egal Car \cite{egal-car}}
+Egal Car was the first investigation into building a MOG using NDN. Egal Car used an existing single player, Unity based, car racing game and focused on writing a P2P networking module for the game, allowing it to be played as a multiplayer game. Egal Car splits the data required for the game into three distinct categories. The first represents static, immutable, unchanging data which does not need to be synchronized, such as terrain and car assets. The second is data required for asset creation, such as when a new player joins the game. The third category represents state synchronization data, which can be tied to certain game entities or can be global for a particular instance of the game.
+
+Egal Car made use of the now deprecated CCNx Sync protocol \cite{ccnx-sync} and the corresponding data repository as a means of dataset synchronization. CCNx Sync provides \textbf{reliable and unordered} dataset synchronization and was used for asset discovery as assets are entirely independent of one and other, meaning the order of asset discovery is unnecessary.
+
+However, as Egal Car's state updates are snapshots in time, CCNx sync could not be used as the ordering of state updates is critical to the consistency of the game. Egal Car made use of NDN's standard Interest and Data primitives for state synchronization, along with a timestamp floor, allowing players to only accept updates which were newer than what they had previously seen.
+
+The key limitation of Egal Car is that assets were not allowed to interact with one and other. Thus, the problem was simplified to one of dataset synchronization, in which there is only one producer of content. Egal Car was also created in 2012 and used a framework which is no longer a part of the NDN platform. Finally, Egal Car was a proof of concept prototype and there is no publicly source code available. 
+
 \sneaktitle{Matryoshka \cite{ndn-multiplayer-game}}
+Matryoshka is another P2P MOG which runs over NDN. The core focus of Matryoshka was to come up with a way to partition the game world such that players would only be interested in other game objects in their partition. This was done by recursively partitioning the game world into 8 octants. In the implementation outlined, the partitioning was two layers deep, although this could be deeper for larger game worlds. The partition a game object belongs to is thus defined by two indices, representing the octant they are in at each of the two layers. 
+
+Matryoshka uses a two step synchronization process within each partition - the discovery step and the update step. 
+
+Every game player maintains a hash of the set of names representing the game objects it knows about in the player's current partition. Game players express Interests for the partition they are currently in, along with the digest of the set of game objects in that partition that they know about, to the partition's discovery namespace. Other players in this partition receive these Interests and if the received digest does not match their own digest, they respond with a Data packet containing the set of names they know about. This allows players to discovery game objects in their partitions. The name schema for the discovery namespace used in Matryoshka is shown in \reffig{fig:matryoshka-discovery}. Finally, players can periodically express Interests for the game objects in their partition, using the set of names they have discovered. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/soa/matryoshka.png}{0.5}
+    \caption{Matryoshka broadcast discovery namespace}
+    \label{fig:matryoshka-discovery}
+\end{figure}
+
+Matryoshka provides an interesting solution to the problem of interest management by having a deterministic method for constructing Interest names based on the player's game world location. The solution appears to be quite scalable by increasing the depth of the recursive partitioning to support smaller and smaller areas of interest. However, areas of interest cannot be infinitely decreased, which limits the overall scalability of the solution. 
+
+Although an implementation is discussed, there is no source code available. There paper also lacks any results or evaluation section, indicating the architecture has not been tested.   
+
 \sneaktitle{NDNGame \cite{ndn-game}}
+NDNGame describes the use of a hybrid architecture in which a conventional C/S approach using UDP over IP is used for the actual gameplay related networking, and NDN is used for the dissemination of the \textbf{game files}. The logic behind this approach is that the size of the initial files required to play the game are far larger than the packets which are sent when playing the game. The use of the conventional C/S architecture using UDP/IP is chosen due to the importance of network latency when playing the game. 
+
+The suggestion of using a hybrid architecture in which traditional host based communication is performed using IP while content dissemination is performed using NDN is an interesting concept. However, the assumption that static game file content dissemination is anywhere near as challenging as the real time networking requirements of the MOG is flawed. Although, using a P2P like file sharing solution is ideal for large scale content dissemination, serving the static game files is an entirely orthogonal problem to building a highly scalable, low latency MOG experience. When a new game is released, there is likely to be a large demand for the static game files, while customers download the game. Although this is indeed an ideal use case for NDN, this spike can also be handled by temporarily scaling the servers responsible for serving the static game files. The paper's suggestion that using NDN in a MOG scenario is not feasible does not appear to be rooted in any actual testing or empirical evidence and thus the main finding of the paper is only that NDN would be an ideal candidate for static game file dissemination.  
 

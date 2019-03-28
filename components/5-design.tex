@@ -1,12 +1,38 @@
 \chapter{Design}
 Explain the things MOGs must do 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Outline of the game
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{2D Top Down Game}
+The game itself and some screenshots
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Frontend design
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Frontend}
+\subsection{LibGDX}
+\subsection{Ashley - Entity Management System)}
+\subsection{Guice}
+
+
+\section{NDN Backend}
+blah blah content
+
+\subsection{Game Data Taxonomy}
+
 \section{Player Discovery}
+ChronoSync..
+
 
 \section{Sync Protocol}
-Broadcast names (for discovery etc) need multicast forwarding strategy
-\subsection{Differences from existing protocols}
-outstanding interest catchup, only one writer, briefly discuss limitations of chronosync etc. Talk about how most ds sync protocols are designed for multiple writers such as Chronoysnc. Typically not the case in high frequency mog traffic. Psync closest to what I need, single producer, still needs two round trips
+
+
+\subsection{Motivation}
+outstanding interest catchup, only one writer, briefly discuss limitations of chronosync etc. Talk about how most ds sync protocols are designed for multiple writers such as Chronoysnc. Typically not the case in high frequency mog traffic. Psync closest to what I need, single producer, still needs two round trips, Broadcast names (for discovery etc) need multicast forwarding strategy
+
 \subsection{Naming Design}
 
 \section{Interaction}
@@ -22,8 +48,10 @@ This is not handled in Egal Car
 \subsection{Linkage between game and backend}
 diagrams of pubs / subs / game engine
 \subsection{Optimizations}
-\subsection*{Interest Zone Filtering}
-\subsection*{Dead Reckoning}
+\subsection*{Interest Management}\label{sec:des:im}
+blah blah \refsec{sec:interest-management}
+\subsection*{Dead Reckoning}\label{sec:des:dr}
+blah blah \refsec{sec:dead-reckoning}
 Dead reckoning impacted by caching? E.g. getting someone else's dead reckoned packet? Stefan mentioned this I cant decide if it matters right now
 
 \subsection{Automation Script}
