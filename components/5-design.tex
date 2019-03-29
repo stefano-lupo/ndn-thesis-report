@@ -71,12 +71,23 @@ As shown in \reffig{fig:des:taxonomy-with-data}, each of the data types produced
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Player Discovery using CS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Player Discovery}
-ChronoSync, naive in that its global. 
-\subsection{Benefits}
-Out of the box, slow but resilient which is fine for this applc
+\section{Player Discovery}\label{sec:des:discovery}
+As shown in the taxonomy of \game{}'s data (\reffig{fig:des:taxonomy-with-data}), the problem of player discovery is one of dataset synchronization (DS). As discussed in \refsec{sec:dataset-sync}, a variety of DS protocols exist as part of the NDN ecosystem. These protocols all require multiple round trips to fetch updated data, meaning they are not suitable for use with high frequency data such as that found in MOGs. However, the dataset associated with player discovery is updated very infrequently in \game. Similarly, for player discovery, the consistency of the dataset is far more important that than the latency associated with updating the dataset. As such, an existing solution for DS can be used for player discovery. 
 
-Matryoshka (see \refsec{sec:sota:matryoshka}) uses an elegant solution for player discovery by only discovering players in a specific region of interest. However, in comparison to the other data types outlined in the MOG taxonomy (see \refsec{sec:taxonomy}), player discovery is an extremely light weight task. The only data required by \game{} for player discovery is the player's name. Thus, even in the case of hundreds of game players, the size of the player discovery data packets remains small. Similarly, the frequency at which the player discovery dataset changes is extremely low, relative to other categories of data in the taxonomy. This enables the use of a stricter, slower protocol such as ChronoSync. 
+ChronoSync was chosen for player discovery as it is part of the NDN Common Client Libraries specification \cite{ndn-ccl}, meaning it is available in all of the supported languages. ChronoSync has also been around since 2013, meaning it is well documented and tested. Although ChronoSync contains some major limitations, as outlined in the discussion on PSync (see \refsec{sec:dataset-sync}), none of these limitations will cause any issues in the context of player discovery.
+
+There are only two input parameters required for the naming schema used in \game{} - the \textit{gameId} and the \textit{playerName}. The \textit{gameId} is chosen ahead of time and allows the player to choose the instance of \game{} they wish to play in. Thus, for player discovery, the only value that needs to be discovered to provide access to all data produced by a player is the \textit{playerName}. This means the dataset synchronized by the player discovery mechanism is a set of strings, representing the the \textit{playerName} of all connected players.
+
+\sloppy As outlined in \refsec{sec:dataset-sync}, ChronoSync requires a broadcast namespace under which all nodes can produce \textit{SyncInterests} and \textit{SyncReplies}. These are used by participants to detect dataset changes and to inform others of the \textit{name} of the data which has been added. The broadcast namespace used in \game{} is \textit{\gameprefix{}/discovery/broadcast}. As discussed in \refsec{sec:sota:forwarding-strats}, the forwarding strategy selected for a given namespace can be critical to the \textbf{correctness} of an application and is not only a network optimization choice. As all nodes must be informed of all updates to the dataset, the forwarding strategy for this name space must be \textit{multicast}, which provides the broadcast functionality.
+
+\sloppy The final component of player discovery is the name used for fetching the updated player discovery data. Recall that ChronoSync nodes satisfy the \textit{SyncInterest} with a \textit{SyncReply} Data packet which contains the \textbf{name} of the Data packet to fetch to retrieve the update. In \game{}, the player discovery data is named \textit{\gameprefix{}/discovery/<player\_name>}. Currently, the node who is responsible for publishing under this namespace will respond with the set of \textit{playerNames} it currently knows about. 
+
+An important note here is the apparent redundancy in subsequently fetching the \textit{playerName} using the discovered \textit{playerName}. The reason player discovery was designed in this way, was to support future additions to the player discovery packet, without requiring changes to the implementation. For example, the player discovery data packet could be easily extended to include the team to which the discovered player belongs. 
+
+\subsection{Benefits}
+The main benefit of using ChronoSync for player discovery was convenience. ChronoSync provides an easy to use API which is available in all of the NDN Common Client Library implementations and the characteristics of the player discovery data allow for the limitations inherent in the ChronoSync protocol. The current player discovery mechanism is naive in that it is performed globally across all players in a given game instance. 
+
+Matryoshka (see \refsec{sec:sota:matryoshka}) uses an elegant solution for player discovery by only discovering players in a specific region of interest. However, in comparison to the other data types outlined in the MOG taxonomy (see \refsec{sec:taxonomy}), player discovery is an extremely light weight task. Currently, only data required by \game{} for player discovery is the player's name. Thus, even in the case of hundreds of game players, the size of the player discovery data packets remains small. Similarly, the frequency at which the player discovery dataset changes is extremely low, relative to other categories of data in the taxonomy. This enables the use of a stricter, slower protocol such as ChronoSync. 
 
 The intended maximum number of players in a given instance of \game{} would be on the order of hundreds. This allows the player discovery protocol to be performed globally. However, if the game was to support thousands of players in a given instance, it is likely that a more complex protocol such as that employed by Matryoshka would be likely be required. 
 
@@ -85,11 +96,118 @@ The intended maximum number of players in a given instance of \game{} would be o
 % Custom Sync Protocol
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\game{} Sync Protocol}
-\subsection{Motivation}
-Double round trip times.
-\subsection{Name Schema}
-\subsection{Benefits}
+One of the most challenging aspects of building MOGs is the requirement for a high performance networking solution which is capable of supporting a large number of relatively small packets in a low latency manner. As such, a custom protocol was developed to enable scalable, low latency synchronization of game objects over NDN.
 
+\subsection{Motivation}
+Although several protocols exist for synchronizing datasets over NDN, there are some fundamental differences between the requirements for a distributed DS mechanism and game object synchronization in MOGs. The main difference is the priority of \textbf{low latency} over stricter consistency and ordering. 
+
+A common feature of the existing DS protocols is that they act as notification systems, informing participants of updates to the dataset and how to fetch those updates. It is up to the participant themselves to actually fetch the updated data. This approach does provide benefits in the context of DS in that the scope of the protocol is reduced and participants have the \textit{option} to fetch the data, meaning they can ignore uninteresting updates. However, these benefits come at the cost of having two perform a second Interest / Data exchange to \textbf{obtain} the updated data. This has the effect of approximately doubling the round trip time of receiving updates, which is a major issue in the context of MOGs were latency is paramount. Thus, a primary design goal of a game object synchronization protocol would be to achieve synchronization in a single Interest / Data exchange. 
+
+There are two key characteristics of MOG data which can be exploited to provide a more efficient synchronization protocol:
+\todo[]{These are weak}
+\begin{enumerate}
+    \item Players are only interested in the \textbf{newest instance} of a piece of named data. The real-time nature of MOGs mean that players are not interested in historical data for a game object. This can be exploited by having producers only store and produce their newest data.  
+    \item Publishers can dynamically control the rate of data production, depending on the state of the game object(s) they are responsible for. For example, a publisher responsible for a game object's position can throttle the rate of updates published if the game object is standing still. This characteristic suggests that an outstanding \textit{SyncInterest} model, similar to what is used by ChronoSync, would allow consumers to express new Interests immediately after receiving remote updates which producers can satisfy as soon as they have updates to send.  
+\end{enumerate} 
+
+\subsection{Name Schema}\label{sec:des:naming}
+One of the most important aspects of designing an application or protocol which uses NDN is \textit{naming}. As discussed previously, NDN applications should use a naming convention such that consumers can deterministically construct names for data they are interested in. The name schema used for \game{}'s game object sync protocol is shown in \reffig{fig:des:sync-protocol-name}.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/design/sync-protocol-name.png}{1}
+    \caption{Name schema of \game{}'s game object sync protocol}
+    \label{fig:des:sync-protocol-name}
+\end{figure}
+
+As seen in \reffig{fig:des:sync-protocol-name}, the number of components used in the name depends on the use case. For example, when producers register the prefix with the NFD, they only use the first 5 components (up to the \textit{sync} component), so that they receive the Interests regardless of the version floor (\textit{vf}) or next version floor (\textit{nextVf}). When consumers express Interests for a piece of data, they only use the first 6 components (up to the \textit{vf} component). Finally, when producers respond with Data packets, they use all 7 of the components for naming the Data packet. 
+
+Each of the 7 NDN name components are discussed below.
+
+\sneaktitle{\textit{gamePrefix}}
+This component is used to target \game{} in the global NDN namespace.
+
+\sneaktitle{\textit{gameId}}
+This is used to allow for multiple instances of \game{} to be run concurrently and in isolation. Players can only see and interact with other players in the same game, as defined by the \textit{gameId}. The \textit{gameId} is chosen upon launching \game{}.
+
+\sneaktitle{\textit{playerName}}
+This specifies the name of the player which holds the primary copy of the game object in question. This field is discovered through the player discovery mechanism (see \refsec{sec:des:discovery}).
+
+\sneaktitle{\textit{objectType}}
+This specifies the type of the game object in question. In the current implementation of \game{}, there are currently three possible values for this component:
+\begin{enumerate}
+    \item \textit{playerStatus} refers to the status of a player which includes information such as the player's position in the game world, velocity vector, health and ammo.
+    \item \textit{blocks} refers to the set of active blocks in the game world that were placed by the player.
+    \item \textit{projectiles} refers to the projectiles which the player has previously shot.
+\end{enumerate} 
+
+\sneaktitle{\textit{sync}}
+This specifies that this packet is for use with the sync API as opposed to the interaction API (see \refsec{sec:des:interaction}).
+
+\sneaktitle{\textit{vf}}
+This represents the \textit{version floor}. This specifies the \textbf{minimum} version of the corresponding data that can be used to satisfy the Interest. Producers will only respond to the Interest when they have data with a version number greater than or equal to the version floor. This is used to ensure consumers only ever receive data that is newer than what they have already seen. 
+
+\sneaktitle{\textit{nextVf}}
+This field is added by the producer and represents the \textbf{next version floor} that should be used. For example if a producer satisfies the Interest with version 10 of the corresponding piece of data, the \textit{nextVf} component in the name of the Data packet will be 11. 
+
+This field is \textbf{not} necessarily an incremented copy of the version floor. Depending on network conditions, players can fail to keep up with remote updates and fall behind. For example, a consumer may request version 10 of a piece of data, even though the producer is at version 100 of the data. In this case, the producer will respond with version 100 and set the \textit{nextVf} component to 101. The consumer will extract the \textit{nextVf} component from the name and use it as the \textit{vf} of the next Interest, allowing it to immediately catch up with the producer and to skip all redundant versions.
+
+
+% \begin{table}[H]
+% \centering
+% \begin{tabular}{l l l}
+% \toprule
+% % \textbf{Example Address} & \textbf{Number of Host Bits $n\sub{hb}$} &\textbf{Number of IPs in Block $n\sub{hosts}$} \\
+% \midrule
+% 1.1.1.0/32 & 0 & 1\\
+% 1.1.1.0/31 & 1 & 2\\
+% 1.1.1.0/30 & 2 & 4\\
+% 1.1.1.0/29 & 3 & 8\\
+% ... & ... & ...\\
+% 1.1.1.0/1 & 31 & $2 ^ {31}$\\
+% \bottomrule\\
+% \end{tabular}
+% \caption{The Size of CIDR Blocks as a Function of $n_{hb}$}
+% \label{tbl:des:sync-protocol-name}
+% \end{table}
+
+
+\subsection{Game Object Sync Protocol in Operation}
+The operation of the game object sync protocol can be split into three stages - prefix registration, Interest expression and Data production. Assuming the \textit{gameId} is 0, the operation of the protocol for synchronizing nodeA's \textit{PlayerStatus} with nodeB is shown below.
+
+\sneaktitle{1. Prefix Registration}
+The first step in the procedure is for nodeA to register the prefix corresponding to nodeA's \textit{PlayerStatus} with the it's NFD. This is done using the \textit{registerPrefix} call provided by the NDN CCL.
+\begin{align*}
+    nodeA\ registers\ prefix:\ /ndngame/0/nodeA/playerStatus/sync
+\end{align*}
+
+
+
+\sneaktitle{2. Interest Expression}
+Assuming nodeB joins the game with \textit{gameId} 0, the player discovery mechanism will discover the other players in this game including nodeA. NodeB will then attempt to fetch the latest version of all of the game object's owned by nodeA, including the \textit{PlayerStatus} of nodeA's avatar. To do this, it will express an Interest for nodeA's \textit{PlayerStatus} using the default initial sequence number of 0.
+\begin{align*}
+    nodeB\ expresses\ Interest:\ /ndngame/0/nodeA/playerStatus/sync/0
+\end{align*}
+
+\sneaktitle{3. Data Production}
+Assuming nodeB's Interest gets routed to nodeA appropriately, nodeA will add the Interest into a data structure representing the outstanding Interests for nodeA's \textit{PlayerStatus} that it has not yet satisfied.
+
+If the sequence number of nodeA's \textit{PlayerStatus} is less than the sequence number contained in the name of the Interest from nodeB, the Interest will not be satisfied right away and will be deferred until a later time. 
+
+However, as nodeB requested sequence number 0 of nodeA's \textit{PlayerStatus}, this will certainly be available as all players are given an initial position which corresponds to sequence number 0 of their \textit{PlayerStatus}. 
+
+Assume nodeA has been in the game for a few minutes and that the sequence number of it's \textit{PlayerStatus} is 90. As 90 is larger than 0 (the version floor contained in the Interest name), nodeA has an updated \textit{PlayerStatus} that has not yet been seen by nodeB. NodeA will create a Data packet which contains the \textbf{newest instance} of nodeA's \textit{PlayerStatus}, which is version 90 in this case. Thus, nodeB receives the most up to date version of nodeA's \textit{PlayerStatus}.
+
+As nodeB will be receiving the 90th version of nodeA's \textit{PlayerStatus}, the next version floor it should use is version 91 and this is used as the value for \textit{nextVf} in the name of the Data packet produced by nodeA. Thus, nodeA replies with a Data packet of the following form:
+
+\begin{flalign*}
+    name:&\ /ndngame/0/nodeA/playerStatus/sync/0/91 \\
+    content:\ &version\ 90\ of\ nodeA's\ PlayerStatus 
+\end{flalign*}
+
+
+\subsection{Benefits}
+The main benefit of the synchronization protocol is that it does not require a separate Interest / Data exchange for update notifications and update fetching. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Interaction API
