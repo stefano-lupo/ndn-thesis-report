@@ -1,5 +1,5 @@
 \chapter{Design}
-Outline this section + some filler 
+Outline this section + some filler
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -10,7 +10,7 @@ To allow for the testing of NDN in a MOG context, a simple game was required. Al
 
 \begin{itemize}
     \item The planned scope of the front end of the game was very small, meaning the time investment to build the front end of the game would not be substantial, in comparison to the rest of the project.
-    \item Reading and understanding a large code base is often more difficult than writing the code from scratch. Certain aspects of an inherited code base could also be misunderstood or overlooked, which has the potential to cause major problems in a research context. 
+    \item Reading and understanding a large code base is often more difficult than writing the code from scratch. Certain aspects of an inherited code base could also be misunderstood or overlooked, which has the potential to cause major problems in a research context.
     \item Designing and implementing the game from scratch would allow for a deeper understanding of the overall system.
     \item Although the networking aspects of the actual game are decoupled from the front end game design, it is possible that building the game from scratch could lead to interesting questions arising when considered from an ICN perspective. For example, there may be optimizations that can be made to the front end when targeting an ICN based back end and these optimizations would never be explored if an off the shelf game was used,
     \item Depending on the available time, the game could grow in complexity to support other features which are interesting from a networking perspective.
@@ -42,7 +42,7 @@ Players can also place blocks in the game world, which are seen as yellow and gr
 
 Blocks placed in the game world are given an initial amount of health and players may attack these blocks by walking up to them and pressing the left mouse button, or by shooting projectiles at them using the right mouse button. If a projectile hits a block, player or the game world boundary, the projectile is consumed and removed from the game. Provided the attack or projectile hits a block, the block's health will decrease by one. The texture used to render the block is dependent on the health of the block. This is seen in \reffig{fig:des:2d-game} as some of the blocks are grey in colour and some are yellow in colour. Upon successfully attacking a block with a single health point remaining, the block is also destroyed. This aspect of the game provides players with a means to interact with both local and remote game objects, satisfying requirement 4.
 
-The red and blue diamonds seen in the bottom left corner of the screen in \reffig{fig:des:2d-game} indicate the local player's health and ammunition respectively. Players may attack other players using the attack mechanisms described previously. Upon shooting a projectile, the player's ammo is decreased by 1, and upon successfully attacking a player, the attacked player's health is decreased by 1, satisfying design requirement 5. The remote player's health and ammunition are also visible to local players. These are shown above the remote player's avatar as red and blue bars respectively. As seen in \reffig{fig:des:2d-game}, the remote player's health and ammo are both partially empty, indicating the player has been hit by a number of attacks and has also shot projectiles. 
+The red and blue diamonds seen in the bottom left corner of the screen in \reffig{fig:des:2d-game} indicate the local player's health and ammunition respectively. Players may attack other players using the attack mechanisms described previously. Upon shooting a projectile, the player's ammo is decreased by 1, and upon successfully attacking a player, the attacked player's health is decreased by 1, satisfying design requirement 5. The remote player's health and ammunition are also visible to local players. These are shown above the remote player's avatar as red and blue bars respectively. As seen in \reffig{fig:des:2d-game}, the remote player's health and ammo are both partially empty, indicating the player has been hit by a number of attacks and has also shot projectiles.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Game Taxonomy and Sync Protocols
@@ -60,19 +60,19 @@ The taxonomy for MOG data is outlined in \refsec{sec:taxonomy}. The proposed gam
 As shown in \reffig{fig:des:taxonomy-with-data}, each of the data types produced by \game{} fit into one of the categories defined by the MOG data taxonomy, and an description of each is given below.
 
 \begin{labeling}{Syncrhonized Datasets }
-    \item[Static Content] Due to the simplicity of game, there is not a lot of static content which needs to be sent over the network. Game world assets are packaged and shipped with the game. However, custom player spritesheets represent an ideal candidate for dissemination using NDN. 
+    \item[Static Content] Due to the simplicity of game, there is not a lot of static content which needs to be sent over the network. Game world assets are packaged and shipped with the game. However, custom player spritesheets represent an ideal candidate for dissemination using NDN.
     \item[Realtime Streams] As shown in \reffig{fig:des:taxonomy-with-data}, real-time streams are further subdivided into those which are high frequency and low frequency.\break\break
     As players are free to roam around the game world, player position updates are required extremely frequently in order to provide the appearance of smooth motion of remote players.\break\break
     Players can also place blocks, those this ability is limited to once every two seconds. Thus, even if a player chooses to continuously places blocks at the maximum rate, the updates associated with block creation are still relatively low frequency in comparison to player position updates.
     \item[Non Synced] As described earlier, one form of attacking is through shooting projectiles. Projectiles are extremely short lived in \game{} as they travel at a high speed. Once a projectile is produced, there are no further updates required for that projectile, aside from it being destroyed when it hits a player, block or the game world boundary. This is analogous to the event being consumed. Projectiles are created with an initial position and velocity and are then published to the network. On interaction with the game world boundary, they are automatically destroyed locally by all players. However, on interaction with a remote player or block created by a remote player, the projectile is destroyed and subsequent action is taken through the Interaction API (see \refsec{sec:des:interaction}). Thus, there is no requirement to synchronize projectiles over time, meaning they are essentially events published by a player and are either consumed by the player who created the projectile, or the player who interacts with the projectile.
-    \item[Syncrhonized Datasets] Player discovery is an good example of a dataset which needs to be synchronized across all game players. The rate at which updates are performed on this dataset is approximately equal to the rate at which players join and leave them game, as well as some overhead for the synchronization mechanism. As such, in comparison to the other categories of data, player discovery is a extremely low frequency and can use a strict, slow protocol, to ensure players are discovered correctly.            
+    \item[Syncrhonized Datasets] Player discovery is an good example of a dataset which needs to be synchronized across all game players. The rate at which updates are performed on this dataset is approximately equal to the rate at which players join and leave them game, as well as some overhead for the synchronization mechanism. As such, in comparison to the other categories of data, player discovery is a extremely low frequency and can use a strict, slow protocol, to ensure players are discovered correctly.
 \end{labeling}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Player Discovery using CS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Player Discovery}\label{sec:des:discovery}
-As shown in the taxonomy of \game{}'s data (\reffig{fig:des:taxonomy-with-data}), the problem of player discovery is one of dataset synchronization (DS). As discussed in \refsec{sec:dataset-sync}, a variety of DS protocols exist as part of the NDN ecosystem. These protocols all require multiple round trips to fetch updated data, meaning they are not suitable for use with high frequency data such as that found in MOGs. However, the dataset associated with player discovery is updated very infrequently in \game. Similarly, for player discovery, the consistency of the dataset is far more important that than the latency associated with updating the dataset. As such, an existing solution for DS can be used for player discovery. 
+As shown in the taxonomy of \game{}'s data (\reffig{fig:des:taxonomy-with-data}), the problem of player discovery is one of dataset synchronization (DS). As discussed in \refsec{sec:dataset-sync}, a variety of DS protocols exist as part of the NDN ecosystem. These protocols all require multiple round trips to fetch updated data, meaning they are not suitable for use with high frequency data such as that found in MOGs. However, the dataset associated with player discovery is updated very infrequently in \game. Similarly, for player discovery, the consistency of the dataset is far more important that than the latency associated with updating the dataset. As such, an existing solution for DS can be used for player discovery.
 
 ChronoSync was chosen for player discovery as it is part of the NDN Common Client Libraries specification \cite{ndn-ccl}, meaning it is available in all of the supported languages. ChronoSync has also been around since 2013, meaning it is well documented and tested. Although ChronoSync contains some major limitations, as outlined in the discussion on PSync (see \refsec{sec:dataset-sync}), none of these limitations will cause any issues in the context of player discovery.
 
@@ -80,16 +80,16 @@ There are only two input parameters required for the naming schema used in \game
 
 \sloppy As outlined in \refsec{sec:dataset-sync}, ChronoSync requires a broadcast namespace under which all nodes can produce \textit{SyncInterests} and \textit{SyncReplies}. These are used by participants to detect dataset changes and to inform others of the \textit{name} of the data which has been added. The broadcast namespace used in \game{} is \textit{\gameprefix{}/discovery/broadcast}. As discussed in \refsec{sec:sota:forwarding-strats}, the forwarding strategy selected for a given namespace can be critical to the \textbf{correctness} of an application and is not only a network optimization choice. As all nodes must be informed of all updates to the dataset, the forwarding strategy for this name space must be \textit{multicast}, which provides the broadcast functionality.
 
-\sloppy The final component of player discovery is the name used for fetching the updated player discovery data. Recall that ChronoSync nodes satisfy the \textit{SyncInterest} with a \textit{SyncReply} Data packet which contains the \textbf{name} of the Data packet to fetch to retrieve the update. In \game{}, the player discovery data is named \textit{\gameprefix{}/discovery/<player\_name>}. Currently, the node who is responsible for publishing under this namespace will respond with the set of \textit{playerNames} it currently knows about. 
+\sloppy The final component of player discovery is the name used for fetching the updated player discovery data. Recall that ChronoSync nodes satisfy the \textit{SyncInterest} with a \textit{SyncReply} Data packet which contains the \textbf{name} of the Data packet to fetch to retrieve the update. In \game{}, the player discovery data is named \textit{\gameprefix{}/discovery/<player\_name>}. Currently, the node who is responsible for publishing under this namespace will respond with the set of \textit{playerNames} it currently knows about.
 
-An important note here is the apparent redundancy in subsequently fetching the \textit{playerName} using the discovered \textit{playerName}. The reason player discovery was designed in this way, was to support future additions to the player discovery packet, without requiring changes to the implementation. For example, the player discovery data packet could be easily extended to include the team to which the discovered player belongs. 
+An important note here is the apparent redundancy in subsequently fetching the \textit{playerName} using the discovered \textit{playerName}. The reason player discovery was designed in this way, was to support future additions to the player discovery packet, without requiring changes to the implementation. For example, the player discovery data packet could be easily extended to include the team to which the discovered player belongs.
 
 \subsection{Benefits}
-The main benefit of using ChronoSync for player discovery was convenience. ChronoSync provides an easy to use API which is available in all of the NDN Common Client Library implementations and the characteristics of the player discovery data allow for the limitations inherent in the ChronoSync protocol. The current player discovery mechanism is naive in that it is performed globally across all players in a given game instance. 
+The main benefit of using ChronoSync for player discovery was convenience. ChronoSync provides an easy to use API which is available in all of the NDN Common Client Library implementations and the characteristics of the player discovery data allow for the limitations inherent in the ChronoSync protocol. The current player discovery mechanism is naive in that it is performed globally across all players in a given game instance.
 
-Matryoshka (see \refsec{sec:sota:matryoshka}) uses an elegant solution for player discovery by only discovering players in a specific region of interest. However, in comparison to the other data types outlined in the MOG taxonomy (see \refsec{sec:taxonomy}), player discovery is an extremely light weight task. Currently, only data required by \game{} for player discovery is the player's name. Thus, even in the case of hundreds of game players, the size of the player discovery data packets remains small. Similarly, the frequency at which the player discovery dataset changes is extremely low, relative to other categories of data in the taxonomy. This enables the use of a stricter, slower protocol such as ChronoSync. 
+Matryoshka (see \refsec{sec:sota:matryoshka}) uses an elegant solution for player discovery by only discovering players in a specific region of interest. However, in comparison to the other data types outlined in the MOG taxonomy (see \refsec{sec:taxonomy}), player discovery is an extremely light weight task. Currently, only data required by \game{} for player discovery is the player's name. Thus, even in the case of hundreds of game players, the size of the player discovery data packets remains small. Similarly, the frequency at which the player discovery dataset changes is extremely low, relative to other categories of data in the taxonomy. This enables the use of a stricter, slower protocol such as ChronoSync.
 
-The intended maximum number of players in a given instance of \game{} would be on the order of hundreds. This allows the player discovery protocol to be performed globally. However, if the game was to support thousands of players in a given instance, it is likely that a more complex protocol such as that employed by Matryoshka would be likely be required. 
+The intended maximum number of players in a given instance of \game{} would be on the order of hundreds. This allows the player discovery protocol to be performed globally. However, if the game was to support thousands of players in a given instance, it is likely that a more complex protocol such as that employed by Matryoshka would be likely be required.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,16 +99,16 @@ The intended maximum number of players in a given instance of \game{} would be o
 One of the most challenging aspects of building MOGs is the requirement for a high performance networking solution which is capable of supporting a large number of relatively small packets in a low latency manner. As such, a custom protocol was developed to enable scalable, low latency synchronization of game objects over NDN.
 
 \subsection{Motivation}
-Although several protocols exist for synchronizing datasets over NDN, there are some fundamental differences between the requirements for a distributed DS mechanism and game object synchronization in MOGs. The main difference is the priority of \textbf{low latency} over stricter consistency and ordering. 
+Although several protocols exist for synchronizing datasets over NDN, there are some fundamental differences between the requirements for a distributed DS mechanism and game object synchronization in MOGs. The main difference is the priority of \textbf{low latency} over stricter consistency and ordering.
 
-A common feature of the existing DS protocols is that they act as notification systems, informing participants of updates to the dataset and how to fetch those updates. It is up to the participant themselves to actually fetch the updated data. This approach does provide benefits in the context of DS in that the scope of the protocol is reduced and participants have the \textit{option} to fetch the data, meaning they can ignore uninteresting updates. However, these benefits come at the cost of having two perform a second Interest / Data exchange to \textbf{obtain} the updated data. This has the effect of approximately doubling the round trip time of receiving updates, which is a major issue in the context of MOGs were latency is paramount. Thus, a primary design goal of a game object synchronization protocol would be to achieve synchronization in a single Interest / Data exchange. 
+A common feature of the existing DS protocols is that they act as notification systems, informing participants of updates to the dataset and how to fetch those updates. It is up to the participant themselves to actually fetch the updated data. This approach does provide benefits in the context of DS in that the scope of the protocol is reduced and participants have the \textit{option} to fetch the data, meaning they can ignore uninteresting updates. However, these benefits come at the cost of having two perform a second Interest / Data exchange to \textbf{obtain} the updated data. This has the effect of approximately doubling the round trip time of receiving updates, which is a major issue in the context of MOGs were latency is paramount. Thus, a primary design goal of a game object synchronization protocol would be to achieve synchronization in a single Interest / Data exchange.
 
 There are two key characteristics of MOG data which can be exploited to provide a more efficient synchronization protocol:
 \todo[]{These are weak}
 \begin{enumerate}
-    \item Players are only interested in the \textbf{newest instance} of a piece of named data. The real-time nature of MOGs mean that players are not interested in historical data for a game object. This can be exploited by having producers only store and produce their newest data.  
-    \item Publishers can dynamically control the rate of data production, depending on the state of the game object(s) they are responsible for. For example, a publisher responsible for a game object's position can throttle the rate of updates published if the game object is standing still. This characteristic suggests that an outstanding \textit{SyncInterest} model, similar to what is used by ChronoSync, would allow consumers to express new Interests immediately after receiving remote updates which producers can satisfy as soon as they have updates to send.  
-\end{enumerate} 
+    \item Players are only interested in the \textbf{newest instance} of a piece of named data. The real-time nature of MOGs mean that players are not interested in historical data for a game object. This can be exploited by having producers only store and produce their newest data.
+    \item Publishers can dynamically control the rate of data production, depending on the state of the game object(s) they are responsible for. For example, a publisher responsible for a game object's position can throttle the rate of updates published if the game object is standing still. This characteristic suggests that an outstanding \textit{SyncInterest} model, similar to what is used by ChronoSync, would allow consumers to express new Interests immediately after receiving remote updates which producers can satisfy as soon as they have updates to send.
+\end{enumerate}
 
 \subsection{Name Schema}\label{sec:des:naming}
 One of the most important aspects of designing an application or protocol which uses NDN is \textit{naming}. As discussed previously, NDN applications should use a naming convention such that consumers can deterministically construct names for data they are interested in. The name schema used for \game{}'s game object sync protocol is shown in \reffig{fig:des:sync-protocol-name}.
@@ -120,7 +120,7 @@ One of the most important aspects of designing an application or protocol which 
     \label{fig:des:sync-protocol-name}
 \end{figure}
 
-As seen in \reffig{fig:des:sync-protocol-name}, the number of components used in the name depends on the use case. For example, when producers register the prefix with the NFD, they only use the first 5 components (up to the \textit{sync} component), so that they receive the Interests regardless of the version floor (\textit{vf}) or next version floor (\textit{nextVf}). When consumers express Interests for a piece of data, they only use the first 6 components (up to the \textit{vf} component). Finally, when producers respond with Data packets, they use all 7 of the components for naming the Data packet. 
+As seen in \reffig{fig:des:sync-protocol-name}, the number of components used in the name depends on the use case. For example, when producers register the prefix with the NFD, they only use the first 5 components (up to the \textit{sync} component), so that they receive the Interests regardless of the version floor (\textit{vf}) or next version floor (\textit{nextVf}). When consumers express Interests for a piece of data, they only use the first 6 components (up to the \textit{vf} component). Finally, when producers respond with Data packets, they use all 7 of the components for naming the Data packet.
 
 Each of the 7 NDN name components are discussed below.
 
@@ -139,37 +139,18 @@ This specifies the type of the game object in question. In the current implement
     \item \textit{playerStatus} refers to the status of a player which includes information such as the player's position in the game world, velocity vector, health and ammo.
     \item \textit{blocks} refers to the set of active blocks in the game world that were placed by the player.
     \item \textit{projectiles} refers to the projectiles which the player has previously shot.
-\end{enumerate} 
+\end{enumerate}
 
 \sneaktitle{\textit{sync}}
 This specifies that this packet is for use with the sync API as opposed to the interaction API (see \refsec{sec:des:interaction}).
 
 \sneaktitle{\textit{vf}}
-This represents the \textit{version floor}. This specifies the \textbf{minimum} version of the corresponding data that can be used to satisfy the Interest. Producers will only respond to the Interest when they have data with a version number greater than or equal to the version floor. This is used to ensure consumers only ever receive data that is newer than what they have already seen. 
+This represents the \textit{version floor}. This specifies the \textbf{minimum} version of the corresponding data that can be used to satisfy the Interest. Producers will only respond to the Interest when they have data with a version number greater than or equal to the version floor. This is used to ensure consumers only ever receive data that is newer than what they have already seen.
 
 \sneaktitle{\textit{nextVf}}
-This field is added by the producer and represents the \textbf{next version floor} that should be used. For example if a producer satisfies the Interest with version 10 of the corresponding piece of data, the \textit{nextVf} component in the name of the Data packet will be 11. 
+This field is added by the producer and represents the \textbf{next version floor} that should be used. For example if a producer satisfies the Interest with version 10 of the corresponding piece of data, the \textit{nextVf} component in the name of the Data packet will be 11.
 
 This field is \textbf{not} necessarily an incremented copy of the version floor. Depending on network conditions, players can fail to keep up with remote updates and fall behind. For example, a consumer may request version 10 of a piece of data, even though the producer is at version 100 of the data. In this case, the producer will respond with version 100 and set the \textit{nextVf} component to 101. The consumer will extract the \textit{nextVf} component from the name and use it as the \textit{vf} of the next Interest, allowing it to immediately catch up with the producer and to skip all redundant versions.
-
-
-% \begin{table}[H]
-% \centering
-% \begin{tabular}{l l l}
-% \toprule
-% % \textbf{Example Address} & \textbf{Number of Host Bits $n\sub{hb}$} &\textbf{Number of IPs in Block $n\sub{hosts}$} \\
-% \midrule
-% 1.1.1.0/32 & 0 & 1\\
-% 1.1.1.0/31 & 1 & 2\\
-% 1.1.1.0/30 & 2 & 4\\
-% 1.1.1.0/29 & 3 & 8\\
-% ... & ... & ...\\
-% 1.1.1.0/1 & 31 & $2 ^ {31}$\\
-% \bottomrule\\
-% \end{tabular}
-% \caption{The Size of CIDR Blocks as a Function of $n_{hb}$}
-% \label{tbl:des:sync-protocol-name}
-% \end{table}
 
 
 \subsection{Game Object Sync Protocol in Operation}
@@ -192,9 +173,9 @@ Assuming nodeB joins the game with \textit{gameId} 0, the player discovery mecha
 \sneaktitle{3. Data Production}
 Assuming nodeB's Interest gets routed to nodeA appropriately, nodeA will add the Interest into a data structure representing the outstanding Interests for nodeA's \textit{PlayerStatus} that it has not yet satisfied.
 
-If the sequence number of nodeA's \textit{PlayerStatus} is less than the sequence number contained in the name of the Interest from nodeB, the Interest will not be satisfied right away and will be deferred until a later time. 
+If the sequence number of nodeA's \textit{PlayerStatus} is less than the sequence number contained in the name of the Interest from nodeB, the Interest will not be satisfied right away and will be deferred until a later time.
 
-However, as nodeB requested sequence number 0 of nodeA's \textit{PlayerStatus}, this will certainly be available as all players are given an initial position which corresponds to sequence number 0 of their \textit{PlayerStatus}. 
+However, as nodeB requested sequence number 0 of nodeA's \textit{PlayerStatus}, this will certainly be available as all players are given an initial position which corresponds to sequence number 0 of their \textit{PlayerStatus}.
 
 Assume nodeA has been in the game for a few minutes and that the sequence number of it's \textit{PlayerStatus} is 90. As 90 is larger than 0 (the version floor contained in the Interest name), nodeA has an updated \textit{PlayerStatus} that has not yet been seen by nodeB. NodeA will create a Data packet which contains the \textbf{newest instance} of nodeA's \textit{PlayerStatus}, which is version 90 in this case. Thus, nodeB receives the most up to date version of nodeA's \textit{PlayerStatus}.
 
@@ -202,20 +183,64 @@ As nodeB will be receiving the 90th version of nodeA's \textit{PlayerStatus}, th
 
 \begin{flalign*}
     name:&\ /ndngame/0/nodeA/playerStatus/sync/0/91 \\
-    content:\ &version\ 90\ of\ nodeA's\ PlayerStatus 
+    content:\ &version\ 90\ of\ nodeA's\ PlayerStatus
 \end{flalign*}
 
 
-\subsection{Benefits}
-The main benefit of the synchronization protocol is that it does not require a separate Interest / Data exchange for update notifications and update fetching. 
+\subsection{Benefits of the sync protocol}
+The main benefit of the synchronization protocol is that it does not require separate Interest / Data exchanges for update notifications and update fetching. As previously discussed, latency is one of the biggest factors which negatively impacts the MOG experience. As the protocol only requires a single round trip to fetch remote updates, it is a considerable improvement over using one of the existing dataset synchronization protocols as done in other NDN based MOGs such as Egal Car \cite{egal-car}.
+
+Another benefit of the protocol is the that throttling occurs on the producer side. Consumers immediately express new Interests upon receiving Data for a previous Interest, or when Interests time out. Producers can control the rate at which they satisfy Interests, which in turn has the effect of directly controlling the amount of traffic seen on the network. This is favourable over consumer Interest throttling as producers have more contextual information about the state of the game object in question. For example, producers can choose not to publish redundant updates when a game object is at rest.
+
+From a consumer point of view, the protocol is extremely simple. Consumers need only maintain a single outstanding Interest for a given piece of data at all times and publishers will respond with the newest version of that data when it is available. This means that all Data received by a consumer is relevant and should be treated as a valid update to the game object. In fact, consumers do not even need to maintain state regarding their version floor, as the next version floor they should use is contained in the Data packet they receive.
+
+As publishers always respond with the latest version of their Data and indicate the next version floor to use, the protocol provides an \textbf{automatic catch up} mechanism. This is particularly useful when new players join the game, as it allows them to catch up with existing players within one Interest / Data exchange.
+
+As outlined in \refsec{sec:sota:mog-ndn-benefits}, the three main benefits of NDN in a MOG context are Interest aggregation, native multicast and in-network caching. In order to obtain these benefits, it is imperative that the naming schema used by the protocol contains \textbf{no reference to the consumer}.
+
+For example, if the protocol required a producer to be aware of which consumer had expressed a given Interest, the naming schema would have to contain the consumers identity. This would involve including the consumers \textit{playerName} in the Interest's name. However, as \textit{playerNames} are unique, Interests for the same data from different consumers would have different names, meaning they would not be aggregated at intermediate routers. This in turn would require the producers to produce different Data packets for each consumer, meaning they would gain no benefit from NDN's native multicast. Finally, if Interest names were dependent on consumer identities, there would also be no opportunity for in-network caching.
+
+The game object sync protocol used does \textbf{not} require producers to know who expressed the Interest. Similarly, the name schema used makes no reference to consumer names. Thus, the protocol makes use of Interest aggregation, native multicast and in-network caching and these can provide major benefits in terms of network performance.
+
+As every player is interested in the remote updates of every other player, outstanding Interests for the same piece of Data will be aggregated at intermediate routers, largely decreasing the number of packets that must be sent across the network to allow all consumers to receive the remote update. Once newly joining players have caught up using the catch up mechanism, the will begin to express Interests for the same data as the existing players. This represents the steady state of the network and depending on the NDN topology, heavy Interest aggregation can occur in this state.
+
+Similarly, as Interests are aggregated at the producer's local NFD, producers will typically only receive one Interest for a piece of named Data. Once the producer has an update worth publishing, the Data packet generated will be multicasted to all players who are waiting on the remote update. This reduces the amount of work the network module of \game{} must perform, as it does not need to separately send the data to each consumer.
+
+Although in the steady state Interest aggregation will be the primary mechanism for reducing network traffic, it is possible that a player with a poor connection could fall behind the interest aggregation period. For example, if congestion occurs at one of nodeA's upstream links, nodeA may end up requesting data which nodeB has already retrieved. Thus, it is too late for nodeA's Interest to be aggregated. However, if the delay is relatively short, the data can be returned from the CS of the first intermediate router common to nodeA and nodeB. If the delay is longer than the \textit{freshnessPeriod} specified by the producer, the Interest will reach the actual producer of the data. In this case, the catch up mechanism will again enable nodeA to quickly catch up with the other players in the game, allowing nodeA's subsequent Interests to be aggregated once more.
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Interaction API
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Interaction}\label{sec:des:interaction}
-This is not handled in Egal Car
+\section{\game{} Interaction API}\label{sec:des:interaction}
+As discussed in \refsec{sec:sota:close-projects}, one of the limitations of EgalCar was that game objects could not interact with one and other. In order to provide a basic means for interacting with remote game objects in \game{}, a simple API was developed. Any game object that is to support interaction must be uniquely addressable and is thus given an \textit{id} which need only be unique across game objects of a certain type, belonging to a certain player.
+
+
 \subsection{Name Schema}
-Things can't be parametrized in NDN without forming a gross name schema - e.g. interaction API can't send parameters. Potential solution is to have publisher's maintain outstanding interests towards consumers for interactions?
+As shown in \reffig{fig:des:interaction-api-name}, the interaction API uses a similar name schema to the sync protocol. The first four components are identical and are used to target a certain type of game object, belonging to a certain player. The fifth component is the keyword \textit{"interact"} and this indicates that this Interest is for use with the interaction API. The sixth component is the \textit{id} of the game object that the player wishes to interact with. Finally, the seventh component is the \textit{command}, a specific keyword which defines the type of interaction to perform. The possible values for the \textit{command} component differ depending on the \textit{objectType} being targeted. For example, blocks can support being attacked or healed using the \textit{attack} and \textit{heal} commands respectively.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/design/interaction-name.png}{1}
+    \caption{Name schema of \game{}'s game object interaction API}
+    \label{fig:des:interaction-api-name}
+\end{figure}
+
+The interaction API is used by players wishing to interact with game objects for which they do \textbf{not} hold the primary copy. Depending on the semantics of the game, the holders of the primary copies can choose to blindly accept these interactions, or can validate them using game specific logic. In \game{}, these updates are blindly accepted, as the game employs a \textit{favour the shooter} approach, meaning events that occur which appeared consistent from the point of view of the player causing the event (e.g. the person shooting) are accepted as valid. This approach is somewhat naive and very susceptible to cheating, however this is beyond the scope of the current research. 
+
+Upon receipt of an interaction Interest, the holder of the primary copy, which is simply the owner of the game object in \game{}, can update the game object. This causes an update to be published through the sync protocol, allowing all interested players to see the result of the interaction.
+
+
+\subsection{Limitations}
+One of the challenges associated with NDN is that Interests cannot be easily parametrized without causing the Interest name to become more and more complex. For example, if the damage associated with an attack was variable, this would require yet another component added to the name to represent the damage value. This approach is feasible for a small number of parameters, but can get quickly out of hand in the case of parameters which are optional or contain nested fields. 
+
+Similarly, this type of scenario doesn't fit neatly into the abstraction provided by NDN in that there is no Data associated with this Interest. Players simply express these interaction Interests and no Data packet is ever expected. The effects of this can be minimized by setting the Interest's timeout value to 0. This means it will not waste valuable resources by sitting in the PIT of intermediate routers once it has been forwarded.
+
+An alternative design for the interaction API is to have players maintain outstanding Interests for Data packets which represent interactions with their game objects. For example, nodeB could interact with a game object owned by nodeA by satisfying nodeA's outstanding interaction Interest with a Data pakcet which contains the \textit{id} of the game object nodeB wishes to interact with, along with any arbitrary data parameterizing the Interest. 
+
+However, the obvious drawback with this approach is that every player would need to register a prefix for the interaction Interests of every other player in the game. Thus, it appears a solution like this has limited scalability, though further investigation would likely be required which is beyond the scope of this research. 
 
 
 
@@ -223,13 +248,76 @@ Things can't be parametrized in NDN without forming a gross name schema - e.g. i
 % How DR will be done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Dead Reckoning}\label{sec:des:dr}
-General how I plan to do DR \refsec{sec:dead-reckoning}
-Dead reckoning impacted by caching? E.g. getting someone else's dead reckoned packet? Stefan mentioned this I cant decide if it matters
+As outlined in \refsec{sec:dead-reckoning}, \textit{dead reckoning (DR)} is a necessity for a fast paced game such as \game{}. As such the all updates to mobile game objects will contain the game objects velocity vector, as well as the updated position, allowing other non primary copy holders to extrapolate the position of game objects between remote updates.
+
+Another key component of DR is the convergence algorithm used. However, as outlined in \refsec{sec:problem-statement}, this research aims to investigate the networking aspect of MOGs using NDN and complex convergence algorithms are an optimization to the \textit{experience} associated with playing a MOG, rather than the performance of the MOG. As such, the simpest form of a convergence algorithm will be used, in which game objects simply snap to their updated game positions, instead of smoothly reconciling their actual position with the updated position, all the while extrapolating the game objects to a future position.
+
+The use of DR also enables publishers to throttle their updates based on the state of the game objects they are responsible for. However, as NDN packets contain no information regarding source or destination IP addresses (see \refsec{sec:ndn-packet-structure}) and the name schema of the sync protocol makes no reference to consumer names (see \refsec{sec:des:naming}), an alterantive mechanism is required to enable producers to approximate the positions of their game objects on remote player machines. This can be accomploshed using the \textit{version floor (vf)} and \textit{next version floor (nextVf)} components of the sync protocol's naming schema.
+
+As producers tell consumers what the \textit{vf} to use on their next Interest, producers can keep a small cache which uses version floors as keys. Just before a producer sends a Data packet containing an update for a mobile game object, it will write a new entry into the cache using a key \textit{k} and a value \textit{v}. 
+
+Recall that producers append the \textit{nextVf} field to the name contained in the Interest to generate the name for the Data packet. The \textit{nextVf} will be used as the key \textit{k} when writing to the cache.
+
+The content to be contained in the Data packet generated by the producer is a snapshot of the game object that will be sent to the consumers. This snapshot represents the version of the game object that consumers were sent \textbf{when they were told to use \textit{nextVf} as the version floor in their next Interest}. The value \textit{v} to be written to the cache is a composite object containing the snapshot sent to the consumers and the current timestamp. 
+
+Finally, the producer will write the tuple \textit{k} and \textit{v} to the cache, and send the Data packet to the consumers. 
+
+After some time, the producer will receive a new Interest from the consumers such that the \textit{vf} component of the name of the Interest, is the \textit{nextVf} component of the last Data packet received by the consumer who expressed the Interest. However, this was the exact value used as the key to write to the cache in the previous step. Thus, the producer can use this value as a lookup key to extract the last snapshot the consumer received and the corresponding time at which it was sent. Finally, with the estimate obtained, the producer will publish an update if:
+
+
+\begin{enumerate}
+    \item there is no entry corresponding to the version floor in the cache. This indicates that consumers has fallen considerably behind and has not received a remote update in some time. 
+    \item the primary copy's velocity vector is different to the velocity vector contained in the most recent update. As \game{} does not use accelerations, a change in velocity is indicative of a change in direction and thus requires an immediate update.
+    \item the Euclidean distance between the primary copy's actual position and the estimate of the consumer's extrapolated position is larger than a threshold value $T_{dr}$. Note that as the producer knows the extrapolation algorithm in use by the client, it can perform the same extrapolation process using the previous snapshot, previous timestamp and the current timestamp to obtain an estimate of where the replica copy of the game object would be from the consumer's point of view. 
+\end{enumerate}
+
+An important choice here is the choice of threshold value $T_{dr}$. There is an inherent trade off between the benefit of network traffic reduction and drawback of the inaccuracy introduced in the replica copies, as a result of throttling the publisher update rate. The ideal value for $T_{dr}$ is very dependent on the type of MOG and could also be set dynamically depending on the network conditions at a give time.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % How IM will be done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Interest Management}\label{sec:des:im}
-General how I plan to do IM \refsec{sec:interest-management}
-Game world larger than viewpor
+As discussed in \refsec{sec:interest-management}, \textit{interest management (IM)} is a key component in allowing MOGs to scale. In \game{}, players are shown a cropped region of the entire game world in which their avatar is always fixed at the center of the screen. As the player moves their avatar around the game world, the camera moves with it, uncovering new regions in the game world.
+
+As such, game objects outside of this viewport do not need to be syncrhonized as thoroughly as those inside the viewport, as they cannot be seen by the player. However, as game objects are mobile, they cannot be disregarded entirely as relative motion between the local player and game objects can cause them to come into the player's viewport. 
+
+The IM system in \game{} is based only on the distance game objects are away from the local player. A graphical representation of the IM system is shown in \reffig{fig:des:interest-regions}. \game{}'s IM system requires three parameters:
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/design/interest-region-single-player.png}{1}
+    \caption{Parameters associated with \game{}'s IM system}
+    \label{fig:des:interest-regions}
+\end{figure}
+
+\begin{labeling}{$MAX\_SLEEP$ }
+    \item [$MAX\_SLEEP$] This parameter is the \textit{maximum sleep time}. This value represents the maximum amount of time between receiving a Data packet containing a remote update and expressing an Interest for the next Data packet. This should be chosen such that no game object can travel from outside the \textit{minimum interest boundary} (see below) to within the viewport in less than $MAX\_SLEEP$ seconds. 
+    \item [$r_{full}$] This parameter defines the radius of the \textit{full interest boundary}. This value should be slightly larger than the width or height (depending on which is larger) of the player's viewport. All game objects inside this boundary are considered \textit{fully interesting} and should be syncrhonized as strictly as possible.
+    \item [$r_{min}$] This parameter defines the radius of the \textit{minimum interest boundary}. This value should be chosen along with $MAX\_SLEEP$ to ensure that no game object can travel from outside of the \textit{minimum interest boundary} to within the player's viewport in $MAX\_SLEEP$seconds. 
+\end{labeling}
+    
+The IM system influences the time between receiving a remote update for a game object and expressing a new Interest to request the next update. The logic here is that the overall number of Interests pushed into the network can be minimized by dynamically controlling how frequently players request updates for game objects, based on how far away they are from the game object.
+
+The IM system calculates the euclidean distance \textit{d}, between the local player's position and the newly received position for the game object. A \textit{sleepTimeFactor} is then calculated using the following function:
+
+
+\begin{equation}
+sleepTimeFactor =
+\begin{cases} 
+    0 & d < r_{full} \\
+    \frac{d - r_{full}}{r_{min} - r_{full}} & r_{full} \leq d \leq r_{min} \\
+    1 & d > r_{min} \\
+\end{cases}
+\end{equation}
+
+Finally, the actual \textit{sleepTime}, indicating the time to wait before expressing the next Interest is given by:
+
+\begin{equation}
+    sleepTime = MAX\_SLEEP * sleepTimeFactor
+\end{equation}
+
+\subsection{Discussion}
+The inclusion of a IM system is critical for the scalability of a MOG, and even more so for a massively multiplayer online game (MMOG) as it allows the network traffic to scale as a function of the \textbf{density} of players in a certain area, as opposed to the overall number of players.
+
+As outlined in \refsec{sec:interest-management}, there a several more complex IM systems which can be used. However, most of these are targetted at 3D games which enable the IM system to take the actual game world into account. In \game{}, the player is presented with a 2D, top down view of the game world, meaning that game objects cannot be hidden behind other game objects. Thus, in this case, a simple distance based IM system suffices and will be a major boon to the scalability of \game{}.
