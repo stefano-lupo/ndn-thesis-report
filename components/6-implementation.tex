@@ -5,12 +5,49 @@ Front end, backend developed in parallel. Local testing using single NFD, actual
 % Frontend impl
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Frontend}
-
+The first stage of conducting the research was to develop a small game
 
 \subsection{LibGDX}
+LibGDX \cite{libgdx} was used as the primary game development tool. LibGDX has an easy to use API and provides a variety of useful features such as drawing basic shapes to the screen, rendering textures, animation, orthographic cameras, input controllers and asset management. LibGDX produces an executable for each target platform, which in the case of \game{} was only a desktop environment such as Windows or Linux. LibGDX also provides access to the Box2D \cite{box2d} physics engine which handles all of the physics in \game{}. 
+
+LibGDX makes heavy use of the Java Native Interface. This procides access to high performance C++ implementations of many performance critical methods such as those used for rednering. 
 
 
-\subsection{Ashley - Entity Management System)}
+
+
+
+\subsection{Ashley - Entity Management System}
+Although LibGDX provides the basic functionality for rendering and Box2D provides all of the physics functionality required, an \textit{entity management system (EMS)} can aid in writing efficient and reusable code in a video game setting. The EMS used in \game{} is Ashley \cite{ashley}
+
+\subsection{Ashley's Architecture}
+Ashley uses four abstractions to simplify the management of entities in \game{} - components, entities, systems and enginges. 
+
+\subsubsection{Components}
+These are basic data structures which contain no logic whatsoever. Components contain the data required for an entity to implement some tangible game feature. For example, the \textit{RemotePlayerComponent} contians all of the data required for an entity to be a remote player such as the NDN name which is used to fetch remote updates and the current version floor of the remote player. Another example would be the \textit{AnimationComponent} which contains all of the data required to perform animation for this component, such as the list of frames to use for the animation. 
+
+\subsubsection{Entities}
+Entities are containers for components. Each entity can have multiple components, but may only one instance of each type of component. For example, when the player discovery mechanism finds a new player, an entity is created which represents the remote player. However, entities alone are entirely generic from the point of view of the engine and the fact that this entity represents a remote player is entirely semantic. Thus, what makes this entity a remote player is the components which it contains. Remote players require several components, including a \textit{RemotePlayerComponent}, an \textit{AnimationComponent}, a \textit{CollisionComponent}, and many others. As with components, entities contain no applciation logic and are simply wrappers for a set of components which make logical sense from the game's perspective (e.g. remote players).
+
+\subsubsection{Systems}
+Systems are at the core of Ashley and they perform application logic on entities which contain components that match a certain criteria. These component criteria are known as \textit{families} and the first step in writing a system is specifiying what family this system should operate on. For example, the \textit{RemotePlayerUpdateSystem} is the system which interacts with \game{}'s backend module to check for updates of remote players. Obviously this system should only operate on entities which represent remote players. However, from Ashley's point of view, every entity is just a generic entity which contains a set of components. Thus, the \textit{RemotePlayerUpdateSystem} operates on the family of entities which contain \textit{RemotePlayerComponents}. 
+
+Similarly, the \textit{PhysicsSystem} only operates on entities which have a \textit{BodyComponent}. The \textit{PhysicsSystem} is responsible for stepping the physics world used by Box2D and \textit{BodyComponent} contain the Box2D specific data associated with each entity.
+
+Systems provide a clean way of splitting out the logic required by game objects into independent pieces which can be easily reused. They also allow for easy creation of new types of game objects. For example, when adding projectiles to \game{}, a new Projectile component was created which contains projectile specific data \textbf{only}. To enable physics for projectiles, projectile components were also given to projectile entities. Similarly, to enable collision detection between projectiles and other collision aware entities (e.g. players and blocks), a \textit{CollisionComponent} was also given to entities representing projectiles. In doing so, physics and collision logic was given to projectiles, without requiring any changes to the underlying systems responsible for physics or collision detection.
+
+\subsubsection{Engine}
+The engine is the orchestrator behind Ashley and manages all of the entities in the game. When an engine update is invoked, the engine runs through each of the defined systems and passes them the set of entities which meet the family criteria they specify. The systems are executed in the order in which they are registered with the engine, which is a critical aspect of Ashley that must be carefully considered. Ashley also offers entity listeners, which are invoked when entities of a speicfiable family are created or destroyed.
+
+Ashley contains several engine types and \game{} uses the \textit{PooledEngine}. This engine allows entities and components  which have been previously removed to be reused, offering better performance than repeatedly garbage collecting and recreating objects as they are removed and added to the engine respectively. 
+ 
+\subsection{Entity Representation in Ashley}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/impl/ashley.png}{1}
+    \caption{A simplified version of a remote player entity in Ashley}
+    \label{fig:impl:ashley}
+\end{figure}
 
 
 \subsection{Guice}
@@ -36,6 +73,7 @@ CanBePrefix of Sync protocol Interest packets, broadcast namespace for chronosyn
 
 
 \subsection{Concurrency}
+Probably skip
 
 
 \subsection{Protos}
@@ -46,13 +84,14 @@ diagrams of pubs / subs / game engine
 
 
 \subsection{Profiling}
+Probably skip
 
 \subsection{Metrics}
 
-\subsection*{Interest Management}\label{sec:impl:im}
+\subsection{Interest Management}\label{sec:impl:im}
 Linear dropoff distance thing
 
-\subsection*{Dead Reckoning}\label{sec:des:dr}
+\subsection{Dead Reckoning}\label{sec:des:dr}
 Cache kept on producers, system that runs it
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
