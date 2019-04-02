@@ -1,0 +1,6 @@
+message Status {
+    int32 health = 1;
+    int32 mana = 2;
+    int32 ammo = 3;
+    int32 xp = 4;
+}

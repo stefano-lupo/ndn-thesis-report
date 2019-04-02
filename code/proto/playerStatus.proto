@@ -1,0 +1,4 @@
+message PlayerStatus {
+    GameObject gameObject = 1;
+    Status status = 2;
+}

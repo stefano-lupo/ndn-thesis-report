@@ -124,16 +124,16 @@ As seen in \reffig{fig:des:sync-protocol-name}, the number of components used in
 
 Each of the 7 NDN name components are discussed below.
 
-\sneaktitle{\textit{gamePrefix}}
+\subsubsection{\textit{gamePrefix}}
 This component is used to target \game{} in the global NDN namespace.
 
-\sneaktitle{\textit{gameId}}
+\subsubsection{\textit{gameId}}
 This is used to allow for multiple instances of \game{} to be run concurrently and in isolation. Players can only see and interact with other players in the same game, as defined by the \textit{gameId}. The \textit{gameId} is chosen upon launching \game{}.
 
-\sneaktitle{\textit{playerName}}
+\subsubsection{\textit{playerName}}
 This specifies the name of the player which holds the primary copy of the game object in question. This field is discovered through the player discovery mechanism (see \refsec{sec:des:discovery}).
 
-\sneaktitle{\textit{objectType}}
+\subsubsection{\textit{objectType}}
 This specifies the type of the game object in question. In the current implementation of \game{}, there are currently three possible values for this component:
 \begin{enumerate}
     \item \textit{playerStatus} refers to the status of a player which includes information such as the player's position in the game world, velocity vector, health and ammo.
@@ -141,13 +141,13 @@ This specifies the type of the game object in question. In the current implement
     \item \textit{projectiles} refers to the projectiles which the player has previously shot.
 \end{enumerate}
 
-\sneaktitle{\textit{sync}}
+\subsubsection{\textit{sync}}
 This specifies that this packet is for use with the sync API as opposed to the interaction API (see \refsec{sec:des:interaction}).
 
-\sneaktitle{\textit{vf}}
+\subsubsection{\textit{vf}}
 This represents the \textit{version floor}. This specifies the \textbf{minimum} version of the corresponding data that can be used to satisfy the Interest. Producers will only respond to the Interest when they have data with a version number greater than or equal to the version floor. This is used to ensure consumers only ever receive data that is newer than what they have already seen.
 
-\sneaktitle{\textit{nextVf}}
+\subsubsection{\textit{nextVf}}
 This field is added by the producer and represents the \textbf{next version floor} that should be used. For example if a producer satisfies the Interest with version 10 of the corresponding piece of data, the \textit{nextVf} component in the name of the Data packet will be 11.
 
 This field is \textbf{not} necessarily an incremented copy of the version floor. Depending on network conditions, players can fail to keep up with remote updates and fall behind. For example, a consumer may request version 10 of a piece of data, even though the producer is at version 100 of the data. In this case, the producer will respond with version 100 and set the \textit{nextVf} component to 101. The consumer will extract the \textit{nextVf} component from the name and use it as the \textit{vf} of the next Interest, allowing it to immediately catch up with the producer and to skip all redundant versions.
@@ -156,7 +156,7 @@ This field is \textbf{not} necessarily an incremented copy of the version floor.
 \subsection{Game Object Sync Protocol in Operation}
 The operation of the game object sync protocol can be split into three stages - prefix registration, Interest expression and Data production. Assuming the \textit{gameId} is 0, the operation of the protocol for synchronizing nodeA's \textit{PlayerStatus} with nodeB is shown below.
 
-\sneaktitle{1. Prefix Registration}
+\subsubsection{1. Prefix Registration}
 The first step in the procedure is for nodeA to register the prefix corresponding to nodeA's \textit{PlayerStatus} with the it's NFD. This is done using the \textit{registerPrefix} call provided by the NDN CCL.
 \begin{align*}
     nodeA\ registers\ prefix:\ /ndngame/0/nodeA/playerStatus/sync
@@ -164,13 +164,13 @@ The first step in the procedure is for nodeA to register the prefix correspondin
 
 
 
-\sneaktitle{2. Interest Expression}
+\subsubsection{2. Interest Expression}
 Assuming nodeB joins the game with \textit{gameId} 0, the player discovery mechanism will discover the other players in this game including nodeA. NodeB will then attempt to fetch the latest version of all of the game object's owned by nodeA, including the \textit{PlayerStatus} of nodeA's avatar. To do this, it will express an Interest for nodeA's \textit{PlayerStatus} using the default initial sequence number of 0.
 \begin{align*}
     nodeB\ expresses\ Interest:\ /ndngame/0/nodeA/playerStatus/sync/0
 \end{align*}
 
-\sneaktitle{3. Data Production}
+\subsubsection{3. Data Production}
 Assuming nodeB's Interest gets routed to nodeA appropriately, nodeA will add the Interest into a data structure representing the outstanding Interests for nodeA's \textit{PlayerStatus} that it has not yet satisfied.
 
 If the sequence number of nodeA's \textit{PlayerStatus} is less than the sequence number contained in the name of the Interest from nodeB, the Interest will not be satisfied right away and will be deferred until a later time.
@@ -248,7 +248,7 @@ However, the obvious drawback with this approach is that every player would need
 % How DR will be done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Dead Reckoning}\label{sec:des:dr}
-As outlined in \refsec{sec:dead-reckoning}, \textit{dead reckoning (DR)} is a necessity for a fast paced game such as \game{}. As such the all updates to mobile game objects will contain the game objects velocity vector, as well as the updated position, allowing other non primary copy holders to extrapolate the position of game objects between remote updates.
+As outlined in \refsec{sec:sota:dead-reckoning}, \textit{dead reckoning (DR)} is a necessity for a fast paced game such as \game{}. As such, the all updates to mobile game objects will contain the game objects velocity vector, as well as the updated position, allowing other non primary copy holders to extrapolate the position of game objects between remote updates.
 
 Another key component of DR is the convergence algorithm used. However, as outlined in \refsec{sec:problem-statement}, this research aims to investigate the networking aspect of MOGs using NDN and complex convergence algorithms are an optimization to the \textit{experience} associated with playing a MOG, rather than the performance of the MOG. As such, the simpest form of a convergence algorithm will be used, in which game objects simply snap to their updated game positions, instead of smoothly reconciling their actual position with the updated position, all the while extrapolating the game objects to a future position.
 

@@ -1,32 +1,113 @@
 \chapter{Backend Implementation}
 Front end, backend developed in parallel. Local testing using single NFD, actual testing using docker, and aws
 
+One of the main goals when designing and building the backend of \game{} was to ensure it was \textbf{entirely} decoupled from the frontend. This means that an equivalent backend module can be built using an IP based stack, allowing for a direct comparison between NDN and IP in an identical scenario (see \refsec{sec:conc:fw}).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Backend impl
+% NDN Specific Configuration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{NDN Configuration}
-CanBePrefix of Sync protocol Interest packets, broadcast namespace for chronosync. Interest life times, freshness periods.
+CanBePrefix of Sync protocol Interest packets, broadcast namespace for chronosync. Interest life times, freshness periods, .
 
-\section{Sequence Numbered Cache}
+The design and implementation of \game{} requires careful consideration of the possible NDN specific configuration values that can be used. The configuration used for the NDN infrastructure impacts the performance, correctness and player experience of \game{}. There are four main areas to consider - forwarding strategies, Interest packet parameters and Data packet parameters.
 
+\subsubsection{Forwarding Strategies}
+As discussed in \refsec{sec:sota:forwarding-strats}, a \textit{forwarding strategy} defines what the NDN forwarding daemon (NFD) should do when there are multiple next hops to choose from when forwarding an Interest. The most common forwarding strategies used by the NFD are \textit{best-route} which forwards the Interest over the best performing next hop, and \textit{multicast} which forwards over all of the possible next hops. 
 
-\section{Concurrency}
-Probably skip
-
-
-\section{Protos}\label{sec:impl:proto}
-Used to transport EMS entities and fed into reconcilers
-
-\section{Linkage between game and backend}
-diagrams of pubs / subs / game engine
+As outlined in \refsec{sec:des:discovery}, the player discovery mechanism uses ChronoSync (a dataset synchronization protocol). As any of the participating nodes may write to the shared dataset, any of the participating nodes may satisfy the outstanding \textit{SyncInterest}. Thus, the \textit{SyncInterest} expressed must be forwarded to all participants and not just over the link which is currently performing the best.
 
 
-\section{Profiling}
-Probably skip
+\begin{figure}[H]
+    \centering
+    \figsize{assets/impl/discovery-fs.png}{0.8}
+    \caption{ChronoSync requires a broadcast namespace to ensure all participants receive update notifications}
+    \label{fig:impl:disc-fs}
+\end{figure}
 
-\section{Interest Management}\label{sec:impl:im}
-Linear dropoff distance thing
+The necessity for a broadcast namespace in ChronoSync is shown in \reffig{fig:impl:disc-fs}. If the \textit{best-route} forwarding strategy is used by node A's NFD, the \textit{SyncInterest} used by ChronoSync will only be forwarded over one upstream face and only reaches node C in this case. If node B writes to the dataset, ChronoSync will satisfy the outstanding \textit{SyncInterest} to inform participants of the update. However, node B did not receive the \textit{SyncInterest} from node A, as it was only forwarded to node C, meaning node A will miss the update.
 
-\section{Dead Reckoning}\label{sec:des:dr}
-Cache kept on producers, system that runs it
+However, if the \textit{multicast} forwarding strategy is used, node A's NFD will forward the \textit{SyncInterest} to both node B and node C as required, allowing node B to satisfy the Interest and node A to receive the update notification. 
 
+Thus, to ensure the player discovery mechanism works appropriately in \game{}, the forwarding strategy for the broadcast namespace was set to multicast on each of the player's NFDs. This was done using the \textit{NFD Control (nfdc)} \cite{nfdc} command line tool.
+
+For all other namespaces used by \game{}, the forwarding strategy used was \textit{best-route}. However, there are several versions of this forwarding strategy available in the NFD, the newest of which contains some extra functionality to handle consumer retransmission \cite{nfd-bestroute-v2}. Unfortunately, this causes some problems will long term Interest aggregation which is a major benefit in the MOG context. For this reason, version 1 of \textit{best-route} was used instead.
+
+\subsubsection{Interest Packet Parameters}
+As outlined in \refsec{sec:ndn-packet-structure}, Interest packets contain a variety of parameters. Three of these are relevant to \game{} - \textit{CanBePrefix}, \textit{MustBeFresh} and \textit{InterestLifetime}.
+
+The \textit{CanBePrefix} parameter specifies whether or not the name of the Interest packet can be a prefix of the name of the Data packet used to satisfy it. If set to false, the Interest can only be satisfied by Data packets with a name that \textbf{exactly matches} the name of the Interest. However, the sync protocol described in \refsec{sec:des:sync-protocol} requires producers to append the \textit{nextVersionFloor} to the Interest name. Thus, in \game{}, all Interest packets set the \textit{CanBePrefix} parameter to true to enable this functionality.
+
+The \textit{MustBeFresh} parameter specifies whether or not the Interest can be satisfied by a CS entry that is no longer fresh. A Data entry in a CS is considered fresh until it has been in the CS for longer than the \textit{FreshnessPeriod} specified in the Data packet. As MOGs require the most up to date version of a piece of data, the \textit{MustBeFresh} parameter is set to true for all Interests produced by \game{} in order to not retrieve data from a cache which is stale.
+
+Finally, the \textit{InterestLifetime} defines the length of time the Interest remains active for before timing out. This is a tricky choice in \game{} as the sync protocol makes use of long lived outstanding Interests, meaning this value must be kept relatively high. For example, if a player doesn't move, there is no need for a producer to publish an update, meaning the outstanding Interests should be kept active for a relatively long period of time. However, if an Interest goes missing in the network, the consumers will wait until the \textit {InterestLifetime} expires before re-expressing the Interest. Thus, a long value for \textit{InterestLifetime} can cause gameplay problems in network conditions where packets are frequently lost. The current implementation of \game{} uses an \textit{InterestLifetime} of 1 second in an attempt to minimize the number of re-expressed Interests which time out but were not lost, while simultaneously minimizing the impact of lost Interests.
+
+\subsubsection{Data Packet Parameters}
+As with Interest packets, Data packets also contain NDN specific parameters. The only parameter of interest in Data packets is the \textit{FreshnessPeriod}. As discussed previously, this defines how long a Data packet is to be considered fresh. An important aspect of the \textit{FreshnessPeriod} is that it is defined on a hop-by-hop basis. For example, if node A produces a Data packet with a \textit{FreshnessPeriod} of 100ms, the Data packet in node A's CS will be considered fresh for 100ms. However, if this is forwarded to an intermediate router, the corresponding CS entry will be considered fresh for 100ms \textbf{after the router receives the Data packet}. 
+
+As MOGs require extremely recent data, the \textit{FreshnessPeriod} used by \game{} is kept extremely low with a value of 20ms. However, the \textbf{actual} freshness of a piece of Data is dependent on the topology. Thus, a value of 20ms may cause players behind a long chain of intermediate routers to be receiving Data from caches that is actually quite old.
+
+This approach sufficed for the topologies tested in \refsec{sec:eval} which typically had a small number of intermediate routers. However, further research into this area would be required for wide scale deployment across varying topologies. Dynamic adjustment of the \textit{FreshnessPeriod} based on the topology perceived by the producers may be beneficial in this regard.
+
+
+
+
+\section{Version Floored Projectile Cache}
+As outlined in the taxonomy of MOG data (see \refsec{sec:taxonomy}), one of the main categories of data in MOGs is \textit{non synced} data. Typically, this represents short lived, \textit{"publish and forget"} data such as events. In \game{}, the projectiles fall into this category. As projectiles typically last hundreds of milliseconds or a few seconds, there is no time or need to monitor and publish repeated updates to projectiles. Instead, they are given an initial state and this is disseminated to each consumer. 
+
+Unlike the other data found in \game{}, when consumers express an Interest for projectiles with a given version floor, they are interested in all of the projectiles which have been created by the publisher since that version floor. To enable producers to provide consumers with this data, a \textit{version floored cache (VCF)} was developed.
+
+The VCF is a fixed sized cache and allows insertion of items into the cache by value, replacing the oldest entry in the cache once full. Conceptually, the VCF can be thought of as a map which uses the version floor as the key and a list of events as the value. However, this implementation would require substantial repetition. Instead, the VCF was implemented as an array based, circular data structure, which only requires each of the projectiles to be stored a single time. By keeping track of the current minimum and maximum version floors contained in the cache, a \textit{startIndex} and \textit{endIndex} can be calculated for a given version floor. These indices are then used to extract the elements between the indices (while wrapping around if necessary), representing the new events since that version floor. 
+
+The possibilities on reading from the cache are as follows:
+
+\begin{itemize}
+    \item If a version floor lower than the lowest version floor contained in the cache is requested, the VCF simply returns all of the elements in the cache. This provides a catchup mechanism for new players who may request elements using a very old version floor. The size of the cache in \game{} is tweaked such that valid projectiles will never be pushed out of the cache due to a lack of space. The size of the cache is closely related to the speed of the projectiles produce in \game{} and the max allowable rate of shooting projectiles. 
+    \item If a version floor larger than the highest version floor contained in the cache is requested, the VCF returns an empty set. This is understood by producers and they will defer satisfying the Interest until there is data available in the cache.
+    \item Otherwise, a subset of items in the cache is returned, representing the new entries since the version floor provided.
+\end{itemize}
+
+
+
+\section{Protocol Buffers (Protobuf)}\label{sec:impl:proto}
+As described previously, a mechanism is required for serializing Ashley's entity representations of game objects, into representations which can be sent across the network. The mechanism used in \game{} is to translate the entity representation into Protobuf \textit{messages} which can be serialized by the Protobuf library in a very efficient manner. Thus, the design of these messages is an important aspect of the performance of \game{}'s backend module. 
+
+Protobuf requires all \textit{messages} to be defined in special \textit{.proto} files. These are then compiled into a variety of language (e.g. Java, C++) using the Protobuf compiler. The Protobuf framework supports a variety of features when defining \textit{message} structures such as:
+
+\begin{labeling}{Composition  }
+    \item [Typing] Fields are strongly typed and Protobuf provides standard types such as \textit{int32}, \textit{int64}, \textit{float}, \textit{string} etc.
+    \item [Composition] \textit{Messages} definitions can contain references to other \textit{messages}.
+    \item [Sequences] \textit{Message} fields can be sequences of arbitrary length.
+    \item [Maps] Fields can be maps which use Protobuf primitives or even other \textit{messages} as keys and values.
+    \item [Enums] Fields can be instances of types defined by enums.
+\end{labeling}
+
+The first \textit{message} defined was the \textit{GameObject} message. This contains the physical data associated with objects in the \game{} game world. Most of this data comes from the \textit{BodyComponent} and \textit{RenderComponent} of the Ashley entity. The producer's \textit{GameObjectConverter} generates these messages and the consumer's \textit{GameObjectConverter} reconciles the differences between the remote version and their local Ashley entity, as described in \refsec{sec:impl:ashley}. The definition of the \textit{GameObject} Protobuf \textit{message} is show below.
+
+\lstinputlisting[
+  caption={Protobuf Message representing \game{} game objects},
+  label={lst:impl:game-object-proto},
+  style=protoStyle
+]{code/proto/gameObject.proto}
+
+However, \textit{GameObjects} are not synced directly. Instead, \textit{GameObject} \textit{messages} are used as fields in more complex messages which are then synced. An example of a synced \textit{message} is the \textit{PlayerStatus} \textit{message} which contains a \textit{GameObject message} as discussed, and a \textit{Status} message which contains information such as the entity's health and ammo. The definition of the \textit{PlayerStatus message} is shown in \refcode{lst:impl:player-status-proto}.
+
+\lstinputlisting[
+    caption={Protobuf Message representing a player's PlayerStatus},
+    label={lst:impl:player-status-proto},
+    style=protoStyle
+]{code/proto/playerStatus.proto}
+
+
+Once all of the Protobuf \textit{messages} are defined, they are compiled into actual Java code which provides access to a \textit{Builder} to create an instance of the \textit{message}, and a method to generate a byte array representation of the \textit{message}. The byte array can then be used to create an instance of an NDN \textit{Blob} \cite{ndn-ccl-blob}, which represents the content of a Data packet. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Guice
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Dependency Injection}
+As video games are a relatively complex piece of software, using \textit{dependency injection (DI)} can drastically simplify the design of classes. DI refers to passing all of the dependencies of a class to the constructor of the class, instead of having the class instantiate the dependencies itself. This facilitates unit testing of arbitrarily complex classes as the class's dependencies can be mocked and passed to the constructor of the class. Without DI, the instantiation of dependencies would be buried within the class logic meaning actual implementations of dependencies must be used.
+
+Another major benefit to DI is that it mitigates the so called \textit{"dependency hell"} problem. For example, if \textit{Class A} requires an instance of \textit{Class B}, \textit{class A} must first obtain an instance of the dependencies of \textit{Class B}, say \textit{Class C} and \textit{Class D} in order to instantiate \textit{Class B}. However, to instantiate \textit{Class C}, \textit{Class A} must first obtain instances of \textit{Class C's} dependencies and so on. As outlined by Bloch \cite{effecitve-java}, using composition is the favourable approach over relying on inheritance in large scale applications. Thus, \textit{"dependency hell"} is a real problem in modern object oriented software.
+
+Google's Guice \cite{guice} is a Java framework for using DI. Guice solves this problem by taking over the actual instantiation of classes on behalf of the programmer. Guice maintains a dependency graph which enables it to resolve dependencies required by classes. There must always be an entry class which requires no dependencies. This entry class can then be instantiated by Guice, and automatically injected into other classes which require it. This process can the repeat, allowing arbitrarily complex dependency graphs to be managed by Guice, allowing the programmer to simply inject all of the dependencies a class requires, provided the dependencies themselves used DI for their dependencies.
+
+Due to the benefits outlined above, DI was used extensively and drastically simplified the management of dependencies in \game{}.

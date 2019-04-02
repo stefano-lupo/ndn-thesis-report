@@ -34,3 +34,8 @@ DSPs
 DS
 RTC
 RDR
+Protobuf
+proto
+DI
+Guice
+VCF
