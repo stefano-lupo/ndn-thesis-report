@@ -499,7 +499,7 @@ However, building MOGs on a P2P architecture is considerably more challenging th
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Dead Reckoning 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Dead Reckoning}\label{sec:dead-reckoning}
+\subsection{Dead Reckoning}\label{sec:sota:dead-reckoning}
 In video games, the rate at which the local game world is updated and redrawn at is known as the \textit{frame rate}. The frame rate of a video game is measured in \textit{frames per second (fps)}. Most modern video games aim to run at a minimum frame rate of 30 fps, while targeting higher frame rates such as 60 or even 100 fps. In the case of a 30 fps frame rate, this would require an update to be available for \textbf{all} remote game objects every 33.33 milliseconds (ms). Using the internet as it stands today, consistently receiving remote updates at a rate of even 30Hz would be extremely challenging and unreliable due to packet loss, limited bandwidth, congestion and propagation times alone. The high frequency update requirement, coupled with the amount of remote game objects that need updating in modern MOGs mean that moving remote game objects based on received updates alone is simply not feasible and attempting to do so leads to very jittery player movement.
 
 Dead reckoning (DR) is a commonly employed solution to this problem in which remote game objects are locally updated at a frequency higher than the rate of updates received for those game objects. As described by Walsh, Ward and McLoone \cite{dead-reckoning}, "DR is a short-term linear extrapolation algorithm which utilises information relating to the dynamics of an entity’s state and motion, such as position and velocity, to model and predict future behaviour".

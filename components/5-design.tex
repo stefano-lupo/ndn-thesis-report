@@ -95,7 +95,7 @@ The intended maximum number of players in a given instance of \game{} would be o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Custom Sync Protocol
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\game{} Sync Protocol}
+\section{\game{} Sync Protocol}\label{sec:des:sync-protocol}
 One of the most challenging aspects of building MOGs is the requirement for a high performance networking solution which is capable of supporting a large number of relatively small packets in a low latency manner. As such, a custom protocol was developed to enable scalable, low latency synchronization of game objects over NDN.
 
 \subsection{Motivation}
@@ -238,7 +238,7 @@ One of the challenges associated with NDN is that Interests cannot be easily par
 
 Similarly, this type of scenario doesn't fit neatly into the abstraction provided by NDN in that there is no Data associated with this Interest. Players simply express these interaction Interests and no Data packet is ever expected. The effects of this can be minimized by setting the Interest's timeout value to 0. This means it will not waste valuable resources by sitting in the PIT of intermediate routers once it has been forwarded.
 
-An alternative design for the interaction API is to have players maintain outstanding Interests for Data packets which represent interactions with their game objects. For example, nodeB could interact with a game object owned by nodeA by satisfying nodeA's outstanding interaction Interest with a Data pakcet which contains the \textit{id} of the game object nodeB wishes to interact with, along with any arbitrary data parameterizing the Interest. 
+An alternative design for the interaction API is to have players maintain outstanding Interests for Data packets which represent interactions with their game objects. For example, nodeB could interact with a game object owned by nodeA by satisfying nodeA's outstanding interaction Interest with a Data packet which contains the \textit{id} of the game object nodeB wishes to interact with, along with any arbitrary data parameterizing the Interest. 
 
 However, the obvious drawback with this approach is that every player would need to register a prefix for the interaction Interests of every other player in the game. Thus, it appears a solution like this has limited scalability, though further investigation would likely be required which is beyond the scope of this research. 
 

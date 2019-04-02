@@ -1,0 +1,109 @@
+\chapter{Frontend Implementation}
+Front end, backend developed in parallel. Local testing using single NFD, actual testing using docker, and aws
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LibGDX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{LibGDX}
+LibGDX \cite{libgdx} was used as the primary game development tool. LibGDX has an easy to use API and provides a variety of useful features such as drawing basic shapes to the screen, rendering textures, animation, orthographic cameras, input controllers and asset management. LibGDX produces an executable for each target platform, which in the case of \game{} was only a desktop environment such as Windows or Linux. LibGDX also provides access to the Box2D \cite{box2d} physics engine which handles all of the physics in \game{}. 
+
+LibGDX makes heavy use of the Java Native Interface. This procides access to high performance C++ implementations of many performance critical methods such as those used for rednering. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Ashley
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ashley - Entity Management System}\label{sec:impl:ashley}
+Although LibGDX provides the basic functionality for rendering and Box2D provides all of the physics functionality required, an \textit{entity management system (EMS)} can aid in writing efficient and reusable code in a video game setting. The EMS used in \game{} is Ashley \cite{ashley}
+
+\subsection{Ashley's Architecture}
+Ashley uses four abstractions to simplify the management of entities in \game{} - components, entities, systems and enginges. 
+
+\subsubsection{Components}
+These are basic data structures which contain no logic whatsoever. Components contain the data required for an entity to implement some tangible game feature. For example, the \textit{RemotePlayerComponent} contians all of the data required for an entity to be a remote player such as the NDN name which is used to fetch remote updates and the current version floor of the remote player. Another example would be the \textit{AnimationComponent} which contains all of the data required to perform animation for this component, such as the list of frames to use for the animation. 
+
+\subsubsection{Entities}
+Entities are containers for components. Each entity can have multiple components, but may only one instance of each type of component. For example, when the player discovery mechanism finds a new player, an entity is created which represents the remote player. However, entities alone are entirely generic from the point of view of the engine and the fact that this entity represents a remote player is entirely semantic. Thus, what makes this entity a remote player is the components which it contains. Remote players require several components, including a \textit{RemotePlayerComponent}, an \textit{AnimationComponent}, a \textit{CollisionComponent}, and many others. As with components, entities contain no applciation logic and are simply wrappers for a set of components which make logical sense from the game's perspective (e.g. remote players).
+
+\subsubsection{Systems}
+Systems are at the core of Ashley and they perform application logic on entities which contain components that match a certain criteria. These component criteria are known as \textit{families} and the first step in writing a system is specifiying what family this system should operate on. For example, the \textit{RemotePlayerUpdateSystem} is the system which interacts with \game{}'s backend module to check for updates of remote players. Obviously this system should only operate on entities which represent remote players. However, from Ashley's point of view, every entity is just a generic entity which contains a set of components. Thus, the \textit{RemotePlayerUpdateSystem} operates on the family of entities which contain \textit{RemotePlayerComponents}. 
+
+Similarly, the \textit{PhysicsSystem} only operates on entities which have a \textit{BodyComponent}. The \textit{PhysicsSystem} is responsible for stepping the physics world used by Box2D and \textit{BodyComponent} contain the Box2D specific data associated with each entity.
+
+Systems provide a clean way of splitting out the logic required by game objects into independent pieces which can be easily reused. They also allow for easy creation of new types of game objects. For example, when adding projectiles to \game{}, a new Projectile component was created which contains projectile specific data \textbf{only}. To enable physics for projectiles, projectile components were also given to projectile entities. Similarly, to enable collision detection between projectiles and other collision aware entities (e.g. players and blocks), a \textit{CollisionComponent} was also given to entities representing projectiles. In doing so, physics and collision logic was given to projectiles, without requiring any changes to the underlying systems responsible for physics or collision detection.
+
+\subsubsection{Engine}
+The engine is the orchestrator behind Ashley and manages all of the entities in the game. When an engine update is invoked, the engine runs through each of the defined systems and passes them the set of entities which meet the family criteria they specify. The systems are executed in the order in which they are registered with the engine, which is a critical aspect of Ashley that must be carefully considered. Ashley also offers entity listeners, which are invoked when entities of a speicfiable family are created or destroyed.
+
+Ashley contains several engine types and \game{} uses the \textit{PooledEngine}. This engine allows entities and components  which have been previously removed to be reused, offering better performance than repeatedly garbage collecting and recreating objects as they are removed and added to the engine respectively. 
+ 
+\subsection{Entity Representation in Ashley}
+A conceptual view of a remote player entity, the associated components, and the systems which operate on the remote player entity is shown in \reffig{fig:impl:ashley}. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/impl/ashley.png}{1}
+    \caption{A simplified version of a remote player entity in Ashley}
+    \label{fig:impl:ashley}
+\end{figure}
+
+As with most entities in \game{}, remote player entities have a \textit{BodyComponent} enabling Box2D physics , a \textit{CollisionComponent} enabling collision detection and a \textit{RenderComponent}, \textit{TextureComponent} and \textit{AnimationComponent} which are used to display the entity. 
+
+Remote player entities also have a \textit{RemotePlayerComponent} and a \textit{StatusComponent}. As previously discussed, the \textit{RemotePlayerComponent} contains the data required to fetch updates for the remote player. The \textit{StatusComponent} contains data specific to players such as their health, ammo and game object (position and velocity). 
+
+On each engine update, the Ashley engine invokes the \textit{RemotePlayerUpdateSystem}. The engine passes each of the remote player entities to the system, using the family specified in the \textit{RemotePlayerUpdateSystem} which requires entities which have a \textit{RemotePlayerComponent}. The system then communicates with \game{}'s \textit{backend module} which implements the game object sync protocol as described in \refsec{sec:des:sync-protocol}. The \textit{RemotePlayerUpdateSystem} checks for updates with the \textit{backend module} using the NDN name and version floor contained in the \textit{RemotePlayerComponent}. Finally, if the there is an update for the remote player entitiy, the system reconciles the local copy of the player using the corresponding reconciler (see \refsec{sec:impl:converters}).
+
+A similar strategy is used for local players, with the main difference being that the system informs the backend module of updates to the local player and these updates are then disseminated to consumers. Local players also require extra systems and components to enable the player to control the player using the keyboard and mouse.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Reconcilers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Game Object Converters}\label{sec:impl:converters}
+A common requirement for the implementation is converting Ashley representations of game objects into bytes that can be sent over the wire. This is required when the game engine detects that an update should be published for a certain game object. Similarly, the bytes received over the wire must be converted back into Ashley representations of remote game objects. As such, the logic for these conversions was abstracted out of the Ashley systems and could be built and tested independently.
+
+As discussed in \refsec{sec:impl:ashley}, many of the entities share logic (systems) and data (components) for common functionality such as physics and rendering. Thus, converters were written in a reusable manner to enable code sharing. The most basic converter is the \textit{GameObjectConverter} which is in turn used by the \textit{BlockConverter}, \textit{PlayerConverter} and \textit{ProjectileConverter} which implement conversions for blocks, players and projectiles respectively. 
+
+Each of the converters described above expose two public methods - \textit{reconcileRemote} and \textit{protoFromEntity}.
+
+\subsubsection{\textit{reconcileRemote}}
+This method implements all of the steps which must be taken on receipt of a remote update to the entity in question. The converters contain a reference to the Ashley engine, meaning they can obtain and update the entity associated with the remote update.
+
+For example, the \textit{reconcileRemote} method of the \textit{PlayerConverter} performs the following:
+\begin{enumerate}
+    \item Reconciles the \textit{BodyComponent} and \textit{RenderComponent} of the remote player using the \textit{GameObjectConverter}. This is the point in \game{} where an arbitrarily complex dead reckoning convergence algorithm could be used (see \refsec{sec:sota:dead-reckoning}).
+    \item Updates the player's health and ammo by updating the \textit{StatusComponent} of the player
+    \item Updates the \textit{StateComponent} of the player. This defines whether the player is currently walking, attacking or shooting a projectile and is used by the \textit{RenderingSystem} and \textit{AnimationSystem} to display remote players in the appropriate state. 
+\end{enumerate}
+
+Decoupling this method from the corresponding system is beneficial as it results in a single point in the code which defines exactly what happens to a given entity on receipt of a remote update.
+
+\subsubsection{\textit{protoFromEntity}}
+As discussed in \refsec{sec:impl:proto}, Google's Protobuf \cite{proto} was used for serialization of game objects. Protobuf requires \textit{messages} to be defined ahead of time to enable serialization. As such, the \textit{protoFromEntity} method is required for taking the entity representation of a game object and converting it into a Protobuf \textit{message} which can then be serialized into bytes by Protobuf. 
+
+This method is also an ideal place to prune the entity representation of game objects back to the smallest amount of data that is required to be contained in the update. For example, player entities contain various timers which represent how long they have been in a particular state for. These are used to limit the rate at which players can perform actions such as shooting projectiles. However, as projectiles can only be shot by the primary copy holder, there is no need for this timer on the remote side meaning it does not need to be included in the updates sent to other players. Similarly, sending a player's sprite sheet in every update packet is obviously redundant and would result in bloated update packets, so this is also pruned at this point.
+
+The \textit{protoFromEntity} method is used the \textit{update systems}. These inlude the \textit{LocalPlayerUpdateSystem}, the \textit{BlockUpdateSystem} and the \textit{ProjectileUpdateSystem}. These are all Ashley systems which inspect the status of the entities they manage and determine whether or not an update to the entity should be published. If an update is required, the update system uses the \textit{protoFromEntity} method associated with the entity to obtain the minimized Protobuf \textit{message} representation of the entity. This is then given to \textit{backend module} which publishes the update to the awaiting consumers. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Creators
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Entity Creation and Deletion}
+As discussed in \refsec{sec:impl:ashley}, from the point of view of the Ashley engine, all entities are entirely generic. The understanding that a particular entity represents a remote player for example is entirely semantic and no compile-time checking is performed. As such, the semantic "type" of an entity is infered based only on the components the entity has. Thus, the creation of these entities must be very strict and well defined to ensure entities contain the components they are supposed to. 
+
+Another issue with entity creation is the asyncrhonus nature of player discovery. As players require a \textit{BodyComponent} which wraps a Box2D \textit{Body} object, players may not be created \textbf{during an update} of the Box2D physics world. Otherwise, the native code backing the Box2D physics world will immediately throw an exception. The same issue occurs when entities with a BodyComponent need to be removed from the engine.  
+
+To solve these problems, entity creation and deletion were abstracted away to a seperate \textit{EntityManager} class. If an entity is to be created or deleted, clients can issue a request to this class. A new Ashley system was then written which informs the \textit{EntityManager} when it is safe to perform all of the required entity creation and deletion.
+
+The use of the \textit{EntityManager} allows the exact specification for entities to be defined in a single point. This ensures all entities of a certain semantic type (e.g. remote players) are guaranteed to contain all of the components they require and to be fully formed and consistent by the time they are accessed. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Guice
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Dependency Injection}
+As video games are a relatively complex piece of software, using \textit{dependency injection (DI)} can drastically simplify the design of classes. DI refers to passing all of the dependencies of a class to the constuctor of the class, instead of having the class instantiate the dependencies itself. This facilitates unit testing of arbitrarily complex classes as the class's dependencies can be mocked and passed to the constructor of the class. Without DI, the instantiation of dependencies would be burried within the class logic meaning actual implementations of dependencies must be used.
+
+Another major benefit to DI is that it mitigates the so called \textit{"dependency hell"} problem. For example, if \textit{Class A} requires an instance of \textit{Class B}, \textit{class A} must first obtain an instance of the dependencies of \textit{Class B}, say \textit{Class C} and \textit{Class D} in order to instantiate \textit{Class B}. However, to instantiate \textit{Class C}, \textit{Class A} must first obtain instances of \textit{Class C's} dependencies and so on. As outlined by Bloch \cite{effecitve-java}, using composition is the favourable approach over relying on inheritance in large scale applications. Thus, \textit{"dependency hell"} is a real problem in modern object oriented software.
+
+Google's Guice \cite{guice} is a Java framework for using DI. Guice solves this problem by taking over the actual instantiation of classes on behalf of the programmer. Guice maintains a dependency graph which enables it to resolve dependencies required by classes. There must always be an entry class which requires no dependencies. This entry class can then be instantiated by Guice, and automatically injected into other classes which require it. This process can the repeat, allowing arbitrarily complex dependency graphs to be managed by Guice, allowing the programmer to simply inject all of the dependencies a class requires, provided the dependencies themselves used DI for their dependencies.
+
+Due to the benefits outlined above, DI was used extensively and drastically simplified the management of dependencies in \game{}.
