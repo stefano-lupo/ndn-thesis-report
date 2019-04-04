@@ -1,0 +1,33 @@
+\babel@toc {english}{}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces NDN Packet Structure \cite {ndn}\relax }}{15}{figure.caption.7}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces NDN operation on receiving Interest\relax }}{17}{figure.caption.8}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces NDN operation on receiving Data\relax }}{18}{figure.caption.9}
+\contentsline {figure}{\numberline {3.4}{\ignorespaces An example NFD setup\relax }}{23}{figure.caption.12}
+\contentsline {figure}{\numberline {3.5}{\ignorespaces NLSR LSA structure \cite {nlsr} (adapted)\relax }}{25}{figure.caption.14}
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Interest aggregation, native multicast and in-network caching\relax }}{28}{figure.caption.16}
+\contentsline {figure}{\numberline {3.7}{\ignorespaces ChronoSync digest tree for a dataset synced across Alice, Bob and Ted \cite {chronosync}\relax }}{32}{figure.caption.18}
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Taxonomy of MOG Data\relax }}{36}{figure.caption.21}
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Tile interest map in a 3D game world\relax }}{43}{figure.caption.22}
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Core areas associated with the research project\relax }}{44}{figure.caption.23}
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Matryoshka broadcast discovery namespace\relax }}{46}{figure.caption.24}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces CoolGame{} - a 2D, top down game developed to facilitate research into MOGs using NDN\relax }}{50}{figure.caption.25}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Taxonomy of MOG data with corresponding data in CoolGame{}\relax }}{52}{figure.caption.26}
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Name schema of CoolGame{}'s game object sync protocol\relax }}{56}{figure.caption.28}
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Name schema of CoolGame{}'s game object interaction API\relax }}{62}{figure.caption.29}
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Parameters associated with CoolGame{}'s IM system\relax }}{66}{figure.caption.30}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces A simplified version of a remote player entity in Ashley\relax }}{71}{figure.caption.31}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces ChronoSync requires a broadcast namespace to ensure all participants receive update notifications\relax }}{76}{figure.caption.32}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {8.1}{\ignorespaces An example of the topologies used for testing CoolGame{}\relax }}{85}{figure.caption.34}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {B.1}{\ignorespaces Players A and B directly connected via a single link\relax }}{100}{figure.caption.40}
