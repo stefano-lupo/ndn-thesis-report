@@ -220,7 +220,7 @@ In order to provide the NDN functionality, the \textit{NDN Forwarding Daemon (NF
 As nodeB is a producer, it only needs to create a \textit{Face} towards the local NFD (face 7 in this case) and inform the NFD that it will be producing data under the prefix \textit{/ndn/nodeB}. This is done using the  \textit{registerPrefix} call provided by the NDN client library. This will create the a route in node B's NFD which maps \textit{/ndn/nodeB} to face 7.
 \begin{figure}[H]
     \centering
-    \figsize{assets/soa/ndn/nfd.png}{1}
+    \figsize{assets/soa/ndn/NFD.png}{1}
     \caption{An example NFD setup}
     \label{fig:nfd-setup}
 \end{figure}
