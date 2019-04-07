@@ -45,4 +45,85 @@ The \textit{network} field specifies the name of the overlay network to connect 
 
 
 
+\chapter{Figures For Other Topologies Using No Optimizations}\label{app:eval:basic}
+\section{Round Trip Times}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/rtt/linear.png}{0.8}
+    \caption{\textit{RTTs} for \textit{PlayerStatus} in the \textit{linear} topology}
+    \label{fig:app:rtt:linear}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/rtt/square.png}{0.8}
+    \caption{\textit{RTTs} for \textit{PlayerStatus} in the \textit{square} topology}
+    \label{fig:app:rtt:square}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/rtt/tree.png}{0.8}
+    \caption{\textit{RTTs} for \textit{PlayerStatus} in the \textit{tree} topology}
+    \label{fig:app:rtt:tree}
+\end{figure}
+
+\section{Position Deltas}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/pos-deltas/linear.png}{0.8}
+    \caption{\textit{Position deltas} in the \textit{linear} topology}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/pos-deltas/square.png}{0.8}
+    \caption{\textit{Position deltas} in the \textit{square} topology}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/pos-deltas/tree.png}{0.8}
+    \caption{\textit{Position deltas} in the \textit{tree} topology}
+\end{figure}
+
+\section{Interest Aggregation}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/interest-agg/square.png}{0.8}
+    \caption{Interest aggregation in the \textit{square} topology. Nodes A, B, C and D had IAFs of 0.47, 0.47, 0.48 and 0.48 respectively.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/interest-agg/tree.png}{0.8}
+    \caption{Interest aggregation in the \textit{tree} topology. Nodes A, B, C and D had IAFs of 0.46, 0.45, 0.45 and 0.45 respectively.}
+\end{figure}
+
+\chapter{Figures For Other Topologies with Caching Enabled}\label{app:eval:caching}
+\section{Impact of Enabling Caching on Interest Rates}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/caching/interest-rate-impact/square.png}{0.75}
+    \caption{Impact of caching on the Interest rates seen by producers in the \textit{square} topology}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/caching/interest-rate-impact/dumbbell.png}{0.75}
+    \caption{Impact of caching on the Interest rates seen by producers in the \textit{dumbbell} topology}
+\end{figure}
+
+\section{Interest Reduction Factor due to Enabling Caching}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/caching/interest-aggregations/square.png}{0.75}
+    \caption{Difference between the number of Interests expressed by consumers and seen by producers in the \textit{square} topology. }
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/caching/interest-aggregations/tree.png}{0.75}
+    \caption{Difference between the number of Interests expressed by consumers and seen by producers in the \textit{tree} topology. }
+\end{figure}
+
 \end{appendices}

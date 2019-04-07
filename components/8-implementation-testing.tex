@@ -3,7 +3,7 @@
 
 
 
-\section{Player Automation}
+\section{Player Automation}\label{sec:impl:automation}
 Must be repeatable, used fixed seed for RNG
 In order to enable testing without actual people playing the game, a simple automation mechanism was developed. This was accomplished by creating a \textit{InputController} interface. Two implementations of this interface were created - a \textit{RealInputController} which actually reacts to user input via the keyboard and mouse, and an \textit{AutomatedInputController} which simulates key strokes.
 
@@ -37,7 +37,7 @@ An example topology containing 2 game players, and the corresponding Docker comp
 
 
 
-\section{NLSR Configuration}
+\section{NLSR Configuration}\label{sec:impl:topologies}
 As defined in the previous section, each of the nodes used to test \game{} can communicate using a UDP tunnel through the overlay network created by Docker. However, a key component of the testing is defining the NDN topology and seeing how it impacts the performance of \game{}. Even though every node can directly access every other node using a UDP tunnel, the actual paths taken by the NDN Interest / Data packets are defined by the FIB of the NFDs of each node. 
 
 The Docker overlay network serves as a means to create the communication links required by the NDN topology. This aligns with the vision of NDN being the \textit{narrow waist of tomorrow's Internet}, with UDP/IP being one of the lower level protocols that NDN can in turn use for communication.
@@ -60,11 +60,11 @@ The script was then used to generate the required files for testing a variety of
     \centering
     \figsize{assets/impl/topologies.png}{0.8}
     \caption{An example of the topologies used for testing \game{}}
-    \label{fig:app:topologies}
+    \label{fig:impl:topologies}
 \end{figure}
 
 
-\section{Metrics}
+\section{Metrics}\label{sec:impl:metrics}
 In order to examine the performance of \game{}, several metrics were required. There were two sources of data for these metrics: the \game{} processes running on the player nodes and the NFD logs running on the player nodes and intermediate router nodes. 
 
 To gather data from the \game{} Java processes, Dropwizard's Metrics framework \cite{dropwizard-metrics} was used. This provides many useful classes for gathering data such as histograms, counters, timers and rate-trackers. All of the data tracked by this framework can be monitored in real-time using a web dashboard. However, to perform a more detailed analysis, the data was also periodically written to a CSV file.
@@ -93,7 +93,7 @@ This problem does not exist in a typical IP implementation as the producer would
 
 \todo[]{I forget what happens with the latency calculation as data received timestamp - timestamp in data name}
 
-\subsection{Interest Aggregation Factor}
+\subsection{Interest Aggregation Factor (IAF)}
 As previously discussed, one of the major benefits of NDN in a P2P MOG context such as \game{} is Interest aggregation. The \textit{interest aggregation factor (iaf)} is a measure of how many of the Interests produced by consumers are aggregated at intermediate hops. The \textit{iaf} for a player $p$, $iaf_p$, can be calculated using \refeq{eq:impl:iaf}, where $P$ represents the set of all players, and $n_{seen\_p}$ represents the number of Interests seen by player $p$ and $n_{exp\_x\_p}$ represents the number of Interests expressed by player \textit{x} for Data produced by player \textit{p}.
 
 \begin{equation}\label{eq:impl:iaf}

@@ -1,4 +1,4 @@
-\documentclass[a4paper,oneside,12pt]{book}
+\documentclass[a4paper,oneside,12pt, table, xcdraw]{book}
 
 % Variable definitions
 \newcommand{\thesistitle}{An Investigation into Building a Multiplayer Online Game Using Named Data Networking} % Your thesis title, this is used in the title and abstract
@@ -36,6 +36,8 @@
 \pagestyle{plain} % Embrace simplicity!
 
 % Useful packages
+\usepackage[table,xcdraw]{xcolor}
+
 \usepackage{amsmath}
 \usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
 \usepackage[pdftex]{graphicx}
@@ -101,7 +103,9 @@
 
 \usepackage{float} % Figure placement
 
-\usepackage{xcolor}
+% \usepackage{xcolor}
+\usepackage{multirow}
+
 
 \usepackage[toc,page]{appendix}
 \renewcommand{\appendixname}{Annex}
@@ -112,8 +116,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\game}{CoolGame}
 \newcommand{\gameprefix}{/<game\_prefix>}
-
-
 \newcommand{\sneaktitle}[1]{\hfill\break\textbf{#1}\hfill\break\break}
 \newcommand{\refcode}[1]{code listing \ref{#1}}
 \newcommand{\refsec}[1]{section \ref{#1}}
@@ -160,18 +162,24 @@
 
 
 
-
+\onehalfspacing
 \frontmatter
 \begin{document}
 
-\input{components/title.tex}
+\input{components/-5-title-page.tex}
+\input{components/-4-declaration.tex}
+\input{components/-3-summary.tex}
+\input{components/-2-abstract.tex}
+\input{components/-1-acknowledgements.tex}
+\input{components/0-preamble.tex}
+
+
 \pagenumbering{roman}
 
 \mainmatter
-\input{components/preamble.tex}
 
 \listoftodos[TODOs]
-\input{components/1-abstract.tex}
+
 \input{components/2-introduction.tex}
 \input{components/3-sota.tex}
 \input{components/4-problem-statement.tex}

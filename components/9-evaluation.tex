@@ -1,35 +1,193 @@
 \chapter{Evaluation}\label{eval}
-Key things to examine: scale, overhead (packet size vs app data), latency
-Evaluation Matrix
-Push to breaking point
+In order to validate the design and evaluate the performance of \game{}, several tests were performed in a variety of scenarios. As there a large number of parameters which impact the overall performance, each test was designed to isolate a single parameter to determine the impact the parameter has on the game.
 
-In order to examine the performance of the game, \dots
+The performance of \game{} is also heavily dependent on the NDN topology. As such, tests were repeated using several topologies.
 
-Need to decide what game objects to use
+Finally, the performance is also impacted by the game mechanics which are enabled and the automation script used. As described in \refsec{sec:impl:automation}, the automation script used enables all players to use all of the game mechanics (walking, placing blocks and shooting projectiles) and uses a fixed random seed to allow for a direct comparison between tests.
 
-\subsection{Round Trip Times}
-As a bench mark, no caching, no DR, no IZF RTT for each topology
+\todo[]{Need to mention game objects used}
+
+The evaluation is split into two stages - \refsec{sec:eval:metrics-testing} examines the impacts of tweaking parameters on the metrics discussed in \refsec{sec:impl:metrics} and \refsec{sec:eval:scalability} examines how \game{} scales in a real world scenario.
+
+
+\section{Metric Testing}\label{sec:eval:metrics-testing}
+The backend implementation of \game{} requires several parameters to be defined, many of which can have a substantial impact on performance. Each parameter used in the evaluation is outlined below.
+
+\subsubsection*{Interest Timeout (s)}
+The length of time in seconds that a consumer will wait for an Interest to be satisfied before retransmitting the same Interest.
+
+\subsubsection*{Data Freshness Period (ms)}
+The amount of time a Data packet is considered \textit{fresh} after being received by an NFD instance. This defines the \textit{freshness period} on a hop-by-hop basis.
+
+\subsubsection*{Dead Reckoning (DR) Pub Throttling}
+This mechanism reduces the amount of updates a publisher will produce by maintaing a view of the game object as seen by the consumers. This is outlined further in \refsec{sec:des:dr}. There are two parameters associated with this mechanism - whether or not it is enabled, and the error threshold which results in a update being produced. The error threshold is a measure of the distance and uses \textit{game world units (gwu)} 
+
+
+\subsubsection*{Interest Management (IM)}
+This mechanism reduces the rate at which a consumer will express Interests for a given piece of data based on how far away the game object is from the consumer. This mechanism requires four parameters - whether or not it is enabled, the full interest radius ($r_{full}$) in \textit{gwu}, the minimum interest radius ($r_{min}$) in \textit{gwu} and the maximum sleep time $MAX\_SLEEP$ in seconds. These parameters are discussed previously in \refsec{sec:des:im}. 
+
+\subsubsection*{Publisher Update Rate \textit{(PUR)} (Hz)}
+This defines the rate at which publishers will check to see if their game object(s) should be updated. This does \textbf{not} directly trigger updates to be sent and instead informs the backend module of whether or not there is an update available. If DR publisher throttling is disabled, the publishers will inform the backend of an update at the defined rate. If it is enabled, the publishers \textit{check} to see if an update is required, at the defined rate. 
+
+\subsubsection*{Publisher Queue Check Rate \textit{(PQR)} (Hz)}
+As outlined in \refsec{sec:des:sync-protocol}, when Interests arrive, they are added to the \textit{outstanding interests} data structure. This parameter defines the rate at which publishers will attempt to satisfy these Interests. At the defined rate, the publisher will examine each of the Interests in this data structure, check to see if an update has been published by the game engine and satisfy the Interest if possible. 
+
+\subsubsection*{Metrics}
+The metrics used for the evaluation are the \textit{round-trip-time (RTT)}, \textit{Interest aggregation factor (IAF)}, \textit{cache rate} and \textit{position delta}, each of which are discussed in \refsec{sec:impl:metrics}.
+
+\subsubsection*{Parameter-Metric Matrix}
+The \textit{parameter-metric matix} is shown in \reftbl{tbl:eval:metric-matrix}. This table shows the theoretical impact on each of the metrics when a parameter is \textbf{increased}. The \textit{+}, \textit{0} and \textit{-} values in the cells represent an increase, no change and a decrease to the associated metric. Finally, the resulting impact on the overall performance of the game is indicated by the colour of the cell, where green, white and red indicate a positive, neutral and negative impact on the performance respectively. 
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{}lcccc@{}}
+        & \multicolumn{4}{c}{\textbf{Impact on Metric}}                                                                                                               \\
+    \multirow{-2}{*}{\textbf{Test Parameters}} & \multicolumn{1}{l}{\textbf{RTT}} & \multicolumn{1}{l}{\textbf{IAF}} & \multicolumn{1}{l}{\textbf{Cache Rate}} & \multicolumn{1}{l}{\textbf{Position Delta}} \\
+    Interest Timeout (ms)                      & 0                                & 0                                & 0                                       & \cellcolor[HTML]{FFCCC9}+                   \\
+    Data Freshness Period (ms)                 & \cellcolor[HTML]{9AFF99}-        & 0                                & \cellcolor[HTML]{9AFF99}+               & \cellcolor[HTML]{FFCCC9}+                   \\
+    DR Pub Throttling Enabled                  & \cellcolor[HTML]{FFCCC9}+        & \cellcolor[HTML]{9AFF99}+        & \cellcolor[HTML]{9AFF99}+               & \cellcolor[HTML]{FFCCC9}+                   \\
+    DR Pub Throttling Threshold (gwu)          & \cellcolor[HTML]{9AFF99}-        & \cellcolor[HTML]{9AFF99}+        & 0                                       & \cellcolor[HTML]{FFCCC9}+                   \\
+    IM Enabled                                 & 0                                & \cellcolor[HTML]{FFCCC9}-        & \cellcolor[HTML]{9AFF99}+               & \cellcolor[HTML]{FFCCC9}+                   \\
+    IM Full Radius, $r_{full}$ (gwu)              & 0                                & \cellcolor[HTML]{9AFF99}+        & \cellcolor[HTML]{FFCCC9}-               & \cellcolor[HTML]{9AFF99}-                   \\
+    IM Min Radius, $r_{min}$ (gwu)                & 0                                & \cellcolor[HTML]{9AFF99}+        & \cellcolor[HTML]{FFCCC9}-               & \cellcolor[HTML]{9AFF99}-                   \\
+    IM Max Sleep Time, $MAX\_SLEEP$ (s)          & 0                                & \cellcolor[HTML]{FFCCC9}-        & \cellcolor[HTML]{9AFF99}+               & \cellcolor[HTML]{FFCCC9}+                   \\
+    Pub Update Rate (Hz)                           & \cellcolor[HTML]{FFCCC9}-        & \cellcolor[HTML]{FFCCC9}-        & \cellcolor[HTML]{FFCCC9}-               & \cellcolor[HTML]{9AFF99}-                   \\
+    Pub Queue Check Rate (Hz)                      & \cellcolor[HTML]{FFCCC9}-        & \cellcolor[HTML]{FFCCC9}-        & \cellcolor[HTML]{FFCCC9}-               & \cellcolor[HTML]{9AFF99}-                  
+    \end{tabular}
+    \centering
+    \caption{Configurable parameters and their associated impacts on the metrics. \textit{+}, \textit{0} and \textit{-} represent an increase, no change and a decrease to the metric respectively when the parameter is \textbf{increased}. The colour of the cells represents whether this has a net positive (green), neutral (white) or negative (red) impact on the performance of \game{}}.
+    \label{tbl:eval:metric-matrix}
+\end{table}
+
+For all tests the following parameter values were unchanged:
+\begin{gather*}
+    Interest\ Timeout = 1000ms\\
+    Pub\ Update\ Rate = 30Hz\\
+    Pub\ Queue\ Check\ Rate = 60Hz
+\end{gather*}
+
+For convenience, the testing topologies discussed in \refsec{sec:impl:topologies} are repeated in \reffig{fig:eval:topologies}. A subset of these topologies were used for all tests.
+\todo[]{Discuss why I chose these topologies}
+\begin{figure}[H]
+    \centering
+    \figsize{assets/impl/topologies.png}{0.9}
+    \caption{Topologies used in evaluation of \game{}}
+    \label{fig:eval:topologies}
+\end{figure}
+
+An important note to make here is in the magnitude of a \textit{GWU}. GWUs are used to by LibGDX to remove the need to consider different resolution sizes. To provide some context, in \game{}, the width of a player avatar is 1 GWU as shown in \reffig{fig:eval:gwus}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/GWUs.png}{0.7}
+    \caption{The width of a player avatar in \game{} is 1 GWU}
+    \label{fig:eval:gwus}
+\end{figure}
+
+Finally, each of the tests were allowed to run for approximately 5 minutes, as the results obtained did not appear to change once the test reached the steady state.
+
+\subsection{No Caching, no IM and no DR Publisher Throttling}
+In order to provide a benchmark for future tests, the most simplest form of \game{} was used in which no IM or DR publisher throttling was used and caching was disabled.
+
+\subsubsection*{Round-Trip-Times}
+The first metric examined was RTT. Each of the four topologies performed similarly in this regard. For this reason, the RTTs are only shown for the \textit{dumbbell} topology, though the others can be found in \refapp{app:eval:basic}. As seen in \reffig{fig:eval:basic:rtt}, the RTT for the \textit{PlayerStatus} of each of the nodes appears to be approximately normally distributed around the 20 - 40 ms range, with a moderate positive skew. This follows from the \textit{publisher update rate (PUR)} of 30Hz, meaning updates are published every 33ms as no optimizations were used. Thus, the RTT is heavily dependent on the \textit{PUR}, as expected. The RTT can be reduced by increasing the \textit{PUR}, however this will increase the traffic on the network and thus reduce the scalability of \game{}.  
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/rtt/dumbbell.png}{0.8}
+    \caption{\textit{RTTs} for \textit{PlayerStatus} in the \textit{dumbbell} topology}
+    \label{fig:eval:basic:rtt}
+\end{figure}
+
+
+\subsubsection*{Position Deltas}
+As caching, IM and DR publisher throttling are disabled, consumers are receiving a constant stream of the most up to date player positions. This suggests that the \textit{position deltas} should be at their lowest in these tests. However, as the optimizations are disabled, these tests will have the largest amount of traffic on the network. Thus, provided the network is not flooded, the \textit{position deltas} should be extremely low in this case. Otherwise, the lack of network optimizations may effect performance sufficiently that the \textit{position deltas} will be large. 
+
+As with the RTTs, each of the topologies performed very similarly in this regard. Again, only the histogram for the \textit{dumbbell} topology is shown and all others are given in \refapp{app:eval:basic}.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/pos-deltas/dumbbell.png}{0.9}
+    \caption{\textit{Position deltas} for players in the \textit{dumbbell} topology}
+    \label{fig:eval:basic:pos-deltas}
+\end{figure}
+
+The \textit{position deltas} seen in \reffig{fig:eval:basic:pos-deltas} show that player positions are syncrhonzied very closely. The figure shows that almost 90\% of the time, when a position update is received for a player, the dead reckoned position was within half a \textit{GWU} of the new position. The figure also shows that the \textit{position delta} can spike as high as 3 \textit{GWUs}, although this is extremely rare. As these tests were performed on a single machine, this may be a result of CPU contention amonsgt the Docker containers.
+
+
+
+\subsubsection*{Interest Aggregation Factor (IAF)}
+As previously discussed, one of the main benefits of NDN in a MOG scenario is Interest aggregation. The extent of the Interest aggregation in \game{} is shown in \reffig{fig:eval:basic:interest-agg-linear} and \reffig{fig:eval:basic:interest-agg-dumbbell}. In these figures, the orange bar represents the total number of Interests expressed for data belonging to a particular node, and the blue bar represents the total number of Interest that node received. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/interest-agg/linear.png}{0.75}
+    \caption{Interest aggregation for \textit{PlayerStatus} in the \textit{linear} topology. The \textit{IAF} of both nodes is 1 as expected.}
+    \label{fig:eval:basic:interest-agg-linear}
+\end{figure}
+
+As expected, when there are only two nodes, no Interest aggregation occurs. Thus, the orange and blue bars match in \reffig{fig:eval:basic:interest-agg-linear} and both nodes had an \textit{Interest Aggregation Factor (IAF)} of 1.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/basic/interest-agg/dumbbell.png}{0.75}
+    \caption{Interest aggregation for \textit{PlayerStatus} in the \textit{dumbbell} topology. The \textit{IAF} of nodes A, B, C and D were calculated to be 0.45, 0.46, 0.45 and 0.44 respectively}
+    \label{fig:eval:basic:interest-agg-dumbbell}
+\end{figure}
+
+
+The \textit{dumbbell} topoology on the other hand shows that a substantial amount of Interest aggregation takes place, with all nodes having an \textit{IAF} below 0.5. This means that all of the nodes had to service less than half of the requests that would otherwise be required in IP. Again, the other topologies performed very similarly and the graphs are provided in \refapp{app:eval:basic}.
 
 \subsection{Effects of Enabling Caching}
-Discuss difficulties of maintaining fresh cache in MOG scenario where data changes are not predictable (freshness period etc), tree topology makes G should never really be getting any cache hits cause any data that is cached at G should have been forwarded to one of the intermediate routers who would then cache the data. For Dumbbell the intermediate routers should only be caching data on the OPPOSITE SIDE? If an interest arrives at F for C/D, it will be cached at F on the way back. However once it reaches E it will be cached there too. If A or B  then request the interest it should be cached and served from E not from F. 
-As in-network caching is one of the main benefits of NDN for typical use cases such a serving content, the impacts of using caching for the MOG were studied. Theoretically, enabling caching would directly impact the following
+As outlined in \refsec{sec:sota:mog-ndn-benefits}, caching can provide benefits to \game{} in the case where a node falls behind the Interest aggregation period, which is quite possible with an publisher update frequency of 30Hz. However, one of the challenges with caching in NDN is that the \textit{freshness period} (cache lifetime) is defined on a hop-by-hop basis. Thus, freshness periods must be kept very low. To examine the impact of enabling caching, the tests were repeated, with the only difference being that the Data packets were given an \textit{freshness period} of 20ms. IM and DR publisher throttling both remained disabled for these tests and the \textit{linear} topology was ommited as caching will not have any impact in the case of only 2 players.
+
+By enabling caching, the rate of Interests seen by producers in the \textit{tree} topology decreased by 2 Interests per second for all nodes, as seen in \reffig{fig:eval:caching:interest-impact-tree}. The results for the \textit{square} and \textit{dumbbell} were very similar and can be found in \refapp{app:eval:caching}.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/caching/interest-rate-impact/tree.png}{0.75}
+    \caption{Impact of caching on the Interest rates seen by producers in the \textit{tree} topology}
+    \label{fig:eval:caching:interest-impact-tree}
+\end{figure}
+
+These reductions are a direct result of enabling caching. Nodes which fall behind the Interest aggregation period previously resulted in the Interest propogating all the way to the producer. However, by enabling caching, the Interests from nodes which fall behind are now served by intermediate routers, resulting in a substantial decrease in network traffic.
+
+By enabling caching, the IAF becomes less clear as it is not possible to determine whether the Interests never reached the producer due to caching or Interest aggregation. In either case it is a major benefit to the performance of the game. However, as the same test had previously been performed without caching, a reasonable comparison can be made. The reduction factor in the case of the \textit{dumbbell} topology with caching enabled was 0.33 for all nodes, as seen in \reffig{fig:eval:caching:interest-agg-dumbbell}.  
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/caching/interest-aggregations/dumbbell.png}{0.75}
+    \caption{Difference between the number of Interests expressed by consumers and seen by producers in the \textit{dumbbell} topology.}
+    \label{fig:eval:caching:interest-agg-dumbbell}
+\end{figure}
+
+The values shown in \reffig{fig:eval:caching:interest-agg-dumbbell} can be compared to \reffig{fig:eval:basic:interest-agg-dumbbell}, which shows the results when caching was disabled. In the case of no caching, the \textit{IAFs} were 0.45, 0.46, 0.45 and 0.44 for nodes A, B, C and D respectively. Thus, enabling caching further improved the reduction factor by between 0.11 and 0.13.
+
+The cache rate of a particular node is heavily dependent on the node's position in the topology. For example, caching essentially only occurs at the intermediate router nodes in \textit{tree} topology. Consider an Interest who's corresponding Data packet has already been produced, this Interest must flow through several Intermediate routers who will all have a cached copy that is \textbf{fresher} than the copy at the producer's cache. This is due to the fact that the Data will be cached in the producers CS first and will become non-fresh first. Thus, all intermediate routers will typically be able to serve a cached copy of a Data packet for longer than the producer will. 
+
+However, there is an exception to this when the intermediate router's CS becomes full and the Data must be evicted. This will happen more frequently in intermediate routers than in any of the leaf (player) nodes of the \textit{tree} topology as the router nodes must cache Data requested by multiple nodes, whereas the leaf nodes only caches the Data they request. Thus, it is possible than an intermediate router can forward an Interest to a leaf node and have it satisfied by the leaf nodes cache.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/caching/cache-rates/tree.png}{0.75}
+    \caption{Cache rates by node for all nodes in the \textit{tree} topology. Note that the cache rates for nodes A, B, C and D are non zero.}
+    \label{fig:eval:caching:cache-rate-tree}
+\end{figure}
+
+The cache rates shown in \reffig{fig:eval:caching:cache-rate-tree} agrees with the expected behaviour previously described. Although these cache rates appear rather low, this is due to the fact that most Interests are aggregated and multicasted, instead of being satisfied by a Data packet in the CS.
+
+Interestingly, node G, the root node, also essentially has a non zero cache rate. Consider the case where A expresses an Interest for a piece of data owned by C (see \reffig{fig:eval:topologies}). This Interest will be forwarded through E, G and F until it reaches C. Once C produces the Data, it is then cached at each hop on the way back. At this point, only B or E will express an Interest for the same piece of data, as A has the data and C is the producer. If B then requests the same packet, the Interest will be satisfied by E, and if D requests the same packet, the Interest will be satisfied by F. Thus, G very rarely serves any cached Data, though it is possible in the case of CS eviction as described previously. 
+
+The above results indicate that caching is a major benefit to \game{} from a network performance point of view, however the impact it has on the gameplay must also be considered. In topologies with a large number of hops, it is possible that even relatively small values for \textit{freshness period} can result in players being served extremely old Data packets (see \refsec{sec:conc:fw}).
 
 
-\begin{itemize}
-    \item[Publisher Interest Rate]
-    \item[Subscriber Round Trip Times]
-    \item[Remote Update Deltas]  
-\end{itemize}
-
-IT KIND OF MAKES SENSE THAT CACHE RATES ARE LOW AS ITS ALMOST ALL INTEREST AG. BUT ENABLING IZF AND DR COULD CUASE CACHE HITS 
-ROUND TRIP TIMES WITHOUT DEAD RECKONING ARE ALMOST ENTIRELY DEPENDENT ON LOCALPLAYERSTAUTS PUBLISH RATE!!!!
-\subsection{Effects of Interest Aggregation}
-This is really not working the way I thought it would be :/
-Compare interests received for each node's status to sum of interests expressed towards that node by all other nodes
+\subsection{Effects of Enabling DR Publisher Throttling}
 
 
-\subsection{Effects of Forwarding Strategy}
-Multicast shouldn't make a difference in tree like topology if interests are aggregated as there is only one upstream node from each route to a data source as defined by NLSR. On square however, producers should see all of the interests provided their local NFD's don't aggregate the interest which they dont seem to be.
+\subsection{Effects of Enabling Interest Management}
 
 \section{Overhead}
 use ndndump to see packet sizes
+
+\section{Scalability Testing}\label{sec:eval:scalability}
+Pushing to breaking point
