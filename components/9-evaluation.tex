@@ -182,6 +182,48 @@ The above results indicate that caching is a major benefit to \game{} from a net
 
 
 \subsection{Effects of Enabling DR Publisher Throttling}
+In order to test DR publisher throttling, the tests were again repeated. The 20ms \textit{freshness period} was used once again meaning caching was enabled. The DR publisher throttling threshold was set to 0.5 GWU, which is half the width of the player's avatar. 
+
+As with the previous tests, the \textit{dumbbell}, \textit{square} and \textit{tree} topologies performed very similarly. For this reason, only the results for the \textit{dumbbell} topology are shown here and the others can be found in \refapp{app:eval:pub-throt}.
+
+Recall that at a rate of 30Hz (the publisher update rate), the game will check to see if an update needs to be produced. As publisher throttling was enabled for these tests, an update will only be produced if the player's velocity changed (\textit{velocity}), there was no entry in the recent player status cache (\textit{null}), or the DR threshold is exceeded (\textit{threshold}), as discussed in \refsec{sec:des:dr}. Otherwise, the update is skipped (\textit{skip}). The distribution of the results from the publisher update checks is shown in \reffig{fig:eval:caching:dr-pub-throt:counters:dumbbell} for the \textit{dumbbell} topology. As each test used the same automation scripts, the distribution of update results was very similar for all topologies and is ommited.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/dr-pub-throt/counters/dumbbell.png}{0.75}
+    \caption{Distribution of results from publisher update checks in the \textit{dumbbell} topology. Note the were no \textit{null} updates required in the test}
+    \label{fig:eval:caching:dr-pub-throt:counters:dumbbell}
+\end{figure}
+
+As seen in \reffig{fig:eval:caching:dr-pub-throt:counters:dumbbell}, \textbf{almost half} of the updates can be skipped by enabling DR publisher throttling. This has a substantial impact on the network traffic as player position updates make up the majority of the traffic.
+
+However, as with enabling caching, the impact on the game experience must be considered and this DR publisher throttling has the potential to hugely impact the ame experience in a negative way as essentially only half of the player updates are now being published. To exmaine the impact on the game experience, the \textit{position deltas} were reexamined. Again, the results proved to be very similar across all topologies as they all use the same automation script and thus the results for all but the \textit{dumbbell} topology are ommited.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/dr-pub-throt/position-deltas/dumbbell.png}{0.75}
+    \caption{\textit{Position deltas} with DR publisher throttling enabled for \textit{dumbbell} topology.}
+    \label{fig:eval:caching:dr-pub-throt:pos-deltas:dumbbell}
+\end{figure}
+
+The \textit{position deltas} shown in \reffig{fig:eval:caching:dr-pub-throt:pos-deltas:dumbbell} are very similar to those shown in \reffig{fig:eval:basic:pos-deltas}, the benchmark test were all optimizations were disabled, indicating that there is very little impact on the game experience when DR publisher throttling is enabled with a threshold of 0.5 GWU.
+
+Unlike with enabling caching, enabling DR publisher throttling does affect the Interest rates in the \textit{linear} topology. As approximately half of the updates were skipped in these tests, the rate of Interests seen by the publishers also dropped accordingly, as seen in \reffig{fig:eval:dr-pub-throt:dumbbell-interest-rates} and \reffig{fig:eval:dr-pub-throt:linear-interest-rates} for the \textit{dumbbell} and \textit{linear} topologies respectively. The corresponding figures for the \textit{square} and \textit{tree} topologies are provided in \refapp{app:eval:pub-throt}.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/dr-pub-throt/interest-rate-impact/dumbbell.png}{0.75}
+    \caption{Effects of enabling caching and DR publisher throttling on the Interest rate seen by nodes in the \textit{dumbbell} topology.}
+    \label{fig:eval:dr-pub-throt:dumbbell-interest-rates}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/dr-pub-throt/interest-rate-impact/linear.png}{0.75}
+    \caption{Effects of enabling caching and DR publisher throttling on the Interest rate seen by nodes in the \textit{linear} topology.}
+    \label{fig:eval:dr-pub-throt:linear-interest-rates}
+\end{figure}
+
 
 
 \subsection{Effects of Enabling Interest Management}
