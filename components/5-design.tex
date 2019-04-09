@@ -5,7 +5,7 @@ Outline this section + some filler
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Outline of the game
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{\game{} - a 2D, top down, shooting game}
+\section{\game{} - a 2D, Top Down, Shooting Game}
 To allow for the testing of NDN in a MOG context, a simple game was required. Although a variety of open source games of various complexities exist, building the front end of the game from scratch as opposed to adding a networking module to an existing game was chosen for the following reasons:
 
 \begin{itemize}
@@ -187,7 +187,7 @@ As nodeB will be receiving the 90th version of nodeA's \textit{PlayerStatus}, th
 \end{flalign*}
 
 
-\subsection{Benefits of the sync protocol}
+\subsection{Benefits of the Sync Protocol}
 The main benefit of the synchronization protocol is that it does not require separate Interest / Data exchanges for update notifications and update fetching. As previously discussed, latency is one of the biggest factors which negatively impacts the MOG experience. As the protocol only requires a single round trip to fetch remote updates, it is a considerable improvement over using one of the existing dataset synchronization protocols as done in other NDN based MOGs such as Egal Car \cite{egal-car}.
 
 Another benefit of the protocol is the that throttling occurs on the producer side. Consumers immediately express new Interests upon receiving Data for a previous Interest, or when Interests time out. Producers can control the rate at which they satisfy Interests, which in turn has the effect of directly controlling the amount of traffic seen on the network. This is favourable over consumer Interest throttling as producers have more contextual information about the state of the game object in question. For example, producers can choose not to publish redundant updates when a game object is at rest.

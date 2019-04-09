@@ -12,7 +12,7 @@ The Named Data Networking project is a continuation of an earlier project known 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NDN Primitives
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{NDN Primitives}
+\subsection{Primitives}
 In NDN, as the name suggests, every piece of data data is given a name. The piece of data that a name refers to is entirely arbitrary and could represent a frame of a YouTube video, a message in a chat room, or a command given to a smart home device. Similarly, the meaning behind the names are entirely arbitrary from the point of view of routers. They key aspect is that data can be requested from the network by name, removing the requirement of knowing \textit{where} the data is stored. NDN names consist of a set of "/" delimited values and the naming scheme used by an application is left up to the application developer. This provides flexibility to developers, allowing them to structure the names for their data in a way which makes sense to the application.
 
 NDN exposes two core primitives - \textit{Interest} packets and \textit{Data} packets. In order to request a piece of data from the network, an Interest packet is sent out with the name field set to the name of the required piece of Data. For example, one might request the 100th frame of a video feed of a camera situated in a kitchen by expressing an Interest for the piece of data named \textit{/house/kitchen/videofeed/100} and this is done using the Interest primitive.
@@ -31,7 +31,7 @@ NDN communication is entirely driven by consumers who request data by sending in
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NDN Packet Structure
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{NDN Packet Structures}\label{sec:ndn-packet-structure}
+\subsection{Packet Structures}\label{sec:ndn-packet-structure}
 As outlined in the NDN Packet Specification \cite{ndn-packet-spec}, Interest and Data packets consist of required and optional fields. Optional fields which are not present are interpreted as a predetermined default value. The packet structure for both Interest and Data packets are shown in \reffig{fig:ndn-packet-structure}, where red fields represent required fields and blue fields represent optional fields.
 
 \begin{figure}[H]
@@ -67,7 +67,7 @@ The fields contained in NDN Data packets are outlined below.
 
 An important note to make is that neither the Interest nor Data packets contain any source or destination address information. This is a key component of NDN as it allows a single Data packet to be reused by multiple consumers. 
 
-\subsection{NDN Basic Operation}\label{sec:ndn-basic-operation}
+\subsection{Basic Operation}\label{sec:ndn-basic-operation}
 NDN requires three key data structures to operate - a \textit{Forwarding Information Base (FIB)}, a \textit{Pending Interest Table (PIT)} and a \textit{Content Store (CS)}. 
 
 The FIB is used to determine which interface(s) an incoming Interest should be forwarded upstream through. This is similar to an FIB used on IP routers, however NDN supports multipath forwarding (see \refsec{sec:multipath-forwarding}), enabling a single Interest to be sent upstream through multiple interfaces. 
@@ -207,7 +207,7 @@ NDN Certificates bind a user's name to its key and certifies the ownership of th
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NFD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{NFD}
+\subsection{NDN Forwarding Daemon (NFD)}
 In order to provide the NDN functionality, the \textit{NDN Forwarding Daemon (NFD)} was developed. NFD is a network forwarder that implements the NDN protocol \cite{nfd-github}. The NFD thus implements all of the features described in \refsec{sec:ndn-basic-operation} such as the CS, PIT and FIB. 
 
  As NDN strives to replace IP as the universal network layer, NDN can run over a variety of lower level protocols such as Ethernet, TCP/IP and UDP/IP. The NFD provides this functionality by abstracting communication to dealing with \textit{Faces}. \textit{Faces} can be backed by a variety of transport mechanisms such as UDP/TCP tunnels or Unix sockets. This allows applications using the NDN Common Client Libraries (see \refsec{sec:ndn-tools}) to communicate with the NFD through the Face abstraction.
@@ -246,7 +246,7 @@ With the NFDs configured, an example operation would be the following (with some
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NLSR
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{NLSR}\label{sec:NLSR}\todo[]{This section isn't great}
+\subsection{NDN Link State Routing (NLSR)}\label{sec:NLSR}\todo[]{This section isn't great}
 In order to facilitate router and prefix discovery, the \textit{NDN Link State Routing (NLSR)} protocol was developed. As the name suggests, NLSR is a \textit{Link State Routing (LSR)} protocol \cite{lsr-rfc}. 
 
 The LSR protocol models the network as a directed, weighted graph in which each router is a node. The main purpose of LSR is to discover the network topology, allowing routers to compute routing tables using a shortest path algorithm such as Djikstra's Algorithm \cite{djikstra}\cite{lsr}. To do this, LSR routers need a mechanism for discovering adjacent routers. However, as this is the process used to \textit{build} routing tables, it cannot make use of existing routing tables. Thus, LSR periodically broadcasts \textit{HELLO} messages over all of the router's interfaces. These messages contain the router's unique address, allowing routers to discover their immediately adjacent neighbours. 
@@ -270,7 +270,7 @@ As with LSR, NLSR is responsible for building the FIB and thus requires a mechan
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NDN Tools
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{NDN Tools and Libraries}\label{sec:ndn-tools}
+\subsection{Tools and Libraries}\label{sec:ndn-tools}
 In order to facilitate the development of NDN applications, the API specified in the NDN Common Client Libraries Documentation \cite{ndn-ccl} has been ported to a variety of popular languages such as C++, Python and Java. Several command line tools under the NDN Tools project \cite{ndn-tools} have also been developed which provide useful NDN functionality such as pinging remote NFDs, expressing interests, analysing packets on the wire and segmented file transfer.
 
 An NDN simulation tool called ndnSIM \cite{ndn-sim-webpage} has also been developed to facilitate experimentation using the NDN architecture. This project has been under continuous development since 2012 and has been used by hundreds of researchers around the world \cite{ndnsim}.  
@@ -284,7 +284,7 @@ Another project built by the NDN team is Mini-NDN \cite{mini-ndn}. Mini-NDN is b
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NDN Benefits in MOG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{NDN Benefits in a MOG Context}\label{sec:sota:mog-ndn-benefits}
+\subsection{Benefits in a MOG Context}\label{sec:sota:mog-ndn-benefits}
 Interest aggregation, in network caching, native multicast, multipath forwarding.
 
 As outlined in \refsec{sec:mogs}, MOGs can be built using a variety of architectures, can have a variety of different data types and require extremely performant networking solutions. As such, MOGs are an excellent test of the performance of new networking technologies and architectures such as NDN. The three major benefits offered by NDN in a MOG context are \textit{Interest aggregation}, \textit{native multicast} and \textit{in-network caching}.
@@ -323,7 +323,7 @@ However, if caching is used, this Data can be returned from the CS of the first 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Host Based
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Host Based Applications using NDN}\label{sec:ndn-host-based}
+\subsection{Host Based Applications in NDN}\label{sec:ndn-host-based}
 As discussed, NDN's data centric architecture appears to offer several attractive benefits such as in-networking caching and Interest aggregation. 
 
 However, most of these benefits only come into play in the case of multiple nodes wishing to consume the same data. Although the switch to a data centric approach makes sense in a variety of modern settings, an interesting research question is to consider how NDN performs for a fundamentally host based application, such as instant messaging or voice communication between two parties. In these scenarios, the benefits of NDN become less clear and the extra complexity associated with using NDN may actually hurt performance.
@@ -340,7 +340,7 @@ Although the results obtained through testing VoCCN appear to be promising, rese
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Real Time NDN
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Real-Time Applications using NDN}
+\subsection{Real-Time Applications in NDN}
 Real Time Applications are one of the most challenging types of applications to develop from a networking point of view, typically requiring highly scalable, low latency and high bandwidth communication mechanisms. IP's architecture struggles to facilitate applications in which producers much stream real time data to several consumers, requiring an end-to-end connection between the producer and each consumer. These applications are also becoming more and more common with the advent of streaming platforms, such as those provided by television providers.
 
 As discussed by Gusev et al \cite{realtime-streaming-data}, the shift to the data-centric architecture of NDN provides several key benefits in this context:
@@ -442,7 +442,7 @@ All of the above engines and frameworks are designed to build extremely detailed
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Taxonomy
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{MOG Data Taxonomy}\label{sec:taxonomy}
+\subsection{Data Taxonomy}\label{sec:taxonomy}
 One of the primary goals of the research was to characterize the different types of data found in modern multiplayer games. The first step to building a high performance networking solution is to understand the different types of data required by the application and to characterize that data accordingly. The categories of data found in MOGs is highly influenced by the genre of the game. This research focuses on fast paced, real time games such as \textit{first person shooters (FPS)} and \textit{role playing games (RPGs)} as opposed to \textit{turn based} games as these are substantially more challenging and interesting from a networking perspective. 
 
 \begin{figure}[H]
@@ -477,7 +477,7 @@ The final category of data found in MOGs are distributed datasets which must be 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Architectures 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{MOG Architectures}
+\subsection{Architectures}
 One of the first decisions to make when designing the backend of a MOG is which architecture to use. On a fundamental level there are only two architectures to choose from, \textit{Client/Server (C/S)} or \textit{Peer-to-Peer (P2P)}. However, there is a huge amount of variation within each of those architectures and even combinations of the two architectures such as \textit{MultiServer (MS)} which uses a small number of centralized servers to somewhat distribute the load and \textit{Hybrid} which uses both C/S and P2P elements. As one would expect, there are substantial benefits and drawbacks to all of these architectures and the choice of which to use will play a major role on the scalability, consistency, security, ease of development and cost of running of the MOG. 
 
 MOGs typically follow a \textit{primary copy} replication approach. For each game object (e.g. players and NPCs), there exists an authoritative \textit{primary} copy and this exists on one node only. All other copies are \textit{secondary copies} and are merely replicas of the primary copy. All connected players have a local set of game objects which are shown to the player, though the distribution of primary and secondary copies depends on the game's architecture \cite{p2p-mog-survey}. All updates to game objects are performed on \textbf{primary copies only}. The results of these update operations are the sent to all players who require the latest copy of the game object, updating their secondary copies accordingly.
