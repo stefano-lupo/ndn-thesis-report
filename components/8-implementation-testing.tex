@@ -10,7 +10,7 @@ In order to enable testing without actual people playing the game, a simple auto
 The automation script used caused players to move in approximate paths, while shooting projectiles approximately once per second and placing blocks approximately once every 10 seconds. A random number generator was used to ensure that a player would not just repeatedly loop through the same moveset. However, a fixed seed was used for the random number generator, providing repeatability across tests using different topologies and parameters and enabling direct comparisons. 
 
 
-\section{Docker}
+\section{Docker}\label{sec:impl:test:docker}
 As previously discussed, having several Java processes communicating using a single NFD does not represent a realistic scenario and would produce data which does not reflect reality. Thus, an approach using a separate NFD for each player was developed, which closely resembles the real world use case of multiple players playing on different machines connected by a network.
 
 To accomplish this, Docker was used. Docker allows for the creation of entirely self contained \textit{containers}, which represent a \textit{standardrized unit of software} \cite{docker}. Docker containers run on a Docker engine, which is built for a specific host operating system such as Linux. However, the Docker containers themselves are entirely independent to the host operating system, meaning they run identicially, regardless of the underlying platform.

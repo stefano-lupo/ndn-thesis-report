@@ -231,6 +231,115 @@ Unlike with enabling caching, enabling DR publisher throttling does affect the I
 
 
 \section{Scalability Testing}\label{sec:eval:scalability}
+In order to test the scalability of \game{}, a new topology was built which contained 16 players and four intermediate routers. The topology is shwon in \reffig{fig:eval:scalability-topology}.
 
-\subsection{Effects of Enabling Interest Management}
-Pushing to breaking point
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/scalability-topology.png}{0.75}
+    \caption{The topology used for testing the scalability of \game{}, consiting of 4 intermediate routers (\textit{Q-T}) arranged in a \textit{square} topology, with 4 player nodes behind each router (\textit{A-P}).}
+    \label{fig:eval:scalability-topology}
+\end{figure}
+
+As the topology consists of 20 nodes, initial testing showed that the performance was constrained by the computing power available on the machine used for development. As such, the topology was deployed onto a cluster of 10 Amazon Web Service instances, using a Docker swarm as described in \refsec{sec:impl:test:docker}.
+
+The game world was also altered to support the larger number of players. The width and height of the game world were doubled to provide space for the increased number of players. Extra impassable boundaries were also added in the form of squares in each of the four corners of the game world. This was done to encourage hot spotting which is a common issue in MOGs. The adjusted game world is shown in \ref{fig:eval:hotspotting}.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/hotspotting.png}{0.75}
+    \caption{A screenshot of the adjusted game world during scalability testing. The screenshot shows the extra boundaries added to the game world, the occurence of hot spots in the game world and the critical interest regions defined by $r_{full}$ and $r_{min}$ used by the Interest management system.}
+    \label{fig:eval:hotspotting}
+\end{figure}
+
+
+\subsection{Benchmark with DRPT and IM Disabled}
+As before, the test was conducted with some of the optimizations disabled to provide a benchmark. In this case, \textit{DR publisher throttling (DRPT)} and \textit{Interest management (IM)} were disabled, and caching was enabled with a \textit{freshness period} of 20ms as before. The \textit{RTTs} and \textit{Position Deltas} for each of the 16 players are shown in \reffig{fig:eval:no-im-no-dr:agg-packet-times} and \reffig{fig:eval:no-im-no-dr:agg-pos-deltas} respectively and the effect of Interest aggregation is shown in \reffig{fig:eval:no-im-no-dr:int-agg}.
+
+As seen in the figures above, \game{} scales up to 16 players very well and the results are comparable to those seen in earlier tests with 2 or 4 players. 
+
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/no-im-no-dr/aggregated-packet-times.png}{0.75}
+    \caption{\textit{RTTs} for each of the nodes in the scalability test with no IM or DRPT. As before, there is a peak around 33ms which corresponds to the publisher update frequency of 30Hz}
+    \label{fig:eval:no-im-no-dr:agg-packet-times}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/no-im-no-dr/aggregated-position-deltas.png}{0.75}
+    \caption{\textit{Position Deltas} for each of the nodes in the scalability test with no IM or DRPT. As before, the values are very close to zero in most cases indicating the players' positions are very tightly syncrhonzied, even with 16 players.}
+    \label{fig:eval:no-im-no-dr:agg-pos-deltas}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/no-im-no-dr/interest-aggregations.png}{0.75}
+    \caption{The effect of Interest aggregation in the scalability test with no IM and no DRPT. The \textit{Interest aggregation factor (IAF)} ranged between 0.07 and 0.09 in this case, which is significantly lower than the best \textit{IAF} seen in previous tests were optimizations were enabled. However, \textit{IAFs} are expected to decrease as more players are added, due to the overall larger number of Interests expressed.}
+    \label{fig:eval:no-im-no-dr:int-agg}
+\end{figure}
+
+
+\subsection{Enabling Dead Reckoning Publisher Throttling (DRPT)}
+With a benchmark established, \textit{DRPT} was then re-enabled with the same values used in previous tests. As \textit{DRPT} effectively slows down the publisher update rate, the expected effect of enabling DRPT is an increase in RTTs and a decrease in the rate of Interests seen by producers.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/dr/aggregated-packet-times.png}{0.75}
+    \caption{\textit{RTTs} for each of the nodes in the scalability test with DRPT enabled and IM disabled. The peak increases from the previous value of 33ms due to the effective decrease in the rate of publsiher updates, caused by DRPT.}
+    \label{fig:eval:dr:agg-packet-times}
+\end{figure}
+
+As seen in previous tests, enabling \textit{DRPT} caused a substantial drop in the rate of Interests seen by producers. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/dr/dr-pub-throt.png}{0.75}
+    \caption{The distribution of the results of publisher update checks for each of the players in the \textit{scalability test}. Approximately 40-50\% of the updates could be skipped as a result of \textit{DRPT}.}
+    \label{fig:eval:dr:dr-pub-throt}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/dr/interest-rate-impacts.png}{0.75}
+    \caption{The reduction in Interest rates seen by producers in the scalablity test as a result of enabling \textit{DRPT}. The figure shows a reduction of approximately 40-50\% which aligns with the skipped updates seen in \reffig{fig:eval:dr:dr-pub-throt}}
+    \label{fig:eval:dr:interest-rate-impacts}
+\end{figure}
+
+
+\subsection{Enabling Interest Management (IM)}
+\textit{IM} enables players to intelligently control the rate at which they express Interest for remote objects, based on the distance the object is from the player. \textit{DRPT} was once again disabled to examine the impact of IM alone. IM was enabled using the following parameters, which were defined in \refsec{sec:des:im}:
+
+\begin{gather*}
+    r_{full} = 10\ GWU\\
+    r_{min} = 20\ GWU\\
+    MAX\_SLEEP = 2\ seconds
+\end{gather*}
+
+There are two expected outcomes of enabling IM. The first is a significant reduction in the rate of Interests seen by publishers, due to the reduced rate of Interests expressed by consumers. The second is a likely increase in \textit{position deltas} due to the longer time between updates, during which remote players may have changed direction. The results of the test agree with these two expected outcomes and can be seen in \reffig{fig:eval:no-im-no-dr:agg-pos-deltas} and \reffig{fig:eval:im:interest-impacts} respectively.
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/im/aggregated-position-deltas.png}{0.75}
+    \caption{The substantial increase in \textit{position deltas} as a result of enabling IM. This is due to consumers reducing the rate at which they express Interests for updates to remote objects which are far away. }
+    \label{fig:eval:im:pos-deltas}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/im/interest-rate-impacts.png}{0.75}
+    \caption{The reduction in Interest rates seen by producers in the scalablity test as a result of enabling \textit{IM}.}
+    \label{fig:eval:im:interest-impacts}
+\end{figure}
+
+\subsection{Enabling DRPT and IM}
+Finally, the test was repeated a fourth time to examine the impacts of enabling both DRPT and IM. Although IM will diminish the effectiveness of DRPT to a certain degree, the two optimizations are entirely compatible and in theory, their combined use should be the most beneficial. The results of the test agree with this threory the most part, however there are a number of exceptions in which one of the optimizations out performs the combination, though these are most likely a result of small timining differences causing the tests to become slightly different. 
+
+\begin{figure}[H]
+    \centering
+    \figsize{assets/eval/scalability/im-dr/interest-rate-impacts.png}{1}
+    \caption{}
+    \label{fig:eval:im-dr:impacts}
+\end{figure}
