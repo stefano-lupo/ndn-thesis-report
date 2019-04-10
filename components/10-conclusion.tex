@@ -1,13 +1,31 @@
 \chapter{Conclusion}
+The performance of \game{} suggests that NDN is an excellent candiate for MOG communications. The variety of the data produced by MOGs requires several syncrhonization strategies for optimum performance. Existing solutions for dataset syncrhonization such as ChronoSync can be used for the lower frequency data types such as player discovery, though a protocol designed for the specific context will likely be required to syncrhonize the high frequency data found in MOGs, as was the case in \game{}. 
 
-\subsection{Future Work}\label{sec:conc:fw}
-\begin{enumerate}
-    \item More rhobust interaction API, concurrent issues (e.g. two people shoot block at same time?)
-    \item Add support for NPCs - shouldn't be hard. Main interesting bit is distributing the set of NPCs across game players. Other than that its just another sync object
-    \item Outstanding interaction interest as described in the interaction api 
-    \item IP based backend module
-    \item Find a way to intelligently set freshness periods. Talk about how 20ms was okay in this case but can cause players to permanently lag in large topologies with lots of hops
-\end{enumerate}
+\game{} provided an ideal test case for the design, implementation and evaluation of various syncrhonization protocols, which lead to the development of the novel syncrhonization protocol used in \game{}.
+
+The testing performed in \refsec{sec:eval:metrics-testing} showed the benefits of using NDN as the communication mechanism. The main benefits were \textit{Interest aggregation} and \textit{native multicast}. These factors combined to reduce the traffic seen by the producers by over 50\%, and enabling caching reduced the traffic by a further 10\% on average. Crticially, this substantial reduction in network traffic did not result in any negative impacts on gameplay, as seen by the reasonable values for \textit{RTTs} and \textit{position deltas}.
+
+The DRPT optimization also proved to be extremely effective, enabling publishers to skip between 40\%-60\% of the \textit{PlayerStatus} updates, which would have otherwise been published to the network. Again, this reduction had no significant impact on the gameplay as seen by the absence of change in the distribution of \textit{position deltas} between the tests with DRPT enabled and disabled. 
+
+\game{} also appeared to scale very well and supported up to 16 players without any noticable impacts on the gameplay. Again, this is largely due to the \textit{Interest aggregation} and \textit{native multicast} features offered by NDN. Similarly, the design of the sync protocol used by \game{} allows consumers to store all of the state required for syncrhonization, meaning producers need not store state for each consumer, which provides high consumer scalability. 
+
+The addition of the IM optimization enabled \game{} to scale intelligently by taking the state of the game world into account. By using both DRPT and IM in the scalability test with 16 players, producers saw an average of only 5 Interests per second for updates to their \textit{PlayerStatus}, in comparison to an average of 30 when these optimizations were disabled. 
 
 
-Things can't be parametrized in NDN without forming a gross name schema - e.g. interaction API can't send parameters. Potential solution is to have publisher's maintain outstanding interests towards consumers for interactions?
+\section{Future Work}\label{sec:conc:fw}
+Due to the time limitations associated with this project, several features and research areas were ommited. One of the main goals of the design and implementation of \game{} was extensibility, allowing for the addition of more complex game mechanics and networking solutions in the future. In order to continue to investigate using NDN for MOG communications and to further develop \game{}, the following work is proposed for the future:
+
+\subsection{IP Based Backend Module}
+As the backend module used in \game{} is entirely modular, an IP based backend module could be developed to faciliatate a direct comparison between an IP based solution and the NDN solution developed during this research.
+
+\subsection{Dynamic Freshness Period Setting}
+As previously discussed, one of the major challenges associated with enabling caching in \game{} is the fact that \textit{freshness periods} are defined on hop-by-hop basis. Thus, appropriate values for \textit{freshness period} are very dependent on the topology. A mechanism which attempts to set this value intelligently would be a major step towards inceasing the amount of caching possible in \game{}.
+
+\subsection{Support NPCs}
+Adding NPCs to \game{} should be a relatively simple endeavour as they are essentially a simpler form of players. Thus, most of the syncrhonization mechanism that would be required for NPCs has already been implemented. Load balancing NPCs across the players in the game could potentially be done alongside player discovery, by distributing the set of NPCs each player is responsible for along with the player's name. Examining the increase in network traffic due to the addition of NPCs, and comparing it to the increase in network traffic due to a new player joining the game would also be an interesting area of research.
+
+\subsection{Build a More Rhobust Interaction API}
+The limitations of the Interaction API used in \game{} were discussed in \refsec{sec:des:interaction:limitations}. Adding functionality to the Interaction API to support more complex game mechanics would go a long way in bringing \game{} up to the standard of real MOGs played today.
+
+\subsection{Larger Scalability Testing}
+As the scalability of \game{} was unknown prior to the evaluation, the scalability tests were limited to 16 players so that the resulting data could be easily analyzed to gain a deeper understanding of how the game scales. As shown in \refsec{sec:eval:scalability}, \game{} could easily support 16 players without causing any noticable impact on game performance. As such, larger scalability tests are required to determine the upper limit to the scalability of \game{}. 

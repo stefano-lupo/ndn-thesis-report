@@ -233,7 +233,7 @@ The interaction API is used by players wishing to interact with game objects for
 Upon receipt of an interaction Interest, the holder of the primary copy, which is simply the owner of the game object in \game{}, can update the game object. This causes an update to be published through the sync protocol, allowing all interested players to see the result of the interaction.
 
 
-\subsection{Limitations}
+\subsection{Limitations}\label{sec:des:interaction:limitations}
 One of the challenges associated with NDN is that Interests cannot be easily parametrized without causing the Interest name to become more and more complex. For example, if the damage associated with an attack was variable, this would require yet another component added to the name to represent the damage value. This approach is feasible for a small number of parameters, but can get quickly out of hand in the case of parameters which are optional or contain nested fields. 
 
 Similarly, this type of scenario doesn't fit neatly into the abstraction provided by NDN in that there is no Data associated with this Interest. Players simply express these interaction Interests and no Data packet is ever expected. The effects of this can be minimized by setting the Interest's timeout value to 0. This means it will not waste valuable resources by sitting in the PIT of intermediate routers once it has been forwarded.

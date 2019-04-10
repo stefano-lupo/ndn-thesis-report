@@ -335,11 +335,15 @@ There are two expected outcomes of enabling IM. The first is a significant reduc
 \end{figure}
 
 \subsection{Enabling DRPT and IM}
-Finally, the test was repeated a fourth time to examine the impacts of enabling both DRPT and IM. Although IM will diminish the effectiveness of DRPT to a certain degree, the two optimizations are entirely compatible and in theory, their combined use should be the most beneficial. The results of the test agree with this threory the most part, however there are a number of exceptions in which one of the optimizations out performs the combination, though these are most likely a result of small timining differences causing the tests to become slightly different. 
+Finally, the test was repeated a fourth time to examine the impacts of enabling both DRPT and IM. Although IM will diminish the effectiveness of DRPT to a certain degree, the two optimizations are entirely compatible. The combined use of DRPT and IM should be the most beneficial in terms of reducing Interest rates, and the results shown in \reffig{fig:eval:im-dr:impacts} agree with this threory. 
 
 \begin{figure}[H]
     \centering
     \figsize{assets/eval/scalability/im-dr/interest-rate-impacts.png}{1}
-    \caption{}
+    \caption{The impacts of enabling IM, DR and both IM and DR on the Interest rates seen by  in the scalability tests.}
     \label{fig:eval:im-dr:impacts}
 \end{figure}
+
+
+There are a small number of exceptions in which one of the optimizations out performs the combination. An example of this is the difference in Interest rates seen by node C in \reffig{fig:eval:im-dr:impacts} as a result of enabling and disabling the optimizations. IM alone caused a greater reduction in Interest rate for node C than the combination of IM and DRPT. These discrepancies are most likely a result of small differences in how the game played out. For example if node C ended up becoming very isolated from other players, IM would cause it to see a much reduced Interest rate. 
+
