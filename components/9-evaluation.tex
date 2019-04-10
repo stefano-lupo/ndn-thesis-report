@@ -185,7 +185,7 @@ Interestingly, node G, the root node, also essentially has a non zero cache rate
 The above results indicate that caching is a major benefit to \game{} from a network performance point of view, however the impact it has on the gameplay must also be considered. In topologies with a large number of hops, it is possible that even relatively small values for \textit{freshness period} can result in players being served extremely old Data packets (see \refsec{sec:conc:fw}).
 
 
-\subsection{Effects of Enabling DR Publisher Throttling}
+\subsection{Effects of Enabling DR Publisher Throttling (DRPT)}
 In order to test DR publisher throttling, the tests were again repeated. The 20ms \textit{freshness period} was used once again meaning caching was enabled. The DR publisher throttling threshold was set to 0.5 GWU, which is half the width of the player's avatar. 
 
 As with the previous tests, the \textit{dumbbell}, \textit{square} and \textit{tree} topologies performed very similarly. For this reason, only the results for the \textit{dumbbell} topology are shown here and the others can be found in \refapp{app:eval:pub-throt}.

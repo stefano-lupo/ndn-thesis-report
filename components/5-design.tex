@@ -52,8 +52,8 @@ The taxonomy for MOG data is outlined in \refsec{sec:taxonomy}. The proposed gam
 
 \begin{figure}[H]
     \centering
-    \figsize{assets/design/taxonomy-with-game-data.png}{1}
-    \caption{Taxonomy of MOG data with corresponding data in \game{}}
+    \figsize{assets/design/taxonomoy-with-protocols.png}{1}
+    \caption{Taxonomy of data found in MOGs, with corresponding data in \game{} and the protocols used to synchronize the data in \game{}.}
     \label{fig:des:taxonomy-with-data}
 \end{figure}
 
@@ -63,10 +63,12 @@ As shown in \reffig{fig:des:taxonomy-with-data}, each of the data types produced
     \item[Static Content] Due to the simplicity of game, there is not a lot of static content which needs to be sent over the network. Game world assets are packaged and shipped with the game. However, custom player spritesheets represent an ideal candidate for dissemination using NDN.
     \item[Realtime Streams] As shown in \reffig{fig:des:taxonomy-with-data}, real-time streams are further subdivided into those which are high frequency and low frequency.\break\break
     As players are free to roam around the game world, player position updates are required extremely frequently in order to provide the appearance of smooth motion of remote players.\break\break
-    Players can also place blocks, those this ability is limited to once every two seconds. Thus, even if a player chooses to continuously places blocks at the maximum rate, the updates associated with block creation are still relatively low frequency in comparison to player position updates.
+    Players can also place blocks, though this ability is limited to once every two seconds. Thus, even if a player chooses to continuously places blocks at the maximum rate, the updates associated with block creation are still relatively low frequency in comparison to player position updates.
     \item[Non Synced] As described earlier, one form of attacking is through shooting projectiles. Projectiles are extremely short lived in \game{} as they travel at a high speed. Once a projectile is produced, there are no further updates required for that projectile, aside from it being destroyed when it hits a player, block or the game world boundary. This is analogous to the event being consumed. Projectiles are created with an initial position and velocity and are then published to the network. On interaction with the game world boundary, they are automatically destroyed locally by all players. However, on interaction with a remote player or block created by a remote player, the projectile is destroyed and subsequent action is taken through the Interaction API (see \refsec{sec:des:interaction}). Thus, there is no requirement to synchronize projectiles over time, meaning they are essentially events published by a player and are either consumed by the player who created the projectile, or the player who interacts with the projectile.
     \item[Syncrhonized Datasets] Player discovery is an good example of a dataset which needs to be synchronized across all game players. The rate at which updates are performed on this dataset is approximately equal to the rate at which players join and leave them game, as well as some overhead for the synchronization mechanism. As such, in comparison to the other categories of data, player discovery is a extremely low frequency and can use a strict, slow protocol, to ensure players are discovered correctly.
 \end{labeling}
+
+Due to the variation in the data found in MOGs, multiple synchronization protocols are used, as shown in \ref{fig:des:taxonomy-with-data}. These are discussed in the following sections. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Player Discovery using CS
