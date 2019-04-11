@@ -8,7 +8,7 @@ IBFs are an extension to standard BFs which replace the simple bit array used in
 \begin{labeling}{insert(key, val)  }
     \item[\textit{insert(key, val)}] For each \textit{o}, \textit{o.key := o.key XOR key}, the new value becomes \textit{o.value:= o.value XOR val}, \textit{o.count++}. 
     \item[\textit{delete(key)}] Assuming the element had been inserted, for each \textit{o}, the new key becomes $existingKey\;XOR\;deleteKey$, the new value becomes $existingValue\;XOR\;deleteValue$ and the count is decremented.
-    \item[\textit{get(key)}] There are three cases to consider when retrieving an \textit{value} by \textit{key}:
+    \item[\textit{get(key)}] There are three cases to consider when retrieving a \textit{value} by \textit{key}:
     \begin{itemize}
         \item If the \textit{count} of \textbf{any} of the objects of interest are zero, the element was never inserted. 
         \item If none of the objects of interest have a \textit{count == 1}, the element cannot be retrieved but may have been inserted. \item If any of the objects of interest have a \textit{key} which matches the \textit{key} to be retrieved, then the \textit{value} of that object is returned. Otherwise, the element was never inserted.
@@ -45,7 +45,7 @@ The \textit{network} field specifies the name of the overlay network to connect 
 
 
 
-\chapter{Figures For Other Topologies Using No Optimizations}\label{app:eval:basic}
+\chapter{Figures for Other Topologies Using No Optimizations}\label{app:eval:basic}
 \section{Round Trip Times}
 \begin{figure}[H]
     \centering
@@ -100,7 +100,7 @@ The \textit{network} field specifies the name of the overlay network to connect 
     \caption{Interest aggregation in the \textit{tree} topology. Nodes A, B, C and D had IAFs of 0.46, 0.45, 0.45 and 0.45 respectively.}
 \end{figure}
 
-\chapter{Figures For Other Topologies with Caching Enabled}\label{app:eval:caching}
+\chapter{Figures for Other Topologies with Caching Enabled}\label{app:eval:caching}
 \section{Impact of Enabling Caching on Interest Rates}
 \begin{figure}[H]
     \centering
@@ -126,7 +126,7 @@ The \textit{network} field specifies the name of the overlay network to connect 
     \caption{Difference between the number of Interests expressed by consumers and seen by producers in the \textit{tree} topology. }
 \end{figure}
 
-\chapter{Figures For Other Topologies with DR Publisher Throttling Enabled}\label{app:eval:pub-throt}
+\chapter{Figures for Other Topologies with DR Publisher Throttling Enabled}\label{app:eval:pub-throt}
 \section{Publisher Update Results}
 
 \begin{figure}[H]

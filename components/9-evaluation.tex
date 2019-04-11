@@ -11,7 +11,7 @@ However, in all tests, \textbf{all game mechanics were enabled} and players were
 
 All tests were repeated several times and each test instance produced data that was extremely similar. In the interest of clarity, error bars are omitted from the figures as they offer no additional insight.
 
-The evaluation is split into two stages - \refsec{sec:eval:metrics-testing} examines the impacts of tweaking parameters on the metrics discussed in \refsec{sec:impl:metrics} and \refsec{sec:eval:scalability} examines how \game{} scales in a real world scenario.
+The evaluation is split into two stages - \refsec{sec:eval:metrics-testing} examines the impacts of tweaking parameters on the metrics discussed in \refsec{sec:impl:metrics} and \refsec{sec:eval:scalability} examines how \game{} scales in a real-world scenario.
 
 
 \section{Metric Testing}\label{sec:eval:metrics-testing}
@@ -26,7 +26,7 @@ The length of time in seconds that a consumer will wait for an Interest to be sa
 The amount of time a Data packet is considered \textit{fresh} after being received by an NFD instance. This is defined on a hop-by-hop basis.
 
 \subsubsection*{Dead Reckoning (DR) Pub Throttling}
-This mechanism reduces the amount of updates a publisher will produce by maintaining a view of the game object as seen by the consumers. This is outlined further in \refsec{sec:des:dr}. There are two parameters associated with this mechanism - whether or not it is enabled, and the error threshold which results in a update being produced. The error threshold is a measure of distance, and uses \textit{game world units (GWU)}, and a description of a GWU is given below.
+This mechanism reduces the amount of updates a publisher will produce by maintaining a view of the game object as seen by the consumers. This is outlined further in \refsec{sec:des:dr}. There are two parameters associated with this mechanism - whether or not it is enabled, and the error threshold which results in an update being produced. The error threshold is a measure of distance, and uses \textit{game world units (GWU)}, and a description of a GWU is given below.
 
 
 \subsubsection*{Interest Management (IM)}
@@ -41,7 +41,7 @@ As outlined in \refsec{sec:des:sync-protocol}, when Interests arrive, they are a
 \subsection{Parameter-Metric Matrix}
 The metrics used for the evaluation are the \textit{round-trip-time (RTT)}, \textit{Interest aggregation factor (IAF)}, \textit{cache rate} and \textit{position delta}, each of which are discussed in \refsec{sec:impl:metrics}.
 
-The \textit{parameter-metric matix} is shown in \reftbl{tbl:eval:metric-matrix}. This table shows the theoretical impact on each of the metrics when a parameter is \textbf{increased}. The \textit{+}, \textit{0} and \textit{-} values in the cells represent an increase, no change and a decrease to the associated metric. Finally, the resulting impact on the overall performance of the game is indicated by the colour of the cell, where green, white and red indicate a positive, neutral and negative impact on the performance respectively. 
+The \textit{parameter-metric matrix} is shown in \reftbl{tbl:eval:metric-matrix}. This table shows the theoretical impact on each of the metrics when a parameter is \textbf{increased}. The \textit{+}, \textit{0} and \textit{-} values in the cells represent an increase, no change and a decrease to the associated metric. Finally, the resulting impact on the overall performance of the game is indicated by the colour of the cell, where green, white and red indicate a positive, neutral and negative impact on the performance respectively. 
 
 \begin{table}[H]
     \centering
@@ -92,7 +92,7 @@ An important note to make here is in the magnitude of a \textit{GWU}. GWUs are u
 Finally, each of the tests were allowed to run for approximately 5 minutes, as the results obtained did not appear to change once the test reached the steady state.
 
 \subsection{No Caching, no IM and no DR Publisher Throttling}
-In order to provide a benchmark for future tests, the most simplest form of \game{} was tested in which no IM or DR publisher throttling was used and caching was disabled.
+In order to provide a benchmark for future tests, the simplest form of \game{} was tested in which no IM or DR publisher throttling was used and caching was disabled.
 
 \subsubsection*{Round-Trip-Times (RTT)}
 The first metric examined was RTT. Each of the four topologies performed similarly in this regard. For this reason, the RTTs are only shown for the \textit{dumbbell} topology, though the others can be found in \refapp{app:eval:basic}. As seen in \reffig{fig:eval:basic:rtt}, the RTT for the \textit{PlayerStatus} of each of the nodes appears to be approximately normally distributed around the 20 - 40 ms range, with a moderate positive skew. This follows from the \textit{publisher update rate (PUR)} of 30Hz, meaning updates are published every 33ms as no optimizations were used. Thus, the RTT is heavily dependent on the \textit{PUR}, as expected. The RTT can be reduced by increasing the \textit{PUR}, however this will increase the traffic on the network and thus reduce the scalability of \game{}.  
@@ -106,7 +106,7 @@ The first metric examined was RTT. Each of the four topologies performed similar
 
 
 \subsubsection*{Position Deltas}
-As caching, IM and DR publisher throttling are disabled, consumers are receiving a constant stream of the most up to date player positions. This suggests that the \textit{position deltas} should be at their lowest in these tests. However, as the optimizations are disabled, these tests will have the largest amount of traffic on the network. Thus, provided the network is not overwhelmed, the \textit{position deltas} should be extremely low in this case. Otherwise, the lack of network optimizations may effect performance sufficiently that the \textit{position deltas} will be large. 
+As caching, IM and DR publisher throttling are disabled, consumers are receiving a constant stream of the most up to date player positions. This suggests that the \textit{position deltas} should be at their lowest in these tests. However, as the optimizations are disabled, these tests will have the largest amount of traffic on the network. Thus, provided the network is not overwhelmed, the \textit{position deltas} should be extremely low in this case. Otherwise, the lack of network optimizations may affect performance sufficiently that the \textit{position deltas} will be large. 
 
 As with the RTTs, each of the topologies performed very similarly in this regard. Again, only the histogram for the \textit{dumbbell} topology is shown and all others are given in \refapp{app:eval:basic}.
 
@@ -168,20 +168,20 @@ By enabling caching, the IAF becomes less clear as it is not possible to determi
 
 The values shown in \reffig{fig:eval:caching:interest-agg-dumbbell} can be compared to \reffig{fig:eval:basic:interest-agg-dumbbell}, which shows the results when caching was disabled. In the case of no caching, the \textit{IAFs} were 0.45, 0.46, 0.45 and 0.44 for nodes A, B, C and D respectively. Thus, enabling caching further improved the reduction factor by between 0.11 and 0.13.
 
-The cache rate of a particular node is heavily dependent on the node's position in the topology. For example, caching essentially only occurs at the intermediate router nodes in \textit{tree} topology. Consider an Interest who's corresponding Data packet has already been produced. This Interest must flow through several Intermediate routers who will all have a cached copy that is \textbf{fresher} than the copy at the producer's cache. This is due to the fact that the Data will be cached in the producer's CS first, and will thus become non-fresh there first. Thus, all intermediate routers will typically be able to serve a cached copy of a Data packet for longer than the producer will. 
+The cache rate of a particular node is heavily dependent on the node's position in the topology. For example, caching essentially only occurs at the intermediate router nodes in \textit{tree} topology. Consider an Interest whose corresponding Data packet has already been produced. This Interest must flow through several Intermediate routers who will all have a cached copy that is \textbf{fresher} than the copy at the producer's cache. This is due to the fact that the Data will be cached in the producer's CS first, and will thus become non-fresh there first. Thus, all intermediate routers will typically be able to serve a cached copy of a Data packet for longer than the producer will. 
 
-However, there is an exception to this when the intermediate router's CS becomes full and the Data must be evicted. This will happen more frequently in intermediate routers than in any of the leaf (player) nodes of the \textit{tree} topology as the router nodes must cache Data requested by multiple nodes, whereas the leaf nodes only caches the Data they request. Thus, it is possible than an intermediate router can forward an Interest to a leaf node and have it satisfied by the leaf nodes cache.
+However, there is an exception to this when the intermediate router's CS becomes full and the Data must be evicted. This will happen more frequently in intermediate routers than in any of the leaf (player) nodes of the \textit{tree} topology as the router nodes must cache Data requested by multiple nodes, whereas the leaf nodes only cache the Data they request. Thus, it is possible than an intermediate router can forward an Interest to a leaf node and have it satisfied by the leaf nodes cache.
 
 \begin{figure}[H]
     \centering
     \figsize{assets/eval/caching/cache-rates/tree.png}{0.75}
-    \caption{Cache rates by node for all nodes in the \textit{tree} topology. Note that the cache rates for nodes A, B, C and D are non zero.}
+    \caption{Cache rates by node for all nodes in the \textit{tree} topology. Note that the cache rates for nodes A, B, C and D are non-zero.}
     \label{fig:eval:caching:cache-rate-tree}
 \end{figure}
 
 The cache rates shown in \reffig{fig:eval:caching:cache-rate-tree} agrees with the expected behaviour previously described. Although these cache rates appear rather low, this is due to the fact that most Interests are aggregated and multicasted, instead of being satisfied by a Data packet in the CS.
 
-Interestingly, node G, the root node, also essentially has a non zero cache rate. Consider the case where A expresses an Interest for a piece of data owned by C (see \reffig{fig:eval:topologies}). This Interest will be forwarded through E, G and F until it reaches C. Once C produces the Data, it is then cached at each hop on the way back. At this point, only B or E will express an Interest for the same piece of data, as A has the data and C is the producer. If B then requests the same packet, the Interest will be satisfied by E, and if D requests the same packet, the Interest will be satisfied by F. Thus, G very rarely serves any cached Data, though it is possible in the case of CS eviction as described previously. 
+Interestingly, node G, the root node, also essentially has a non-zero cache rate. Consider the case where A expresses an Interest for a piece of data owned by C (see \reffig{fig:eval:topologies}). This Interest will be forwarded through E, G and F until it reaches C. Once C produces the Data, it is then cached at each hop on the way back. At this point, only B or E will express an Interest for the same piece of data, as A has the data and C is the producer. If B then requests the same packet, the Interest will be satisfied by E, and if D requests the same packet, the Interest will be satisfied by F. Thus, G very rarely serves any cached Data, though it is possible in the case of CS eviction as described previously. 
 
 The above results indicate that caching is a major benefit to \game{} from a network performance point of view, however the impact it has on the gameplay must also be considered. In topologies with a large number of hops, it is possible that even relatively small values for \textit{freshness period} can result in players being served extremely old Data packets (see \refsec{sec:conc:fw}).
 
@@ -356,5 +356,5 @@ Finally, the test was repeated a fourth time to examine the impacts of enabling 
 \end{figure}
 
 
-There are a small number of exceptions in which one of the optimizations out performs the combination. An example of this is the difference in Interest rates seen by node C in \reffig{fig:eval:im-dr:impacts} as a result of enabling and disabling the optimizations. IM alone caused a greater reduction in Interest rate for node C than the combination of IM and DRPT. These discrepancies are most likely a result of small differences in how the game played out. For example if node C ended up becoming very isolated from other players, IM would cause it to see a much reduced Interest rate. 
+There are a small number of exceptions in which one of the optimizations out performs the combination. An example of this is the difference in Interest rates seen by node C in \reffig{fig:eval:im-dr:impacts} as a result of enabling and disabling the optimizations. IM alone caused a greater reduction in Interest rate for node C than the combination of IM and DRPT. These discrepancies are most likely a result of small differences in how the game played out. For example, if node C ended up becoming very isolated from other players, IM would cause it to see a much-reduced Interest rate. 
 
