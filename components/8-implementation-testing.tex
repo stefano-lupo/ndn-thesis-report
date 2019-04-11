@@ -1,20 +1,20 @@
 \chapter{Testing Implementation}
 \game{} was tested continuously throughout development. This was primarily done using a single machine with multiple instances of the game running as separate processes, each of which communicated via a single NFD. This was an ideal setup for design, development and debugging. However, it is not representative of a real scenario in which multiple players are playing \game{}. As such, a more realistic approach was required. 
 
-A description of the libraries and frameworks used, and the software developed to facilitate real world testing of \game{} is provided in the following sections.
+A description of the libraries and frameworks used, and the software developed to facilitate real-world testing of \game{} is provided in the following sections.
 
 
 
 \section{Player Automation}\label{sec:impl:automation}
-In order to enable testing without actual people playing the game, a simple automation mechanism was developed. This was accomplished by creating a \textit{InputController} interface. Two implementations of this interface were created - a \textit{RealInputController} which actually reacts to user input via the keyboard and mouse, and an \textit{AutomatedInputController} which simulates key strokes.
+In order to enable testing without actual people playing the game, a simple automation mechanism was developed. This was accomplished by creating an \textit{InputController} interface. Two implementations of this interface were created - a \textit{RealInputController} which actually reacts to user input via the keyboard and mouse, and an \textit{AutomatedInputController} which simulates key strokes.
 
 The automation script used caused players to move in approximate paths, while shooting projectiles approximately once per second and placing blocks approximately once every 10 seconds. A random number generator was used to ensure that a player would not just repeatedly loop through the same move-set. However, a fixed seed was used for the random number generator, providing repeatability across tests using different topologies and parameters, enabling direct comparisons between these tests. 
 
 
 \section{Docker}\label{sec:impl:test:docker}
-As previously discussed, having several Java processes communicating using a single NFD does not represent a realistic scenario. Thus, an approach using a separate NFD for each player was developed, which closely resembles the real world use case of multiple players playing on different machines connected by a network.
+As previously discussed, having several Java processes communicating using a single NFD does not represent a realistic scenario. Thus, an approach using a separate NFD for each player was developed, which closely resembles the real-world use case of multiple players playing on different machines connected by a network.
 
-To accomplish this, Docker was used. Docker allows for the creation of entirely self contained \textit{containers}, which represent a \textit{standardized unit of software} \cite{docker}. Docker containers run on a Docker engine, which is built for a specific host operating system such as Linux. However, the Docker containers themselves are entirely independent to the host operating system, meaning they run identically, regardless of the underlying platform.
+To accomplish this, Docker was used. Docker allows for the creation of entirely self-contained \textit{containers}, which represent a \textit{standardized unit of software} \cite{docker}. Docker containers run on a Docker engine, which is built for a specific host operating system such as Linux. However, the Docker containers themselves are entirely independent to the host operating system, meaning they run identically, regardless of the underlying platform.
 
 A Docker \textit{image} is used to define a Docker container. This contains \textbf{everything} that is needed to run the piece of software, such as libraries, frameworks and dependencies. A Docker image which contains everything required to run \game{} was developed based on Peter Gusev's \cite{docker-ndn} NDN Docker image. This enabled \game{} to be run on any machine which had Docker installed.
 
@@ -30,7 +30,7 @@ Docker supports orchestrating clusters of separate Docker hosts using \textit{sw
 
 Docker allows containers running on different Docker hosts to communicate by using an \textit{overlay} network. The actual network is entirely managed by Docker and allowed all of the \game{} nodes to communicate regardless of what Docker host their container resided on. 
 
-When using swarms, Docker creates and uses an \textit{ingress routing mesh} by default. This allows requests which reach any node in the swarm to be routed to an appropriate node who can service the request. For example, if a stack consists of a database container which exposes port 3306, and a web server container which exposes port 80, if a request for a web page (using port 80) is made to the database container, the ingress routing mesh automatically forwards this requests to the web server container. This is an extremely useful feature of Docker as it allows requests to be serviced regardless of the actual node the request is sent to. Similarly, this can also be used for load balancing requests across the swarm.
+When using swarms, Docker creates and uses an \textit{ingress routing mesh} by default. This allows requests which reach any node in the swarm to be routed to an appropriate node who can service the request. For example, if a stack consists of a database container which exposes port 3306, and a web server container which exposes port 80, if a request for a web page (using port 80) is made to the database container, the ingress routing mesh automatically forwards this request to the web server container. This is an extremely useful feature of Docker as it allows requests to be serviced regardless of the actual node the request is sent to. Similarly, this can also be used for load balancing requests across the swarm.
 
 However, this behaviour is not desired in the case of testing \game{}, as Interests that are forwarded to a particular network alias, \textbf{must} arrive at the specific node they are forwarded to. Each of the nodes exposed the default NFD port of 6363, meaning Interests could actually arrive at different node to the one it was meant to be forwarded to. To overcome this problem, the endpoint mode of each Docker service required by the topology was set to \textit{DNS-round-robin}, instead of the default \textit{ingress routing mesh}.
 
@@ -75,7 +75,7 @@ To gather data from the \game{} Java processes, Dropwizard's Metrics framework \
 Gathering these metrics proved to be considerably more challenging than expected due to nature of NDN. The main issue is that Interest packets are aggregated and Data packets are multicasted to consumers. This means there is no way for producers to know which consumer they are serving. Similarly, consumers cannot know if they are obtaining a cached copy of a piece of Data, or if the piece of Data they receive is the result of another player expressing the same Interest at an earlier point in time. 
 
 \subsection{Round-Trip-Time (RTT)}
-One of the main challenges was attempting to understand the temporal performance of the network. Recall that the sync protocol uses a long lived outstanding Interest model, and that producers only reply when there is an update worth sending. Thus if a consumer expresses an Interest at time $t_{int}$, and receives a Data packet at time $t_{data}$, the RTT can be calculated using \refeq{eq:impl:rtt},
+One of the main challenges was attempting to understand the temporal performance of the network. Recall that the sync protocol uses a long-lived outstanding Interest model, and that producers only reply when there is an update worth sending. Thus, if a consumer expresses an Interest at time $t_{int}$, and receives a Data packet at time $t_{data}$, the RTT can be calculated using \refeq{eq:impl:rtt},
 
 \begin{equation}\label{eq:impl:rtt}
     RTT = t_{data} - t_{int}
@@ -89,7 +89,7 @@ The obvious solution to this problem is to have producers respond with the amoun
     RTT_{eff} = (t_{data} - t_{int}) - t_{wait}
 \end{equation}
 
-However, due to Interest aggregation, the producer will only see one Interest for a given Data name, regardless of the number of consumers who express the same Interest. Thus, the producer can only measure $t_{wait}$ for the first Interest they receive. Similarly, the Data packet received by all of the consumers will be identical due to the native multicast feature of NDN. Thus, $t_{wait}$ will only be correct for the consumer who's Interest reached the producer first.
+However, due to Interest aggregation, the producer will only see one Interest for a given Data name, regardless of the number of consumers who express the same Interest. Thus, the producer can only measure $t_{wait}$ for the first Interest they receive. Similarly, the Data packet received by all of the consumers will be identical due to the native multicast feature of NDN. Thus, $t_{wait}$ will only be correct for the consumer whose Interest reached the producer first.
 
 This problem does not exist in a typical IP implementation as the producer would receive a request from each consumer and thus be able to calculate $t_{wait}$ accordingly.
 

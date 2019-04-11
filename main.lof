@@ -1,0 +1,76 @@
+\babel@toc {english}{}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces The structure of Interest and Data packets \cite {ndn}.\relax }}{5}{figure.caption.10}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Operation performed by an NDN node upon receiving an Interest\relax }}{8}{figure.caption.11}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces NDN operation on receiving Data\relax }}{9}{figure.caption.12}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces An example set-up of 2 NFDs for a producer/consumer application.\relax }}{14}{figure.caption.13}
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Packet structure of Link State Advertisements (LSAs) in NLSR \cite {nlsr} (adapted)\relax }}{16}{figure.caption.14}
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Interest aggregation (b), native multicast (c) and in-network caching (d)\relax }}{18}{figure.caption.15}
+\contentsline {figure}{\numberline {2.7}{\ignorespaces ChronoSync digest tree for a dataset synced across Alice, Bob and Ted \cite {chronosync}\relax }}{24}{figure.caption.16}
+\contentsline {figure}{\numberline {2.8}{\ignorespaces Taxonomy of the data found in MOGs\relax }}{28}{figure.caption.18}
+\contentsline {figure}{\numberline {2.9}{\ignorespaces Tile interest map in a 3D game world\relax }}{35}{figure.caption.19}
+\contentsline {figure}{\numberline {2.10}{\ignorespaces Core areas associated with the research project\relax }}{36}{figure.caption.20}
+\contentsline {figure}{\numberline {2.11}{\ignorespaces Matryoshka broadcast discovery namespace \cite {ndn-multiplayer-game}\relax }}{38}{figure.caption.21}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces NDNShooter{} - a 2D, top down game developed to facilitate research into MOGs using NDN\relax }}{43}{figure.caption.22}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Taxonomy of data found in MOGs (orange), with the corresponding data in NDNShooter{} (green), and the protocols used to synchronize the data in NDNShooter{} (white).\relax }}{45}{figure.caption.23}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Name schema of NDNShooter{}'s game object sync protocol\relax }}{50}{figure.caption.24}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Name schema of NDNShooter{}'s game object interaction API\relax }}{56}{figure.caption.25}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Parameters associated with NDNShooter{}'s IM system\relax }}{59}{figure.caption.26}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces A simplified version of a remote player entity in Ashley\relax }}{65}{figure.caption.27}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces ChronoSync requires a broadcast namespace to ensure all participants receive update notifications\relax }}{70}{figure.caption.28}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces An example of the topologies used for testing NDNShooter{}\relax }}{80}{figure.caption.29}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {8.1}{\ignorespaces Topologies used in evaluation of NDNShooter{}\relax }}{88}{figure.caption.31}
+\contentsline {figure}{\numberline {8.2}{\ignorespaces The width of a player avatar in NDNShooter{} is 1 GWU\relax }}{89}{figure.caption.32}
+\contentsline {figure}{\numberline {8.3}{\ignorespaces \textit {RTTs} for \textit {PlayerStatus} in the \textit {dumbbell} topology\relax }}{90}{figure.caption.33}
+\contentsline {figure}{\numberline {8.4}{\ignorespaces \textit {Position deltas} for players in the \textit {dumbbell} topology. Note the frequencies over \textit {position deltas} over 1.5 GWUs are extremely low, but are non-zero and were left in the histograms to highlight this fact.\relax }}{91}{figure.caption.34}
+\contentsline {figure}{\numberline {8.5}{\ignorespaces Interest aggregation for \textit {PlayerStatus} in the \textit {linear} topology. The \textit {IAF} of both nodes is 1 as expected.\relax }}{92}{figure.caption.35}
+\contentsline {figure}{\numberline {8.6}{\ignorespaces Interest aggregation for \textit {PlayerStatus} in the \textit {dumbbell} topology. The \textit {IAF} of nodes A, B, C and D were calculated to be 0.45, 0.46, 0.45 and 0.44 respectively\relax }}{92}{figure.caption.36}
+\contentsline {figure}{\numberline {8.7}{\ignorespaces Impact of caching on the Interest rates seen by producers in the \textit {tree} topology\relax }}{93}{figure.caption.37}
+\contentsline {figure}{\numberline {8.8}{\ignorespaces Difference between the number of Interests expressed by consumers and seen by producers in the \textit {dumbbell} topology when caching was enabled with a \textit {freshness period} of 33ms. The IAF of all nodes was 0.33.\relax }}{94}{figure.caption.38}
+\contentsline {figure}{\numberline {8.9}{\ignorespaces Cache rates by node for all nodes in the \textit {tree} topology. Note that the cache rates for nodes A, B, C and D are non-zero.\relax }}{95}{figure.caption.39}
+\contentsline {figure}{\numberline {8.10}{\ignorespaces Distribution of results from publisher update checks in the \textit {dumbbell} topology. Note there were no \textit {null} updates required in the test for this topology\relax }}{96}{figure.caption.40}
+\contentsline {figure}{\numberline {8.11}{\ignorespaces \textit {Position deltas} with DR publisher throttling enabled for \textit {dumbbell} topology.\relax }}{97}{figure.caption.41}
+\contentsline {figure}{\numberline {8.12}{\ignorespaces Effects of enabling caching with a \textit {freshness period} of 20ms, and DR publisher throttling (\textit {DRPT}) with a tolerance of 0.5 GWU on the Interest rate seen by nodes in the \textit {dumbbell} topology.\relax }}{98}{figure.caption.42}
+\contentsline {figure}{\numberline {8.13}{\ignorespaces Effects of enabling caching with a \textit {freshness period} of 20ms, and DR publisher throttling (\textit {DRPT}) with a tolerance of 0.5 GWU on the Interest rate seen by nodes in the \textit {linear} topology.\relax }}{98}{figure.caption.43}
+\contentsline {figure}{\numberline {8.14}{\ignorespaces The topology used for testing the scalability of NDNShooter{}, consisting of 4 intermediate routers (\textit {Q-T}) arranged in a \textit {square} topology, with 4 player nodes behind each router (\textit {A-P}).\relax }}{99}{figure.caption.44}
+\contentsline {figure}{\numberline {8.15}{\ignorespaces A screenshot of the adjusted game world during scalability testing. The screenshot shows the extra boundaries added to the game world, the occurrence of hot spots in the game world and the critical interest regions defined by $r_{full}$ and $r_{min}$ used by the Interest management system.\relax }}{100}{figure.caption.45}
+\contentsline {figure}{\numberline {8.16}{\ignorespaces \textit {RTTs} for each of the nodes in the scalability test with no IM or DRPT. As before, there is a peak around 33ms which corresponds to the publisher update frequency of 30Hz.\relax }}{101}{figure.caption.46}
+\contentsline {figure}{\numberline {8.17}{\ignorespaces \textit {Position Deltas} for each of the nodes in the scalability test with no IM or DRPT. As before, the values are very close to zero in most cases indicating the players' positions are very tightly synchronized, even with 16 players.\relax }}{101}{figure.caption.47}
+\contentsline {figure}{\numberline {8.18}{\ignorespaces The effect of Interest aggregation in the scalability test with no IM and no DRPT. The \textit {Interest aggregation factor (IAF)} ranged between 0.07 and 0.09 in this case, which is significantly lower than the best \textit {IAF} seen in previous tests were optimizations were enabled. However, \textit {IAFs} are expected to decrease as more players are added, due to the overall larger number of Interests expressed.\relax }}{102}{figure.caption.48}
+\contentsline {figure}{\numberline {8.19}{\ignorespaces \textit {RTTs} for each of the nodes in the scalability test with DRPT enabled and IM disabled. The peak increases from the previous value of 33ms due to the effective decrease in the rate of publisher updates, caused by DRPT.\relax }}{103}{figure.caption.49}
+\contentsline {figure}{\numberline {8.20}{\ignorespaces The distribution of the results of publisher update checks for each of the players in the \textit {scalability test}. Approximately 40-50\% of the updates could be skipped as a result of \textit {DRPT}.\relax }}{104}{figure.caption.50}
+\contentsline {figure}{\numberline {8.21}{\ignorespaces The reduction in Interest rates seen by producers in the scalability test as a result of enabling \textit {DRPT}. The figure shows a reduction of approximately 40-50\% which aligns with the skipped updates seen in figure \ref {fig:eval:dr:dr-pub-throt}.\relax }}{104}{figure.caption.51}
+\contentsline {figure}{\numberline {8.22}{\ignorespaces The substantial increase in \textit {position deltas} as a result of enabling IM. This is due to consumers reducing the rate at which they express Interests for updates to remote objects which are far away. \relax }}{105}{figure.caption.52}
+\contentsline {figure}{\numberline {8.23}{\ignorespaces The reduction in Interest rates seen by producers in the scalability test as a result of enabling \textit {IM}. Note that DRPT was not enabled for this test.\relax }}{106}{figure.caption.53}
+\contentsline {figure}{\numberline {8.24}{\ignorespaces The impacts of enabling IM, DR and both IM and DR on the Interest rates seen by producers in the scalability tests.\relax }}{107}{figure.caption.54}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {B.1}{\ignorespaces Players A and B directly connected via a single link\relax }}{119}{figure.caption.57}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {C.1}{\ignorespaces \textit {RTTs} for \textit {PlayerStatus} in the \textit {linear} topology\relax }}{121}{figure.caption.58}
+\contentsline {figure}{\numberline {C.2}{\ignorespaces \textit {RTTs} for \textit {PlayerStatus} in the \textit {square} topology\relax }}{122}{figure.caption.59}
+\contentsline {figure}{\numberline {C.3}{\ignorespaces \textit {RTTs} for \textit {PlayerStatus} in the \textit {tree} topology\relax }}{122}{figure.caption.60}
+\contentsline {figure}{\numberline {C.4}{\ignorespaces \textit {Position deltas} in the \textit {linear} topology\relax }}{123}{figure.caption.61}
+\contentsline {figure}{\numberline {C.5}{\ignorespaces \textit {Position deltas} in the \textit {square} topology\relax }}{123}{figure.caption.62}
+\contentsline {figure}{\numberline {C.6}{\ignorespaces \textit {Position deltas} in the \textit {tree} topology\relax }}{124}{figure.caption.63}
+\contentsline {figure}{\numberline {C.7}{\ignorespaces Interest aggregation in the \textit {square} topology. Nodes A, B, C and D had IAFs of 0.47, 0.47, 0.48 and 0.48 respectively.\relax }}{124}{figure.caption.64}
+\contentsline {figure}{\numberline {C.8}{\ignorespaces Interest aggregation in the \textit {tree} topology. Nodes A, B, C and D had IAFs of 0.46, 0.45, 0.45 and 0.45 respectively.\relax }}{125}{figure.caption.65}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {D.1}{\ignorespaces Impact of caching on the Interest rates seen by producers in the \textit {square} topology\relax }}{126}{figure.caption.66}
+\contentsline {figure}{\numberline {D.2}{\ignorespaces Impact of caching on the Interest rates seen by producers in the \textit {dumbbell} topology\relax }}{127}{figure.caption.67}
+\contentsline {figure}{\numberline {D.3}{\ignorespaces Difference between the number of Interests expressed by consumers and seen by producers in the \textit {square} topology. \relax }}{127}{figure.caption.68}
+\contentsline {figure}{\numberline {D.4}{\ignorespaces Difference between the number of Interests expressed by consumers and seen by producers in the \textit {tree} topology. \relax }}{128}{figure.caption.69}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {E.1}{\ignorespaces Distribution of results from publisher update checks in the \textit {linear} topology.\relax }}{129}{figure.caption.70}
+\contentsline {figure}{\numberline {E.2}{\ignorespaces Distribution of results from publisher update checks in the \textit {square} topology.\relax }}{130}{figure.caption.71}
+\contentsline {figure}{\numberline {E.3}{\ignorespaces Distribution of results from publisher update checks in the \textit {tree} topology.\relax }}{130}{figure.caption.72}
+\contentsline {figure}{\numberline {E.4}{\ignorespaces Effects of enabling caching and DR publisher throttling on the Interest rate seen by nodes in the \textit {tree} topology.\relax }}{131}{figure.caption.73}
+\contentsline {figure}{\numberline {E.5}{\ignorespaces Effects of enabling caching and DR publisher throttling on the Interest rate seen by nodes in the \textit {square} topology.\relax }}{131}{figure.caption.74}

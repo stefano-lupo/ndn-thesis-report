@@ -27,7 +27,7 @@ The style of game chosen was a simple 2D, top-down game in which a player could 
     \item The player must be able to interact with remote players and the interaction must be visible to all remote players.
 \end{enumerate}
 
-\game{} was designed to meat each of the requirements defined above and a screenshot from the game is shown in \reffig{fig:des:2d-game}.
+\game{} was designed to meet each of the requirements defined above and a screenshot from the game is shown in \reffig{fig:des:2d-game}.
 
 \begin{figure}[H]
     \centering
@@ -57,7 +57,7 @@ The taxonomy for MOG data is outlined in \refsec{sec:taxonomy}. The proposed gam
     \label{fig:des:taxonomy-with-data}
 \end{figure}
 
-As shown in \reffig{fig:des:taxonomy-with-data}, each of the data types produced by \game{} fit into one of the categories defined by the MOG data taxonomy, and an description of each is given below.
+As shown in \reffig{fig:des:taxonomy-with-data}, each of the data types produced by \game{} fit into one of the categories defined by the MOG data taxonomy, and a description of each is given below.
 
 \begin{labeling}{Synchronized Datasets }
     \item[Static Content] Due to the simplicity of game, there is not a lot of static content which needs to be sent over the network. Game world assets are packaged and shipped with the game. However, custom player spritesheets represent an ideal candidate for dissemination using NDN.
@@ -65,7 +65,7 @@ As shown in \reffig{fig:des:taxonomy-with-data}, each of the data types produced
     As players are free to roam around the game world, player position updates are required extremely frequently in order to provide the appearance of smooth motion of remote players.\break\break
     Players can also place blocks, though this ability is limited to once every two seconds. Thus, even if a player chooses to continuously places blocks at the maximum rate, the updates associated with block creation are still relatively low frequency in comparison to player position updates.
     \item[Non Synced] As described earlier, one form of attacking is through shooting projectiles. Projectiles are extremely short lived in \game{} as they travel at a high speed. Once a projectile is produced, there are no further updates required for that projectile, aside from it being destroyed when it hits a player, block or the game world boundary. This is analogous to the event being consumed. Projectiles are created with an initial position and velocity and are then published to the network. On collision with the game world boundary, they are automatically destroyed locally by all players. However, on collision with a remote player, or a block created by a remote player, the projectile is destroyed and subsequent action is taken through the Interaction API (see \refsec{sec:des:interaction}). Thus, there is no requirement to synchronize projectiles over time, meaning they are essentially events published by a player and are either consumed by the player who created the projectile, or the player who interacts with the projectile.
-    \item[Synchronized Datasets] Player discovery is an good example of a dataset which needs to be synchronized across all game players. The rate at which updates are performed on this dataset is approximately equal to the rate at which players join and leave them game, as well as some overhead for the synchronization mechanism. As such, in comparison to the other categories of data, player discovery is a extremely low frequency and can use a strict, slow protocol, to ensure players are discovered correctly.
+    \item[Synchronized Datasets] Player discovery is a good example of a dataset which needs to be synchronized across all game players. The rate at which updates are performed on this dataset is approximately equal to the rate at which players join and leave them game, as well as some overhead for the synchronization mechanism. As such, in comparison to the other categories of data, player discovery is an extremely low frequency and can use a strict, slow protocol, to ensure players are discovered correctly.
 \end{labeling}
 
 Due to the variation in the data found in MOGs, multiple synchronization protocols are used, as shown in \ref{fig:des:taxonomy-with-data}. These are discussed in the sections \ref{sec:des:discovery}, \ref{sec:des:sync-protocol} and \ref{sec:des:interaction}. 
@@ -78,7 +78,7 @@ As shown in the taxonomy of \game{}'s data (\reffig{fig:des:taxonomy-with-data})
 
 ChronoSync was chosen for player discovery as it is part of the NDN Common Client Libraries specification \cite{ndn-ccl}, meaning it is available in all of the supported languages. ChronoSync has also been around since 2013, meaning it is well documented and tested. Although ChronoSync contains some major limitations, as outlined in the discussion on PSync (see \refsec{sec:dataset-sync}), none of these limitations will cause any issues in the context of player discovery.
 
-There are only two input parameters required for the naming schema used in \game{} - the \textit{gameId} and the \textit{playerName}. The \textit{gameId} is chosen ahead of time and allows the player to choose the instance of \game{} they wish to play in. Thus, for player discovery, the only value that needs to be discovered to provide access to all data produced by a player is the \textit{playerName}. This means the dataset synchronized by the player discovery mechanism is a set of strings, representing the the \textit{playerNames} of all connected players.
+There are only two input parameters required for the naming schema used in \game{} - the \textit{gameId} and the \textit{playerName}. The \textit{gameId} is chosen ahead of time and allows the player to choose the instance of \game{} they wish to play in. Thus, for player discovery, the only value that needs to be discovered to provide access to all data produced by a player is the \textit{playerName}. This means the dataset synchronized by the player discovery mechanism is a set of strings, representing the \textit{playerNames} of all connected players.
 
 \sloppy As outlined in \refsec{sec:dataset-sync}, ChronoSync requires a broadcast namespace under which all nodes can produce \textit{SyncInterests} and \textit{SyncReplies}. These are used by participants to detect dataset changes and to inform others of the \textit{name} of the data which has been added. The broadcast namespace used in \game{} is \textit{\gameprefix{}/discovery/broadcast}. As discussed in \refsec{sec:sota:forwarding-strats}, the forwarding strategy selected for a given namespace can be critical to the \textbf{correctness} of an application and is not only a network optimization choice. As all nodes must be informed of all updates to the dataset, the forwarding strategy for this name space must be \textit{multicast}, which provides the broadcast functionality.
 
@@ -98,12 +98,12 @@ The intended maximum number of players in a given instance of \game{} would be o
 % Custom Sync Protocol
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{\game{} Sync Protocol}\label{sec:des:sync-protocol}
-One of the most challenging aspects of building MOGs is the requirement for a high performance networking solution which is capable of supporting a large number of relatively small packets in a low latency manner. As such, a custom protocol was developed to enable scalable and low latency synchronization of game objects over NDN.
+One of the most challenging aspects of building MOGs is the requirement for a high-performance networking solution which is capable of supporting a large number of relatively small packets in a low latency manner. As such, a custom protocol was developed to enable scalable and low latency synchronization of game objects over NDN.
 
 \subsection{Motivation}
 Although several protocols exist for synchronizing datasets over NDN, there are some fundamental differences between the requirements for a distributed DS mechanism and game object synchronization in MOGs. The main difference is the priority of \textbf{low latency} over stricter consistency and ordering.
 
-A common feature of the existing DS protocols is that they act as notification systems, informing participants of updates to the dataset and how to fetch those updates. It is up to the participant themselves to actually fetch the updated data. This approach does provide benefits in the context of DS in that the scope of the protocol is reduced to notifying participants of updates, and participants then have the \textit{option} to fetch the data, meaning they can ignore uninteresting updates. However, these benefits come at the cost of having two perform a second Interest / Data exchange to \textbf{obtain} the updated data. This has the effect of approximately doubling the round trip time of receiving updates, which is a major issue in the context of MOGs were latency is critical. Thus, a primary design goal of a game object synchronization protocol would be to achieve synchronization in a single Interest / Data exchange.
+A common feature of the existing DS protocols is that they act as notification systems, informing participants of updates to the dataset and how to fetch those updates. It is up to the participant themselves to actually fetch the updated data. This approach does provide benefits in the context of DS in that the scope of the protocol is reduced to notifying participants of updates, and participants then have the \textit{option} to fetch the data, meaning they can ignore uninteresting updates. However, these benefits come at the cost of having two perform a second Interest / Data exchange to \textbf{obtain} the updated data. This has the effect of approximately doubling the round-trip-time of receiving updates, which is a major issue in the context of MOGs were latency is critical. Thus, a primary design goal of a game object synchronization protocol would be to achieve synchronization in a single Interest / Data exchange.
 
 There are two key characteristics of MOG data which can be exploited to provide a more efficient synchronization protocol:
 \begin{enumerate}
@@ -149,7 +149,7 @@ This specifies that this packet is for use with the sync API as opposed to the i
 This represents the \textit{version floor}. This specifies the \textbf{minimum} version of the corresponding data that can be used to satisfy the Interest. Producers will only respond to the Interest when they have data with a version number greater than or equal to the version floor. This is used to ensure consumers only ever receive data that is newer than what they have already seen.
 
 \subsubsection{\textit{nextVf}}
-This field is added by the producer and represents the \textbf{next version floor} that should be used. For example if a producer satisfies the Interest with version 10 of the corresponding piece of data, the \textit{nextVf} component in the name of the Data packet will be 11.
+This field is added by the producer and represents the \textbf{next version floor} that should be used. For example, if a producer satisfies the Interest with version 10 of the corresponding piece of data, the \textit{nextVf} component in the name of the Data packet will be 11.
 
 This field is \textbf{not} necessarily an incremented copy of the version floor. Depending on network conditions, players can fail to keep up with remote updates and fall behind. For example, a consumer may request version 10 of a piece of data, even though the producer is at version 100 of the data. In this case, the producer will respond with version 100 and set the \textit{nextVf} component to 101. The consumer will extract the \textit{nextVf} component from the name and use it as the \textit{vf} of the next Interest, allowing it to immediately catch up with the producer and to skip all redundant versions.
 
@@ -158,7 +158,7 @@ This field is \textbf{not} necessarily an incremented copy of the version floor.
 The operation of the game object sync protocol can be split into three stages - prefix registration, Interest expression and Data production. Assuming the \textit{gameId} is 0, the operation of the protocol for synchronizing nodeA's \textit{PlayerStatus} with nodeB is shown below.
 
 \subsubsection{1. Prefix Registration}
-The first step in the procedure is for nodeA to register the prefix corresponding to nodeA's \textit{PlayerStatus} with it's NFD. This is done using the \textit{registerPrefix} call provided by the NDN CCL.
+The first step in the procedure is for nodeA to register the prefix corresponding to nodeA's \textit{PlayerStatus} with its NFD. This is done using the \textit{registerPrefix} call provided by the NDN CCL.
 \begin{align*}
     nodeA\ registers\ prefix:\ /ndngame/0/nodeA/playerStatus/sync
 \end{align*}
@@ -166,7 +166,7 @@ The first step in the procedure is for nodeA to register the prefix correspondin
 
 
 \subsubsection{2. Interest Expression}
-Assuming nodeB joins the game with \textit{gameId} 0, the player discovery mechanism will discover the other players in this game including nodeA. NodeB will then attempt to fetch the latest version of all of the game object's owned by nodeA, including the \textit{PlayerStatus} of nodeA's avatar. To do this, it will express an Interest for nodeA's \textit{PlayerStatus} using the default initial sequence number of 0.
+Assuming nodeB joins the game with \textit{gameId} 0, the player discovery mechanism will discover the other players in this game including nodeA. NodeB will then attempt to fetch the latest version of all of the game objects owned by nodeA, including the \textit{PlayerStatus} of nodeA's avatar. To do this, it will express an Interest for nodeA's \textit{PlayerStatus} using the default initial sequence number of 0.
 \begin{align*}
     nodeB\ expresses\ Interest:\ /ndngame/0/nodeA/playerStatus/sync/0
 \end{align*}
@@ -249,8 +249,8 @@ However, the obvious drawback with this approach is that every player would need
 % How DR will be done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Dead Reckoning}\label{sec:des:dr}
-\subsection{Consumer Side PositionExtrapolation}
-As outlined in \refsec{sec:sota:dead-reckoning}, \textit{dead reckoning (DR)} is a necessity for a fast paced game such as \game{}. As such, all updates to mobile game objects will contain the game object's velocity vector, as well as the updated position, allowing non primary copy holders to extrapolate the position of game objects between remote updates.
+\subsection{Consumer Side Position Extrapolation}
+As outlined in \refsec{sec:sota:dead-reckoning}, \textit{dead reckoning (DR)} is a necessity for a fast-paced game such as \game{}. As such, all updates to mobile game objects will contain the game object's velocity vector, as well as the updated position, allowing non-primary copy holders to extrapolate the position of game objects between remote updates.
 
 Another key component of DR is the convergence algorithm used. Complex DR convergence algorithms are an optimization to the \textit{experience} associated with playing a MOG, rather than the networking performance of the MOG. As this research focuses on the networking performance of MOGs using NDN, the simplest form of a convergence algorithm will be used, in which game objects simply snap to their updated game positions.
 
@@ -278,7 +278,7 @@ The producer will publish an update if:
     \item The Euclidean distance between the primary copy's actual position and the estimate of the consumer's extrapolated position is larger than a threshold value $T_{dr}$. 
 \end{enumerate}
 
-An important choice here is the threshold value $T_{dr}$. There is an inherent trade off between the benefit of network traffic reduction, and the drawback of the inaccuracy introduced in the replica copies, as a result of throttling the publisher update rate. The ideal value for $T_{dr}$ is very dependent on the type of MOG and could also be set dynamically depending on the network conditions at a give time.
+An important choice here is the threshold value $T_{dr}$. There is an inherent trade-off between the benefit of network traffic reduction, and the drawback of the inaccuracy introduced in the replica copies, as a result of throttling the publisher update rate. The ideal value for $T_{dr}$ is very dependent on the type of MOG and could also be set dynamically depending on the network conditions at a given time.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -303,12 +303,12 @@ The IM system in \game{} is based only on the distance game objects are away fro
 \begin{labeling}{$MAX\_SLEEP$ }
     \item [$MAX\_SLEEP$] This parameter is the \textit{maximum sleep time}. This value represents the maximum amount of time between receiving a Data packet containing a remote update and expressing an Interest for the next Data packet. This should be chosen such that no game object can travel from outside the \textit{minimum interest boundary} (see below) to within the viewport in less than $MAX\_SLEEP$ seconds. 
     \item [$r_{full}$] This parameter defines the radius of the \textit{full interest boundary}. This value should be slightly larger than the width or height (depending on which is larger) of the player's viewport. All game objects inside this boundary are considered \textit{fully interesting} and should be synchronized as strictly as possible.
-    \item [$r_{min}$] This parameter defines the radius of the \textit{minimum interest boundary}. This value should be chosen along with $MAX\_SLEEP$ to ensure that no game object can travel from outside of the \textit{minimum interest boundary} to within the player's viewport in $MAX\_SLEEP$seconds. 
+    \item [$r_{min}$] This parameter defines the radius of the \textit{minimum interest boundary}. This value should be chosen along with $MAX\_SLEEP$ to ensure that no game object can travel from outside of the \textit{minimum interest boundary} to within the player's viewport in $MAX\_SLEEP$ seconds. 
 \end{labeling}
     
 The IM system influences the time between receiving a remote update for a game object and expressing a new Interest to request the next update. The logic here is that the overall number of Interests pushed into the network can be minimized by dynamically controlling how frequently players request updates for game objects, based on how far away they are from the game object.
 
-The IM system calculates the euclidean distance \textit{d}, between the local player's position and the newly received position for the game object. A \textit{sleepTimeFactor} is then calculated using the following function:
+The IM system calculates the Euclidean distance \textit{d}, between the local player's position and the newly received position for the game object. A \textit{sleepTimeFactor} is then calculated using the following function:
 
 
 \begin{equation}
@@ -327,6 +327,6 @@ Finally, the actual \textit{sleepTime}, indicating the time to wait before expre
 \end{equation}
 
 \subsection{Discussion}
-The inclusion of a IM system is critical for the scalability of a MOG, and even more so for a massively multiplayer online game (MMOG) as it allows the network traffic to scale as a function of the \textbf{density} of players in a certain area, as opposed to the overall number of players.
+The inclusion of an IM system is critical for the scalability of a MOG, and even more so for a massively multiplayer online game (MMOG) as it allows the network traffic to scale as a function of the \textbf{density} of players in a certain area, as opposed to the overall number of players.
 
-As outlined in \refsec{sec:interest-management}, there a several more complex IM systems which can be used. However, most of these are targetted at 3D games which enable the IM system to take the actual game world into account. In \game{}, the player is presented with a 2D, top down view of the game world, meaning that game objects cannot be hidden behind other game objects. Thus, in this case, a simple distance based IM system suffices and will be a major boon to the scalability of \game{}.
+As outlined in \refsec{sec:interest-management}, there a several more complex IM systems which can be used. However, most of these are targeted at 3D games which enable the IM system to take the actual game world into account. In \game{}, the player is presented with a 2D, top down view of the game world, meaning that game objects cannot be hidden behind other game objects. Thus, in this case, a simple distance-based IM system suffices and will be a major boon to the scalability of \game{}.
