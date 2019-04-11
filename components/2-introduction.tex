@@ -1,21 +1,19 @@
 \chapter{Introduction}
 \section{Background}
-Existing IP based internet: host abstraction, where it comes from, How it has scaled, What it supports / doesn't support (mutlicast etc), History of ICN (CCN --> NDN, Parc etc), Thin waist
+Today, most devices make use of the so called Internet Protocol (IP) as the primary mechanism for global communication. The design of IP was heavily influenced by the success of the 20th century telephone networks, resulting in a protocol tailored towards point-to-point communication between two hosts. IP is the \textit{universal network layer} of today's Internet, which implements the minimum functionality required for global interconnectivity. This represents the so called \textit{thin waist} of the Internet, upon which many of the vital systems in use today are built \cite{ndn-exec-summary}. The design of IP was paramount in the success of the modern day Internet. However, in recent years, the Internet has become used in a variety of new non point-to-point contexts, rendering the inherent host based abstraction of IP less than ideal.  
+
+The Named Data Networking (NDN) project is a continuation of an earlier project known as Content-Centric Networking (CCN) \cite{vj-named-content}, both of which are instances of a broader networking architecture known as Information Centric Networking (ICN). The CCN and NDN projects represent a shift in how networks are designed, from the host-centric approach of IP to a data centric approach. NDN provides an new global communication mechanism, maintaining many of they key features which made IP so successful, while improving on the shortcomings uncovered after three decades of use. The design of NDN aligns with the \textit{thin waist} ideology of today's Internet and NDN strives to be the universal network layer of tomorrow's Internet. 
+
+Multiplayer online games (MOGs) have become more and more popular over the past several decades and are now a widely enjoyed pastime amongst people of all ages. The complexity of MOGs has also risen dramatically in that time, with modern MOGs providing huge immersive game worlds which can support thousands of concurrent players. As games are realtime in nature, modern MOGs require extremely high performance networking solutions to support large numbers of players.
 
 
-\todo[]{Quoute verbatim references}
-Today, most networks make use of the so called Internet Protocol (IP) as the primary mechanism for global communication. The design of IP was heavily influenced by the success of the 20th century telephone networks, resulting in a protocol tailored towards point-to-point communication between two hosts. IP is the \textit{universal network layer} of today's Internet, which implements the minimum functionality required for global interconnectivity. This represents the so called \textit{thin waist} of the Internet, upon which many of the vital systems in use today are built \cite{ndn-exec-summary}. The design of IP was paramount in the success of the modern day internet. However, in recent years, the Internet has become used in a variety of new non point-to-point contexts, rendering the inherent host based abstraction of IP less than ideal.  
+This research aims to bring these two fields together by examining the use of NDN as the primary communication mechanism for MOGs. Although substantial research was carried out in order to gain a deep understanding of each of the fields, the main focus of the project was to design and implement a real NDN based MOG and to build a comprehensive framework for testing the game in a variety of scenarios.    
 
-The Named Data Networking project is a continuation of an earlier project known as Content-Centric Networking (CCN) \cite{vj-named-content}. The CCN and NDN projects represent a shift in how networks are designed, from the host-centric approach of IP to a data centric approach. NDN provides an alternative to IP, maintaining many of they key features which made it so successful, while improving on the shortcomings uncovered after three decades of use. The design of NDN aligns with the \textit{thin waist} ideology of today's Internet and NDN strives to be the universal network layer of tomorrow's Internet. 
-
-% Typically, today's applications are written in terms of what information they want, rather than where it is located, requiring application-specific middleware to map between the application's data model and the Internet's data model \cite{ndn-project}. As the Internet has evolved, it has become a primary channel for content distribution
-
-
+Finally, all of the source code developed for this project is available on GitHub at the following URL: \textit{github.com/stefano-lupo/ndn-thesis}.
 
 
 \section{Project Scope}
-talk about limitations etc
+As the project only runs for a limited amount of time, the scope of the research was restricted in order to ensure the most relevant topics could be examined in sufficient depth. As a result, several interesting areas of research were not thoroughly examined such as cheating prevention in MOGs using NDN's security features. Several of the most interesting research areas which fell outside of the scope of the project are proposed as future work in \refsec{sec:conc:fw}.
 
-\section{Research Questions}
+Similarly, a choice had to be made between examining the feasibility, performance and scalability of NDN in a MOG context, and a direct comparison of NDN and IP in a MOG context. The former was chosen as there would be no benefit in comparing IP and NDN in a MOG context if NDN struggled to support MOGs in the first place. This software developed during this research was designed in a modular way so that the NDN specific code could be easily changed for an IP based module, allowing for the direct comparison between NDN and IP in the future.
 
-\section{Dissertation Outline}

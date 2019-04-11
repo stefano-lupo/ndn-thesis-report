@@ -1,4 +1,20 @@
 \chapter{Problem Statement}\label{sec:problem-statement}
-What to do for project after SOTA?
+After conducting a detailed literature review of the fields of NDN and MOG networking, it became clear that the features offered by NDN could likely be exploited to build a highly scalable MOG. One of the main limitations in each of the closely related projects was the lack of an actual implementation and the lack of extensive testing. For this reason, a practical approach was desired to ensure that the actual performance of NDN in a MOG context could be empirically tested. 
 
-\section{Primary Objectives}
+
+The research also showed that none of the existing libraries and frameworks offered by the NDN platform were a perfect fit for MOGs. As such, it became clear that a bespoke protocol would be required to build a scalable MOG using NDN. 
+
+The main goals for the design and implementation phases of the research are:
+
+\begin{enumerate}
+    \item Design and implement a game which generates sufficiently diverse data such that each of the categories identified by the MOG data taxonomy are covered.
+    \item Design and build a P2P NDN based backend for the game which provides a consistent view of the game world to all connected players. 
+    \item Allow players to interact with game world objects and other players.
+    \item Create a synchronization protocol which can detect and obtain remote game object updates in one round trip.
+    \item Create a comprehensive testing framework which can allow the game to be evaluated in a variety of scenarios. This should support testing using different topologies, with different numbers of players, with different game mechanics enabled and with different network optimizations such as interest management (IM) enabled and disabled.
+    \item The testing should be performed using an actual implementation running on actual hardware and not via a simulation (e.g. ndnSIM) or emulation (Mini-NDN) frameworks in order to provide as close to a real world scenario as possible.
+    \item The effects of enabling NDN features such as caching and network optimizations such as IM should be studied in isolation to understand the exact effect they have on the performance.
+    \item The tests should be repeated using a variety of topologies which are sufficiently different from one and other.
+    \item Tests should be performed using a large number of players to investigate how the game scales.      
+\end{enumerate}
+
