@@ -29,9 +29,9 @@ The most basic topology is two players who are directly connected to one and oth
     \label{fig:app:docker-l2}
 \end{figure}
 
-A simplified version of the resulting Docker Compose file generated for testing this topolgoy is shown in \refcode{lst:app:docker-l2}. Of particular interest are the \textit{enviroment} and \textit{network} fields for each of the two services. 
+A simplified version of the resulting Docker Compose file generated for testing this topology is shown in \refcode{lst:app:docker-l2}. Of particular interest are the \textit{environment} and \textit{network} fields for each of the two services. 
 
-The \textit{environment} field specifies the location of the NLSR config file that the node should use and the command the node should use to start \game{} with the appropriate parameters.
+The \textit{environment} field specifies the location of the NLSR con fig file that the node should use and the command the node should use to start \game{} with the appropriate parameters.
 
 The \textit{network} field specifies the name of the overlay network to connect to and the alias that this service should be given on that overlay network. This allows the node to be accessible at this alias by other nodes in the overlay network.
 
